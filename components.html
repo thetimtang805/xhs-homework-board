@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>作业榜组件</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400&display=swap" rel="stylesheet">
+<style>
+/* tokens：取自 Figma 文件 rednote-ds 的变量定义（33:2589 / 32:1795 / 32:1834） */
+:root{
+  --color-text-primary:#1f1f1f;
+  --color-text-accent:#ff2442;
+  --color-text-inverse:#ffffff;
+  --color-icon-accent:#ff2442;
+  --color-icon-secondary:#8a8a8a;
+  --color-border-subtle:#f5f5f5;
+  --color-bg-brand-soft:#fff2f4;
+  --color-overlay-scrim:#00000099;
+  --color-status-warning-text:#ad6800;
+  --color-status-danger-text:#b01129;
+  --color-status-danger-icon:#b01129;
+  --space-2xs:4px;--space-xs:6px;--space-sm:8px;--space-xl:16px;--space-2xl:24px;
+  --radius-component:8px;--radius-container:16px;--radius-pill:999px;
+  --body-sm-font-size:14px;--body-sm-line-height:20px;--body-sm-letter-spacing:0px;
+  --caption-font-size:12px;--caption-line-height:16px;--caption-letter-spacing:0px;
+  --font-zh:"Noto Sans SC","PingFang SC",sans-serif;
+  --font-en:"SF Pro",-apple-system,BlinkMacSystemFont,"Helvetica Neue",sans-serif;
+  --stage:#ececec;--label:#6b6b6b;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--stage);font-family:var(--font-zh);color:var(--color-text-primary);padding:40px 16px 56px;display:flex;flex-direction:column;align-items:center;gap:40px}
+img{display:block;max-width:none}
+p{font-weight:400}
+.zh{font-family:var(--font-zh)}.en{font-family:var(--font-en)}
+.demo{display:flex;flex-direction:column;gap:12px;max-width:100%}
+.demo h2{font-size:12px;font-weight:400;color:var(--label);letter-spacing:.04em}
+.demo .box{max-width:100%;overflow-x:auto}
+
+/* ---------- 1 entry · 341×167 ---------- */
+.entry{position:relative;width:341px;height:167px;overflow:hidden;border-radius:var(--radius-container);flex:none;cursor:pointer}
+.entry .bg1{position:absolute;inset:0;border-radius:var(--radius-container);background:#fff5eb}
+.entry .bg2{position:absolute;inset:0;border-radius:var(--radius-container);mix-blend-mode:darken;background:linear-gradient(to bottom,#fff5eb,rgba(251,228,229,.3))}
+.entry .glow{position:absolute}
+.entry .glow i{position:absolute}
+.entry .glow img{display:block;width:100%;height:100%}
+.entry .g1{left:-31px;top:-64px;width:178px;height:220px}
+.entry .g1 i{inset:-30.41% -37.58%}
+.entry .g2{left:78px;top:-33px;width:191px;height:131px}
+.entry .g2 i{inset:-51.07% -35.03%}
+.entry .wash{position:absolute;left:0;top:40px;width:341px;height:127px;background:linear-gradient(163.758deg,rgba(252,233,219,0) 10.828%,rgb(255,234,220) 96.385%)}
+.entry .slot{position:absolute;display:flex;align-items:center;justify-content:center}
+.entry .ph{position:relative;flex:none;width:70px;height:94px;border:2px solid var(--color-border-subtle);border-radius:var(--radius-component);box-shadow:0 4px 20px 0 rgba(135,67,15,.15)}
+.entry .ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:var(--radius-component);pointer-events:none}
+.entry .ph.soft::before{content:"";position:absolute;inset:0;border-radius:var(--radius-component);background:var(--color-bg-brand-soft)}
+.entry .s1{left:16px;top:52px;width:77.926px;height:99.743px}.entry .s1 .ph{transform:rotate(-5deg)}
+.entry .s2{left:85.93px;top:52.54px;width:76.387px;height:98.654px}.entry .s2 .ph{transform:rotate(4deg)}
+.entry .s3{left:154.31px;top:53.1px;width:74.824px;height:97.535px}.entry .s3 .ph{transform:rotate(-3deg)}
+.entry .s4{left:221.14px;top:53.1px;width:74.824px;height:97.535px}.entry .s4 .ph{transform:rotate(3deg)}
+.entry .s5{left:287.96px;top:52px;width:77.926px;height:99.743px}.entry .s5 .ph{transform:rotate(-5deg)}
+.entry .head{position:absolute;left:16px;top:15px;width:309px;display:flex;align-items:center;justify-content:space-between}
+.entry .title{position:relative;flex:none;width:76px;height:25px}
+.entry .title img{position:absolute;inset:0;width:100%;height:100%;object-position:bottom;pointer-events:none}
+.entry .more{display:flex;align-items:center;gap:var(--space-2xs)}
+.entry .more p{font-size:var(--body-sm-font-size);line-height:var(--body-sm-line-height);letter-spacing:var(--body-sm-letter-spacing);color:var(--color-text-accent);white-space:nowrap}
+.entry .more .chev{position:relative;flex:none;width:16px;height:16px}
+.entry .more .chev img{position:absolute;inset:0;width:100%;height:100%}
+
+/* ---------- 2 filter · 375×49 ---------- */
+.filter{display:flex;align-items:flex-start;gap:var(--space-sm);padding:var(--space-sm) 0 var(--space-sm) var(--space-xl);width:max-content;min-width:375px;height:49px}
+.chip{position:relative;flex:none;display:flex;align-items:center;justify-content:center;gap:4px;padding:var(--space-xs) var(--space-xl);border:.5px solid;border-radius:var(--radius-pill);cursor:pointer;font-size:var(--body-sm-font-size);line-height:var(--body-sm-line-height);letter-spacing:var(--body-sm-letter-spacing);white-space:nowrap;background:none}
+.chip p{font-size:inherit;line-height:inherit;letter-spacing:inherit}
+.chip .em{position:relative;flex:none}
+.chip .em .clip{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.chip .em img{position:absolute;max-width:none}
+.chip.all{background:var(--color-status-warning-text);border-color:#c2790c;padding:var(--space-xs) var(--space-2xl);color:var(--color-text-inverse)}
+.chip.chili{border-color:var(--color-icon-accent);color:var(--color-text-accent)}
+.chip.salt{border-color:var(--color-icon-secondary);color:var(--color-text-primary);height:33px}
+.chip.deluxe{border-color:var(--color-status-danger-icon);color:var(--color-status-danger-text)}
+.chip.fusion{border-color:#ad0000}
+.chip.fusion .t{display:flex;align-items:center;gap:4px}
+.chip.fusion .grad{background:linear-gradient(to left,var(--color-status-warning-text),#ad0000);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent}
+.chip.fusion .en{color:var(--color-status-warning-text)}
+.chip:focus-visible{outline:2px solid var(--color-icon-accent);outline-offset:2px}
+
+/* ---------- 3 gallery · 580×233 ---------- */
+.gallery{display:flex;align-items:center;gap:28px;width:579.74px;height:232.644px}
+.gcard{position:relative;flex:none}
+.gcard .back{position:absolute;top:0;width:160px;height:215px;border:2px solid var(--color-border-subtle);border-radius:var(--radius-container);box-shadow:0 4px 20px 0 rgba(135,67,15,.15)}
+.gcard .slot{position:absolute;left:0;display:flex;align-items:center;justify-content:center}
+.gcard .ph{position:relative;flex:none;width:160px;height:214.857px;border:2px solid var(--color-border-subtle);border-radius:var(--radius-container);box-shadow:0 4px 20px 0 rgba(135,67,15,.15)}
+.gcard .ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:var(--radius-container);pointer-events:none}
+.gcard .tag{position:absolute;display:flex;align-items:center;padding:var(--space-2xs) var(--space-sm);border-radius:var(--radius-pill);background:var(--color-overlay-scrim)}
+.gcard .tag p{font-size:var(--caption-font-size);line-height:var(--caption-line-height);letter-spacing:var(--caption-letter-spacing);color:var(--color-text-inverse);white-space:nowrap}
+.g1{width:178.117px;height:232.644px}
+.g1 .back{left:18px;background:#eed1b0}
+.g1 .slot{top:4.66px;width:178.117px;height:227.984px}.g1 .ph{transform:rotate(-5deg)}
+.g1 .tag{left:132.49px;top:189px}
+.g2{width:174.598px;height:230.495px}
+.g2 .back{left:0;background:#e8d4bb}
+.g2 .slot{top:5px;width:174.598px;height:225.495px}.g2 .ph{transform:rotate(4deg);box-shadow:0 9.143px 45.714px 0 rgba(135,67,15,.15)}
+.g2 .tag{left:115.88px;top:187.93px}
+.g3{width:171.025px;height:231px}
+.g3 .back{left:11px;background:#e2d7c4}
+.g3 .slot{top:8px;width:171.025px;height:222.936px}.g3 .ph{transform:rotate(-3deg)}
+.g3 .tag{left:123.28px;top:188.18px}
+</style>
+</head>
+<body>
+
+<section class="demo">
+  <h2>1 · entry（作业榜入口卡 341×167）</h2>
+  <div class="box">
+    <div class="entry" role="button" tabindex="0" aria-label="作业榜，作业 39">
+      <div class="bg1"></div><div class="bg2"></div>
+      <div class="glow g1"><i><img src="assets/components/entry-glow-1.svg" alt=""></i></div>
+      <div class="glow g2"><i><img src="assets/components/entry-glow-2.svg" alt=""></i></div>
+      <div class="wash"></div>
+      <div class="slot s1"><div class="ph"><img src="assets/components/entry-1.jpg" alt=""></div></div>
+      <div class="slot s2"><div class="ph"><img src="assets/components/entry-2.jpg" alt=""></div></div>
+      <div class="slot s3"><div class="ph"><img src="assets/components/entry-3.jpg" alt=""></div></div>
+      <div class="slot s4"><div class="ph soft"><img src="assets/components/entry-4.jpg" alt=""></div></div>
+      <div class="slot s5"><div class="ph"><img src="assets/components/entry-5.jpg" alt=""></div></div>
+      <div class="head">
+        <div class="title"><img src="assets/components/entry-title.png" alt="作业榜"></div>
+        <div class="more">
+          <p class="zh">作业</p><p class="en">39</p>
+          <div class="chev"><img src="assets/components/entry-chevron.svg" alt=""></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="demo">
+  <h2>2 · filter（流派筛选 375×49，可横向滚动）</h2>
+  <div class="box">
+    <div class="filter" id="filter" role="tablist">
+      <button class="chip all zh" role="tab" aria-selected="true">全部</button>
+      <button class="chip chili" role="tab" aria-selected="false">
+        <span class="em" style="width:19px;height:19px"><span class="clip"><img src="assets/components/filter-chili.png" alt="" style="left:-31.58%;top:-23.68%;width:147.37%;height:147.37%"></span></span>
+        <p class="zh">川渝麻辣版</p>
+      </button>
+      <button class="chip salt" role="tab" aria-selected="false">
+        <span class="em" style="width:17.434px;height:22.228px"><span class="clip"><img src="assets/components/filter-salt.png" alt="" style="left:-33.33%;top:-15.36%;width:155.56%;height:122.01%"></span></span>
+        <p class="zh">少油少盐</p>
+      </button>
+      <button class="chip deluxe" role="tab" aria-selected="false">
+        <span class="em" style="width:25.099px;height:19px"><span class="clip"><img src="assets/components/filter-deluxe.png" alt="" style="left:-8.05%;top:-23.68%;width:111.56%;height:147.37%"></span></span>
+        <p class="zh">加料豪华版</p>
+      </button>
+      <button class="chip fusion" role="tab" aria-selected="false">
+        <span class="em" style="width:22.047px;height:19px"><span class="clip"><img src="assets/components/filter-fusion.png" alt="" style="left:0;top:-12.53%;width:104.98%;height:121.82%"></span></span>
+        <span class="t"><p class="grad zh">中西</p><p class="en">Fusion</p></span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<section class="demo">
+  <h2>3 · gallery（作业画廊 580×233）</h2>
+  <div class="box">
+    <div class="gallery">
+      <div class="gcard g1">
+        <div class="back"></div>
+        <div class="slot"><div class="ph"><img src="assets/components/gallery-1.jpg" alt=""></div></div>
+        <div class="tag"><p class="zh">3 张</p></div>
+      </div>
+      <div class="gcard g2">
+        <div class="back"></div>
+        <div class="slot"><div class="ph"><img src="assets/components/gallery-2.jpg" alt=""></div></div>
+        <div class="tag"><p class="zh">2 张</p></div>
+      </div>
+      <div class="gcard g3">
+        <div class="back"></div>
+        <div class="slot"><div class="ph"><img src="assets/components/gallery-3.jpg" alt=""></div></div>
+        <div class="tag"><p class="zh">2 张</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>

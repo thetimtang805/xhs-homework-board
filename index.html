@@ -1,0 +1,466 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>作业榜 · 小红书改版原型</title>
+<style>
+:root{
+  --red:#ff2442; --text:#333; --sub:#999; --mid:#666; --line:#f0f0f0; --chip:#f5f5f5; --bg:#fff;
+  --ease:cubic-bezier(.22,.8,.3,1);
+  color-scheme:light;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{background:#e8e8ec;font-family:-apple-system,"PingFang SC","Helvetica Neue",sans-serif;color:var(--text);display:flex;align-items:center;justify-content:center}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+#app{position:relative;width:390px;height:min(844px,calc(100dvh - 24px));background:var(--bg);overflow:hidden;border-radius:38px;box-shadow:0 20px 60px rgba(0,0,0,.18)}
+@media (max-width:500px){body{display:block}#app{width:100vw;height:100dvh;border-radius:0;box-shadow:none}}
+.screen{position:absolute;inset:0;background:var(--bg);display:flex;flex-direction:column}
+.bar{height:52px;flex:none;display:flex;align-items:center;gap:8px;padding:0 8px;background:var(--bg)}
+.ibtn{width:44px;height:44px;display:grid;place-items:center;border-radius:50%;font-size:22px}
+.ibtn:active{background:var(--chip)}
+.scroll{flex:1;overflow-y:auto;overflow-x:hidden}
+.scroll::-webkit-scrollbar,.hs::-webkit-scrollbar{display:none}
+
+/* ---------- P0 note ---------- */
+.author{display:flex;align-items:center;gap:8px;flex:1;font-size:14px;font-weight:600}
+.av{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-size:15px;flex:none}
+.follow{border:1px solid var(--red);color:var(--red);border-radius:16px;padding:5px 14px;font-size:13px;min-height:32px}
+.hero{margin:0 16px;border-radius:12px;overflow:hidden;aspect-ratio:4/3}
+.hero svg{width:100%;height:100%;display:block}
+.ntitle{padding:14px 16px 4px;font-size:17px;font-weight:700;line-height:1.4}
+.nbody{padding:0 16px 14px;font-size:14px;line-height:1.6;color:#444}
+.chead{padding:12px 16px 8px;font-size:14px;color:var(--mid);border-top:8px solid #f7f7f7}
+.entry{margin:4px 16px 10px;padding:12px;border-radius:14px;background:linear-gradient(180deg,#fff5f6,#fff);border:1px solid #ffe3e7;width:calc(100% - 32px);text-align:left;display:block}
+.entry:active{background:#fff0f2}
+.entry-h{display:flex;align-items:center;font-size:15px;font-weight:700}
+.entry-h small{font-weight:400;color:var(--mid);margin-left:8px;font-size:12px}
+.entry-h i{margin-left:auto;font-style:normal;color:var(--sub);font-size:18px}
+.thumbs{display:flex;gap:6px;margin-top:10px}
+.thumbs .t{flex:1;aspect-ratio:1;border-radius:8px;overflow:hidden;position:relative}
+.thumbs .t svg{width:100%;height:100%;display:block}
+.thumbs .more{position:absolute;inset:0;background:rgba(0,0,0,.45);color:#fff;display:grid;place-items:center;font-size:13px;font-weight:600}
+.sk{background:linear-gradient(90deg,#f2f2f2 25%,#e9e9e9 50%,#f2f2f2 75%);background-size:200% 100%;animation:sh 1.2s infinite}
+@keyframes sh{to{background-position:-200% 0}}
+.cmt{display:flex;gap:10px;padding:10px 16px}
+.cmt .b{flex:1;font-size:14px;line-height:1.5}
+.cmt .n{font-size:12px;color:var(--sub);margin-bottom:2px}
+.cmt .m{font-size:12px;color:var(--sub);margin-top:4px}
+.inputbar{flex:none;padding:8px 16px calc(8px + env(safe-area-inset-bottom));border-top:1px solid var(--line);background:#fff}
+.inputbar div{background:var(--chip);border-radius:20px;padding:10px 16px;font-size:14px;color:var(--sub)}
+
+/* ---------- P1 board ---------- */
+#s-board{transform:translateX(100%);transition:transform .38s var(--ease);z-index:5}
+#s-board.on{transform:none}
+.title{flex:1;text-align:center;font-size:16px;font-weight:700;margin-right:44px}
+.tags{flex:none;display:flex;gap:8px;overflow-x:auto;padding:4px 16px 10px;scrollbar-width:none}
+.tags::-webkit-scrollbar{display:none}
+.chip{flex:none;min-height:34px;padding:0 14px;border-radius:17px;background:var(--chip);font-size:13px;color:var(--mid);white-space:nowrap;transition:background .2s,color .2s}
+.chip b{font-weight:500;margin-left:4px;font-size:11px;opacity:.7}
+.chip.on{background:var(--text);color:#fff;font-weight:600}
+.tagline{flex:none;margin:0 16px 8px;padding:9px 12px;border-radius:10px;background:#fff5f6;font-size:13px;line-height:1.5;color:#7a3a44;min-height:42px;transition:opacity .2s}
+.tagline em{font-style:normal;color:var(--red);font-weight:600;margin-right:4px}
+.hs{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding:6px calc((100% - 252px)/2) 10px;flex:none;scrollbar-width:none;overscroll-behavior-x:contain}
+.card{flex:none;width:252px;scroll-snap-align:center;position:relative;transform:scale(.92);opacity:.7;transition:transform .3s var(--ease),opacity .3s;cursor:pointer;border-radius:16px}
+.card.on{transform:none;opacity:1}
+.media{position:relative;aspect-ratio:3/4;border-radius:16px;overflow:hidden;background:#eee}
+.media svg{width:100%;height:100%;display:block}
+.badge{position:absolute;bottom:10px;padding:3px 9px;border-radius:12px;background:rgba(0,0,0,.45);color:#fff;font-size:12px;line-height:18px;font-variant-numeric:tabular-nums;backdrop-filter:blur(6px)}
+.badge.l{left:10px}.badge.r{right:10px}
+.badge.dots{top:10px;right:10px;bottom:auto}
+.info{flex:1;overflow-y:auto;padding:4px 20px 110px}
+.info .who{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600}
+.tagpill{font-size:11px;font-weight:500;color:var(--red);background:#fff0f2;border-radius:10px;padding:2px 8px}
+.ai{margin-top:10px;font-size:14px;line-height:1.6}
+.ai .k{display:inline-block;font-size:11px;font-weight:600;color:#7b5cff;background:#f2eeff;border-radius:8px;padding:1px 7px;margin-right:6px;vertical-align:1px}
+.ai.crowd .k{color:#16a06b;background:#e8f8f1}
+.fade{animation:fi .25s ease-out}
+@keyframes fi{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.fab{position:absolute;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%);height:48px;padding:0 24px;border-radius:24px;background:var(--red);color:#fff;font-size:15px;font-weight:700;box-shadow:0 8px 20px rgba(255,36,66,.35);display:flex;align-items:center;gap:6px;z-index:6;white-space:nowrap}
+.fab:active{transform:translateX(-50%) scale(.96)}
+.empty{flex:1;display:grid;place-items:center;text-align:center;color:var(--mid);font-size:14px;line-height:1.7;padding:0 40px}
+
+/* ---------- P2 detail ---------- */
+#s-detail{z-index:10;visibility:hidden;opacity:0;transition:opacity .25s}
+#s-detail.on{visibility:visible;opacity:1}
+.dh{flex:none;display:flex;align-items:center;gap:8px}
+.dpager{flex:none;display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px calc((100% - 300px)/2) 8px;scrollbar-width:none}
+.dpager::-webkit-scrollbar{display:none}
+.dcard{flex:none;width:300px;scroll-snap-align:center;transform:scale(.94);opacity:.75;transition:transform .3s var(--ease),opacity .3s}
+.dcard.on{transform:none;opacity:1}
+.dcard .media{cursor:pointer}
+.dpanel{flex:1;overflow-y:auto;padding:6px 20px 16px}
+.dpanel .row{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600}
+.dpanel .row .tagpill{margin-left:auto}
+.dtext{margin-top:10px;font-size:15px;line-height:1.6}
+.dmeta{font-size:12px;color:var(--sub);margin-top:6px}
+.aibox{margin-top:12px;padding:10px 12px;border-radius:12px;background:#f7f4ff;font-size:13px;line-height:1.6}
+.aibox .k{font-size:11px;font-weight:600;color:#7b5cff;margin-right:6px}
+.rep{margin-top:14px;font-size:13px;color:var(--mid)}
+.rep h4{font-size:13px;color:var(--text);margin-bottom:6px}
+.rep p{padding:6px 0;line-height:1.5}
+.rep p b{color:var(--text);font-weight:600;margin-right:6px}
+.ghost{position:absolute;z-index:30;transform-origin:0 0;border-radius:16px;overflow:hidden;pointer-events:none;box-shadow:0 12px 30px rgba(0,0,0,.2)}
+.ghost svg{width:100%;height:100%;display:block}
+
+/* ---------- sheet / toast ---------- */
+#scrim{position:absolute;inset:0;background:rgba(0,0,0,.4);z-index:40;opacity:0;visibility:hidden;transition:opacity .25s}
+#scrim.on{opacity:1;visibility:visible}
+#sheet{position:absolute;left:0;right:0;bottom:0;z-index:41;background:#fff;border-radius:20px 20px 0 0;padding:20px 20px calc(24px + env(safe-area-inset-bottom));transform:translateY(105%);transition:transform .35s var(--ease)}
+#sheet.on{transform:none}
+#sheet h3{font-size:17px;margin-bottom:4px}
+#sheet p{font-size:12px;color:var(--sub);margin-bottom:14px}
+.pick{display:flex;gap:8px;margin-bottom:14px}
+.pick div{flex:1;aspect-ratio:1;border-radius:12px;border:1.5px dashed #ccc;display:grid;place-items:center;color:#bbb;font-size:26px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
+.go{width:100%;height:48px;border-radius:24px;background:var(--red);color:#fff;font-weight:700;font-size:15px}
+#toast{position:absolute;left:50%;top:90px;transform:translate(-50%,-10px);background:rgba(0,0,0,.78);color:#fff;font-size:13px;padding:9px 16px;border-radius:18px;z-index:60;opacity:0;transition:.25s;pointer-events:none;white-space:nowrap}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+
+/* ---------- mock media animation ---------- */
+.wob{animation:wob 1.6s ease-in-out infinite alternate;transform-box:fill-box;transform-origin:center}
+@keyframes wob{from{transform:rotate(-7deg) scale(1)}to{transform:rotate(7deg) scale(1.04)}}
+.pan{animation:pan 4s ease-in-out infinite alternate;transform-origin:50% 50%}
+@keyframes pan{from{transform:scale(1)}to{transform:scale(1.14) translate(-2%,-1%)}}
+.steam{animation:steam 2s ease-in infinite;transform-box:fill-box}
+@keyframes steam{from{opacity:.8;transform:translateY(8px)}to{opacity:0;transform:translateY(-22px)}}
+.vbar{position:absolute;left:0;right:0;bottom:0;height:3px;background:rgba(255,255,255,.35)}
+.vbar i{display:block;height:100%;width:0;background:#fff;animation:vb 6s linear infinite}
+@keyframes vb{to{width:100%}}
+.paused *{animation-play-state:paused!important}
+@media (prefers-reduced-motion:reduce){.wob,.pan,.steam,.vbar i{animation:none}.card,.dcard,#s-board,#sheet{transition-duration:.01s}}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- P0 笔记详情 · 评论区 -->
+  <section class="screen" id="s-note">
+    <div class="bar">
+      <button class="ibtn" aria-label="返回">‹</button>
+      <div class="author"><span class="av" style="background:#ffe8c7">🍳</span>阿满的厨房</div>
+      <button class="follow">关注</button>
+    </div>
+    <div class="scroll">
+      <div class="hero" id="hero"></div>
+      <div class="ntitle">酱香饼｜外酥里软，十分钟出锅不翻车</div>
+      <div class="nbody">烫面 + 醒面 30 分钟 + 擀三次 + 刷酱 + 卷起来再盘成饼……<br>#酱香饼 #早餐 #家常美食</div>
+      <div class="chead">共 342 条评论</div>
+      <button class="entry" id="entry" aria-label="打开作业榜">
+        <div class="entry-h">🏆&nbsp;作业榜<small id="entry-n">126 份作业</small><i>›</i></div>
+        <div class="thumbs" id="thumbs"><div class="t sk"></div><div class="t sk"></div><div class="t sk"></div><div class="t sk"></div><div class="t sk"></div></div>
+      </button>
+      <div id="cmts"></div>
+      <div style="height:20px"></div>
+    </div>
+    <div class="inputbar"><div>说点什么…</div></div>
+  </section>
+
+  <!-- P1 作业榜 -->
+  <section class="screen" id="s-board" aria-label="作业榜">
+    <div class="bar">
+      <button class="ibtn" id="back" aria-label="返回">‹</button>
+      <div class="title">酱香饼 作业榜</div>
+    </div>
+    <div class="tags" id="tags" role="tablist"></div>
+    <div class="tagline" id="tagline"></div>
+    <div class="hs" id="hs"></div>
+    <div class="info" id="info"></div>
+    <button class="fab" id="fab">＋ 我也发一张</button>
+  </section>
+
+  <!-- P2 作业详情 -->
+  <section class="screen" id="s-detail" aria-label="作业详情">
+    <div class="bar dh">
+      <button class="ibtn" id="dclose" aria-label="关闭">✕</button>
+      <div class="author" id="dauthor"></div>
+    </div>
+    <div class="dpager" id="dpager"></div>
+    <div class="dpanel" id="dpanel"></div>
+    <div class="inputbar"><div>说点什么…</div></div>
+  </section>
+
+  <div id="scrim"></div>
+  <div id="sheet" role="dialog" aria-label="我也发一张">
+    <h3>我也发一张</h3>
+    <p>原型占位：完整发布流程在后续版本</p>
+    <div class="pick"><div>＋</div><div>＋</div><div>＋</div></div>
+    <div class="chips" id="sheet-tags"></div>
+    <button class="go" id="go">发布</button>
+  </div>
+  <div id="toast"></div>
+</div>
+
+<script>
+/* ============ mock data（全部为虚构，AI 结果为预置） ============ */
+const TAGS=['综合','改良版','少食材','升级豪华版','广东版','北方馕版','fusion 混合版'];
+const TAGLINE={
+ '综合':['126 份作业里，41% 做了改良版','最多人的结论：「省掉烫面也不翻车，早上能做」'],
+ '改良版':['不烫面、不醒面，冷水和面直接煎','评论区共识：10 分钟搞定，外酥程度差不到哪去'],
+ '少食材':['只靠面粉、葱、盐、一勺酱','评论区共识：冰箱里没东西也能做，酱是灵魂'],
+ '升级豪华版':['加蛋、加芝士、加肉松，当正餐吃','评论区共识：满足感拉满，但注意别太油'],
+ '广东版':['甜酱 + 花生碎 + 芝麻，口味偏甜','评论区共识：像「港式小食」，适合下午茶'],
+ '北方馕版':['烤箱 / 平底锅干烙，饼更厚更扎实','评论区共识：耐放，带去上班也不软'],
+ 'fusion 混合版':['把酱香饼和别的美食混在一起','评论区共识：泡菜芝士版最出圈，两个人晒了同款']
+};
+const S={ // 酱香饼插画配色
+ a:{bg:['#f3e3cf','#e8cfae'],cake:'#e7b566',ring:'#d29a47',sauce:'#7a2e14',tops:['scallion']},
+ b:{bg:['#e9efe3','#d7e2cc'],cake:'#efc27a',ring:'#d9a24f',sauce:'#8a3a1a',tops:['scallion','lettuce']},
+ c:{bg:['#f7e3e1','#efc9c5'],cake:'#e3ab5c',ring:'#c78a3a',sauce:'#6b2410',tops:['egg','cheese','meat']},
+ d:{bg:['#fbeacb','#f5d9a0'],cake:'#eebe6e',ring:'#d6a040',sauce:'#a24a1d',tops:['sesame','peanut']},
+ e:{bg:['#e4e0d8','#cfc8bc'],cake:'#d9a45c',ring:'#b9803a',sauce:'#6b2a10',tops:['scallion','sesame']},
+ f:{bg:['#fde4dc','#f7c9bb'],cake:'#e6a95f',ring:'#c88a3a',sauce:'#7a2e14',tops:['kimchi','cheese']}
+};
+const HW=[
+ {id:1,user:'小满',emo:'🐰',c:'#ffe4ec',tags:['改良版'],type:'img',n:3,likes:328,st:'b',time:'2 天前',
+  comment:'懒人版！冷水和面直接煎，十分钟出锅，外面真的脆。',
+  summary:'跳过烫面和醒面，冷水和面后直接小火煎；饼边酥、中间软，比原版快 40 分钟。',
+  crowd:'12 人回复「省事且不翻车」，3 人问酱的配方。',
+  replies:[['阿宁','我也是冷水和面，成功了！'],['路过的饭','酱可以直接用甜面酱+辣酱吗'],['小满','可以，1:1 就行～']]},
+ {id:2,user:'阿B',emo:'🐻',c:'#e4f1ff',tags:['少食材'],type:'gif',n:1,likes:241,st:'a',time:'3 天前',
+  comment:'真的只放了面粉+葱+盐，翻面那一下太解压了。',
+  summary:'只用面粉、葱、盐，酱换成一勺豆瓣酱；动图里翻面利落，证明面团不粘锅。',
+  crowd:'8 人说「冰箱没东西也能做」，有人晒了同款。',
+  replies:[['小橘','翻面那下我看了三遍'],['阿B','哈哈油要热一点才不粘']]},
+ {id:3,user:'Mia',emo:'🦊',c:'#fff0d6',tags:['升级豪华版'],type:'video',n:1,dur:'0:15',likes:512,st:'c',time:'昨天',
+  comment:'加蛋加芝士加肉松！拉丝视频给你们看。',
+  summary:'饼里夹蛋、芝士和肉松，视频展示切开拉丝；比原版多约 10 分钟，满足感更强。',
+  crowd:'15 人表示想跟做，4 人提醒「芝士别放太多会漏」。',
+  replies:[['贪吃鬼','拉丝那一刻我流口水了'],['Mia','芝士用马苏里拉最稳'],['小林','肉松会不会太咸？']]},
+ {id:4,user:'广仔',emo:'🐯',c:'#e6ffe9',tags:['广东版','少食材'],type:'img',n:2,likes:167,st:'d',time:'4 天前',
+  comment:'广东人做法：甜酱+花生碎+芝麻，当下午茶。',
+  summary:'酱换成甜酱，撒花生碎和芝麻，口味偏甜；适合当点心而不是主食。',
+  crowd:'6 人说「像港式小食」，2 人好奇甜酱牌子。',
+  replies:[['茶餐厅','这个口味我想试试！'],['广仔','海天甜面酱就行']]},
+ {id:5,user:'老王',emo:'🐘',c:'#efe9ff',tags:['北方馕版'],type:'img',n:1,likes:98,st:'e',time:'5 天前',
+  comment:'北方馕思路：烤箱 200 度烤 15 分钟，饼更厚。',
+  summary:'用烤箱代替煎锅，饼更厚、更干；耐放，适合提前做第二天带走。',
+  crowd:'5 人问烤箱温度，有人说「像馕」。',
+  replies:[['面食爱好者','烤的比煎的健康一点'],['老王','记得中途翻一次面']]},
+ {id:6,user:'Yuki',emo:'🐱',c:'#ffe9f3',tags:['fusion 混合版'],type:'img',n:3,likes:430,st:'f',time:'昨天',
+  comment:'泡菜 + 芝士！酱香饼 × 韩式煎饼的混合体。',
+  summary:'把泡菜和芝士卷进饼里，酸辣与奶香碰撞；是评论区最出圈的混合做法。',
+  crowd:'9 人说「泡菜芝士绝了」，2 人晒了同款。',
+  replies:[['韩剧迷','泡菜要沥干水分吧'],['Yuki','对！不然饼会湿']]},
+ {id:7,user:'豆豆',emo:'🐼',c:'#e9f5ee',tags:['改良版'],type:'video',n:1,dur:'0:09',likes:203,st:'e',time:'3 天前',
+  comment:'用不粘锅少油煎，9 秒看完全流程。',
+  summary:'用不粘锅少油煎，视频 9 秒演示从下锅到出锅；适合怕油腻的人。',
+  crowd:'7 人说「少油版救了我」。',
+  replies:[['减脂中','少油版太需要了'],['豆豆','中火两面各 2 分钟']]},
+ {id:8,user:'阿彬',emo:'🐸',c:'#e8f6e0',tags:['少食材'],type:'img',n:2,likes:112,st:'a',time:'6 天前',
+  comment:'宿舍版：只有面粉和葱，味道居然还行。',
+  summary:'宿舍条件下只用面粉和葱，没有酱也能出香味；适合练手。',
+  crowd:'4 人说「新手友好」。',
+  replies:[['宿舍长','宿舍还能开火？'],['阿彬','小电锅！']]},
+ {id:9,user:'Cathy',emo:'🦄',c:'#fff3e0',tags:['升级豪华版','fusion 混合版'],type:'img',n:2,likes:289,st:'c',time:'2 天前',
+  comment:'墨西哥风：牛肉+牛油果+芝士，饼当 tortilla。',
+  summary:'饼做成墨西哥卷饼皮，包牛肉和牛油果；是「豪华」与「混合」的交集。',
+  crowd:'5 人说「想吃」，1 人质疑太油。',
+  replies:[['墨西哥','可以加点青柠！']]},
+ {id:10,user:'南方小囡',emo:'🐠',c:'#e8f1ff',tags:['广东版'],type:'gif',n:1,likes:154,st:'d',time:'4 天前',
+  comment:'撒糖那一下是灵魂，GIF 献丑了。',
+  summary:'饼出锅后撒白糖和芝麻，GIF 展示趁热撒糖的瞬间；偏甜口。',
+  crowd:'3 人说「像糖油饼」。',
+  replies:[['糖控','这个我可以'],['南方小囡','要趁热撒才化']]},
+ {id:11,user:'北方汉子',emo:'🐴',c:'#f3e9dd',tags:['北方馕版','改良版'],type:'img',n:3,likes:77,st:'e',time:'1 周前',
+  comment:'干烙版，不放油，饼更筋道。',
+  summary:'干锅无油烙制，饼更韧；缺点是边缘偏硬，适合配汤。',
+  crowd:'2 人说「配小米粥很好」。',
+  replies:[['小米粥','这搭配稳']]},
+ {id:12,user:'泡芙',emo:'🐥',c:'#fff7d6',tags:['fusion 混合版'],type:'gif',n:1,likes:312,st:'f',time:'昨天',
+  comment:'酱香饼+辣条，冲！动图版。',
+  summary:'饼里夹辣条和芝士，GIF 展示脆饼被咬开的瞬间；新奇但偏咸辣。',
+  crowd:'6 人说「想试」，3 人说「太咸了」。',
+  replies:[['辣条党','我宣布这是新神'],['泡芙','真的很咸，少放酱']]}
+];
+const COMMENTS=[['小橘','🍊','看着好香，周末试试！','2 小时前'],['路人乙','🌿','求酱的配方～','5 小时前'],['不爱做饭','🍜','好麻烦，有简单版吗（哭）','昨天']];
+
+/* ============ helpers ============ */
+const $=(s,r=document)=>r.querySelector(s);
+const app=$('#app');
+const reduced=matchMedia('(prefers-reduced-motion:reduce)').matches;
+let tag='综合', list=HW.slice(), idx=0, dIdx=0, busy=false;
+const byTag=t=>t==='综合'?HW.slice():HW.filter(h=>h.tags.includes(t));
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* 酱香饼插画：v=0 整饼 / 1 特写 / 2 侧面切开 */
+function food(s,v=0,anim=''){
+  const st=S[s.st||s], [b1,b2]=st.bg, T=st.tops;
+  let tp='';
+  const dots=(pts,fn)=>pts.map(fn).join('');
+  if(T.includes('scallion')) tp+=dots([[110,150],[170,140],[205,190],[120,240],[185,245],[150,175],[90,200]],([x,y],i)=>`<rect x="${x}" y="${y}" width="14" height="4" rx="2" fill="#5aa832" transform="rotate(${i*37} ${x} ${y})"/>`);
+  if(T.includes('sesame')) tp+=dots([[130,170],[175,160],[160,225],[110,210],[200,215],[145,260],[190,180]],([x,y])=>`<ellipse cx="${x}" cy="${y}" rx="3.2" ry="1.8" fill="#fff8e6"/>`);
+  if(T.includes('peanut')) tp+=dots([[120,190],[180,200],[150,150],[160,250],[100,230]],([x,y])=>`<circle cx="${x}" cy="${y}" r="5" fill="#c98b4e"/>`);
+  if(T.includes('lettuce')) tp+=`<ellipse cx="96" cy="150" rx="34" ry="15" transform="rotate(-35 96 150)" fill="#7dbb4a"/><ellipse cx="116" cy="130" rx="28" ry="12" transform="rotate(-20 116 130)" fill="#9bd05f"/>`;
+  if(T.includes('egg')) tp+=`<ellipse cx="170" cy="200" rx="42" ry="32" fill="#fff"/><circle cx="170" cy="200" r="15" fill="#f6b400"/>`;
+  if(T.includes('cheese')) tp+=`<path d="M105 225 L160 215 L138 258Z" fill="#ffd35c"/><path d="M168 240 L212 222 L204 266Z" fill="#ffc83a"/>`;
+  if(T.includes('meat')) tp+=dots([[130,160],[190,170],[120,200],[200,230]],([x,y])=>`<circle cx="${x}" cy="${y}" r="6" fill="#8b4a2b"/>`);
+  if(T.includes('kimchi')) tp+=dots([[110,160],[185,150],[130,230],[190,225]],([x,y],i)=>`<path d="M${x} ${y} q10 -12 20 0 t20 0" stroke="#e0412b" stroke-width="7" fill="none" stroke-linecap="round" transform="rotate(${i*30} ${x} ${y})"/>`);
+  const steam=anim==='video'?`<g fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" opacity=".7"><path class="steam" d="M120 70 q-10 -20 0 -40" /><path class="steam" style="animation-delay:.7s" d="M150 70 q-10 -20 0 -40"/><path class="steam" style="animation-delay:1.3s" d="M180 70 q-10 -20 0 -40"/></g>`:'';
+  const plate=`<circle cx="150" cy="200" r="128" fill="#fff"/><circle cx="150" cy="200" r="114" fill="#f4f1ec"/>`;
+  const cake=`<g class="${anim==='gif'?'wob':''}"><circle cx="150" cy="200" r="92" fill="${st.cake}"/><circle cx="150" cy="200" r="78" fill="none" stroke="${st.ring}" stroke-width="5" opacity=".7"/><path d="M150 200 m0 0 a10 10 0 1 1 14 8 a22 22 0 1 1 -32 -22 a34 34 0 1 1 52 38 a46 46 0 1 1 -72 -52" stroke="${st.sauce}" stroke-width="7" fill="none" stroke-linecap="round" opacity=".85"/>${tp}</g>`;
+  let body;
+  if(v===1) body=`<g transform="translate(150 200) scale(1.9) rotate(14) translate(-150 -200)">${plate}${cake}</g>`;
+  else if(v===2) body=`<g transform="translate(150 215) scale(1 .62) translate(-150 -200)">${plate}${cake}</g><g><rect x="62" y="290" width="176" height="14" rx="7" fill="${st.cake}"/><rect x="70" y="276" width="160" height="14" rx="7" fill="${st.ring}"/><rect x="62" y="262" width="176" height="14" rx="7" fill="${st.cake}"/></g>`;
+  else body=plate+cake;
+  return `<svg viewBox="0 0 300 400" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><rect width="300" height="400" fill="${b1}"/><circle cx="150" cy="200" r="190" fill="${b2}" opacity=".55"/><g class="${anim==='video'?'pan':''}">${body}</g>${steam}</svg>`;
+}
+const mediaHTML=(h,v=0,extra='')=>`<div class="media ${h.type==='video'||h.type==='gif'?'live':''}">${food(h,v,h.type==='img'?'':h.type)}${h.type==='video'?'<div class="vbar"><i></i></div>':''}${extra}</div>`;
+const rightBadge=h=>h.type==='video'?`▶ ${h.dur}`:h.type==='gif'?'GIF':h.n>1?`${h.n}张`:'';
+function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(toast._t);toast._t=setTimeout(()=>e.classList.remove('on'),1800)}
+
+/* ============ P0 ============ */
+$('#hero').innerHTML=food({st:'a'},0);
+$('#cmts').innerHTML=COMMENTS.map(c=>`<div class="cmt"><span class="av" style="background:#f3f3f3">${c[1]}</span><div class="b"><div class="n">${c[0]}</div>${c[2]}<div class="m">${c[3]}</div></div></div>`).join('');
+setTimeout(()=>{ // 入口缩略图加载
+  const top=HW.slice(0,5);
+  $('#thumbs').innerHTML=top.map((h,i)=>`<div class="t">${food(h,0)}${i===4?'<div class="more">+121</div>':''}</div>`).join('');
+},600);
+
+/* ============ P1 ============ */
+function renderTags(){
+  $('#tags').innerHTML=TAGS.map(t=>`<button class="chip ${t===tag?'on':''}" role="tab" aria-selected="${t===tag}" data-t="${t}">${t}<b>${byTag(t).length}</b></button>`).join('');
+}
+function renderTagline(){
+  const [a,b]=TAGLINE[tag];
+  const e=$('#tagline');e.innerHTML=`<em>✨ ${esc(a)}</em><br>${esc(b)}`;
+  e.classList.remove('fade');void e.offsetWidth;e.classList.add('fade');
+}
+function renderCards(){
+  list=byTag(tag); idx=0;
+  const hs=$('#hs');
+  if(!list.length){hs.style.display='none';$('#info').innerHTML=`<div class="empty">这个流派还没人交作业<br>来当第一个吧</div>`;return}
+  hs.style.display='flex';
+  hs.innerHTML=list.map((h,i)=>`<article class="card ${i===0?'on':''}" data-i="${i}">${mediaHTML(h,0,`<span class="badge l">♥ ${h.likes}</span>${rightBadge(h)?`<span class="badge r">${rightBadge(h)}</span>`:''}`)}</article>`).join('');
+  hs.scrollLeft=0; renderInfo();
+}
+function renderInfo(){
+  const h=list[idx]; if(!h)return;
+  const e=$('#info');
+  e.innerHTML=`<div class="fade"><div class="who"><span class="av" style="background:${h.c}">${h.emo}</span>${esc(h.user)}${h.tags.map(t=>`<span class="tagpill">${t}</span>`).join('')}</div>
+  <div class="ai"><span class="k">AI 解读</span>${esc(h.summary)}</div>
+  <div class="ai crowd"><span class="k">评论区说</span>${esc(h.crowd)}</div></div>`;
+}
+function selectTag(t){
+  tag=t; renderTags(); renderTagline(); renderCards();
+  $('#tags .on')?.scrollIntoView({inline:'center',block:'nearest',behavior:reduced?'auto':'smooth'});
+}
+function openBoard(){
+  $('#s-board').classList.add('on');
+  $('#hs').innerHTML=[0,1].map(()=>`<div class="card on"><div class="media sk"></div></div>`).join('');
+  $('#info').innerHTML='<div class="sk" style="height:60px;border-radius:12px"></div>';
+  renderTags(); renderTagline();
+  setTimeout(renderCards,450);
+}
+function closeBoard(){$('#s-board').classList.remove('on')}
+let raf;
+$('#hs').addEventListener('scroll',()=>{
+  cancelAnimationFrame(raf);
+  raf=requestAnimationFrame(()=>{
+    const hs=$('#hs'),c=hs.children[0]; if(!c||!list.length)return;
+    const i=Math.max(0,Math.min(list.length-1,Math.round(hs.scrollLeft/(c.offsetWidth+12))));
+    if(i!==idx){idx=i;[...hs.children].forEach((el,k)=>el.classList.toggle('on',k===i));renderInfo()}
+  });
+});
+$('#hs').addEventListener('click',e=>{
+  const c=e.target.closest('.card'); if(!c)return;
+  const i=+c.dataset.i; if(i!==idx){c.scrollIntoView({inline:'center',block:'nearest',behavior:'smooth'});return}
+  openDetail(i);
+});
+$('#tags').addEventListener('click',e=>{const b=e.target.closest('.chip');if(b&&b.dataset.t!==tag)selectTag(b.dataset.t)});
+$('#entry').addEventListener('click',openBoard);
+$('#back').addEventListener('click',closeBoard);
+
+/* ============ P2 + magic move ============ */
+const rel=el=>{const r=el.getBoundingClientRect(),a=app.getBoundingClientRect();return{x:r.left-a.left,y:r.top-a.top,w:r.width,h:r.height}};
+function ghostFly(html,from,to,done){
+  const g=document.createElement('div');g.className='ghost';g.innerHTML=html;
+  Object.assign(g.style,{left:to.x+'px',top:to.y+'px',width:to.w+'px',height:to.h+'px'});
+  app.appendChild(g);
+  const sx=from.w/to.w,sy=from.h/to.h;
+  const kf=[{transform:`translate(${from.x-to.x}px,${from.y-to.y}px) scale(${sx},${sy})`},{transform:'none'}];
+  const a=g.animate(kf,{duration:reduced?1:400,easing:'cubic-bezier(.22,.8,.3,1)',fill:'both'});
+  a.onfinish=()=>{done&&done();g.remove()};
+  return g;
+}
+function buildDetail(){
+  $('#dpager').innerHTML=list.map((h,i)=>`<div class="dcard ${i===dIdx?'on':''}" data-i="${i}" data-v="0">${mediaHTML(h,0,`${h.n>1&&h.type==='img'?'<span class="badge dots" data-dots>1/'+h.n+'</span>':''}<span class="badge l">♥ ${h.likes}</span>${h.type!=='img'?`<span class="badge r">${rightBadge(h)}</span>`:''}`)}</div>`).join('');
+  renderPanel();
+}
+function renderPanel(){
+  const h=list[dIdx]; if(!h)return;
+  $('#dauthor').innerHTML=`<span class="av" style="background:${h.c}">${h.emo}</span>${esc(h.user)}<span class="tagpill" style="margin-left:auto;margin-right:8px">${h.tags[0]}</span>`;
+  const p=$('#dpanel');
+  p.innerHTML=`<div class="fade"><div class="dtext">${esc(h.comment)}</div><div class="dmeta">${h.time} · ♥ ${h.likes}</div>
+  <div class="aibox"><span class="k">AI 解读</span>${esc(h.summary)}</div>
+  <div class="rep"><h4>评论区回复 · ${h.replies.length}</h4>${h.replies.map(r=>`<p><b>${esc(r[0])}</b>${esc(r[1])}</p>`).join('')}</div></div>`;
+  p.scrollTop=0;
+}
+function openDetail(i){
+  if(busy)return; busy=true;
+  const src=$('#hs').children[i], sm=src.querySelector('.media');
+  dIdx=i; buildDetail();
+  const d=$('#s-detail'); d.classList.add('on');
+  const pg=$('#dpager'),c=pg.children[i];
+  pg.scrollLeft=c.offsetLeft-(pg.clientWidth-c.offsetWidth)/2;
+  const tm=c.querySelector('.media'), from=rel(sm), to=rel(tm);
+  sm.style.visibility='hidden'; tm.style.visibility='hidden';
+  ghostFly(sm.innerHTML,from,to,()=>{tm.style.visibility='';busy=false});
+}
+function closeDetail(){
+  if(busy)return; busy=true;
+  const d=$('#s-detail'),pg=$('#dpager'),hs=$('#hs');
+  const cur=pg.children[dIdx], tm=cur.querySelector('.media');
+  // 让 P1 同步到当前作业
+  idx=dIdx;
+  const sc=hs.children[dIdx];
+  hs.scrollLeft=sc.offsetLeft-(hs.clientWidth-sc.offsetWidth)/2;
+  [...hs.children].forEach((el,k)=>el.classList.toggle('on',k===dIdx));
+  renderInfo();
+  const sm=sc.querySelector('.media');
+  sm.style.visibility='hidden';
+  const from=rel(tm),to=rel(sm);
+  tm.style.visibility='hidden';
+  d.classList.remove('on');
+  // 目标位用未缩放尺寸：on 卡片 scale=1，直接测量
+  ghostFly(tm.innerHTML,from,to,()=>{[...hs.querySelectorAll('.media')].forEach(m=>m.style.visibility='');busy=false});
+}
+$('#dclose').addEventListener('click',closeDetail);
+$('#dpager').addEventListener('scroll',()=>{
+  cancelAnimationFrame(raf);
+  raf=requestAnimationFrame(()=>{
+    const pg=$('#dpager'),c=pg.children[0]; if(!c)return;
+    const i=Math.max(0,Math.min(list.length-1,Math.round(pg.scrollLeft/(c.offsetWidth+12))));
+    if(i!==dIdx){dIdx=i;[...pg.children].forEach((el,k)=>el.classList.toggle('on',k===i));renderPanel()}
+  });
+});
+$('#dpager').addEventListener('click',e=>{ // 多图：点击切下一张
+  const c=e.target.closest('.dcard'); if(!c)return;
+  const i=+c.dataset.i,h=list[i];
+  if(i!==dIdx){c.scrollIntoView({inline:'center',block:'nearest',behavior:'smooth'});return}
+  if(h.type!=='img'||h.n<2)return;
+  const v=(+c.dataset.v+1)%h.n; c.dataset.v=v;
+  const m=c.querySelector('.media'), badges=[...m.querySelectorAll('.badge')].map(b=>b.outerHTML).join('');
+  m.innerHTML=food(h,v,'')+badges; m.querySelector('[data-dots]').textContent=`${v+1}/${h.n}`;
+});
+
+/* ============ sheet / misc ============ */
+function openSheet(){
+  $('#sheet-tags').innerHTML=TAGS.slice(1).map((t,i)=>`<button class="chip ${i===0?'on':''}" data-s>${t}</button>`).join('');
+  $('#scrim').classList.add('on');$('#sheet').classList.add('on');
+}
+function closeSheet(){$('#scrim').classList.remove('on');$('#sheet').classList.remove('on')}
+$('#fab').addEventListener('click',openSheet);
+$('#scrim').addEventListener('click',closeSheet);
+$('#sheet-tags').addEventListener('click',e=>{const b=e.target.closest('[data-s]');if(!b)return;[...$('#sheet-tags').children].forEach(x=>x.classList.remove('on'));b.classList.add('on')});
+$('#go').addEventListener('click',()=>{closeSheet();toast('已收到（原型占位）')});
+document.addEventListener('keydown',e=>{
+  if(e.key!=='Escape')return;
+  if($('#sheet').classList.contains('on'))closeSheet();
+  else if($('#s-detail').classList.contains('on'))closeDetail();
+  else if($('#s-board').classList.contains('on'))closeBoard();
+});
+</script>
+</body>
+</html>

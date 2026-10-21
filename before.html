@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>评论区 · before</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400&display=swap" rel="stylesheet">
+<style>
+/* tokens：取自 Figma 文件 rednote-ds 的变量定义（node 27:512） */
+:root{
+  --color-text-primary:#1f1f1f;
+  --color-text-secondary:#8a8a8a;
+  --color-text-tertiary:#b8b8b8;
+  --color-surface-default:#ffffff;
+  --color-surface-subtle:#f5f5f5;
+  --color-bg-inverse:#1f1f1f;
+  --color-bg-brand-soft:#fff2f4;
+  --color-border-default:#dedede;
+  --space-2xs:4px;--space-sm:8px;--space-md:10px;--space-lg:12px;--space-xl:16px;--space-2xl:24px;
+  --radius-component:8px;--radius-container:16px;--radius-pill:999px;
+  --body-sm-font-size:14px;--body-sm-line-height:20px;--body-sm-letter-spacing:0px;
+  --caption-font-size:12px;--caption-line-height:16px;--caption-letter-spacing:0px;
+  --font-zh:"Noto Sans SC","PingFang SC",sans-serif;
+  --font-en:"SF Pro",-apple-system,BlinkMacSystemFont,"Helvetica Neue",sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{background:#2a2a2a;display:flex;align-items:center;justify-content:center;font-family:var(--font-zh)}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+img{display:block;max-width:none}
+p{font-weight:400}
+
+/* 375×812 画布 */
+.screen{position:relative;width:375px;height:812px;background:#000;overflow:hidden}
+@media (max-width:375px){body{display:block}.screen{width:100vw;height:100dvh}}
+
+/* 顶部状态栏（设计稿截图裁切 38px） */
+.status{position:absolute;top:0;left:50%;transform:translateX(-50%);width:375px;height:38px;background:#fff;overflow:hidden}
+.status img{position:absolute;left:0;top:0;width:375px;height:812px;object-fit:cover;pointer-events:none}
+
+/* 笔记封面 */
+.cover{position:absolute;top:38px;left:calc(50% + .5px);transform:translateX(-50%);width:158px;height:181px}
+.cover img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none}
+
+/* 评论半屏：top 219；内容超出时在列表区内滚动 */
+.sheet{position:absolute;top:219px;bottom:0;left:0;right:0;margin:0 auto;width:375px;max-width:100%;display:flex;flex-direction:column;background:var(--color-surface-default);border-radius:var(--radius-container) var(--radius-container) 0 0;overflow:hidden}
+.sheet-head{flex:none;display:flex;align-items:center;justify-content:space-between;padding:var(--space-xl) var(--space-xl) var(--space-2xl)}
+.count{display:flex;align-items:center;gap:var(--space-2xs)}
+.count p{font-size:var(--body-sm-font-size);line-height:var(--body-sm-line-height);letter-spacing:var(--body-sm-letter-spacing);color:var(--color-text-primary);white-space:nowrap}
+.zh{font-family:var(--font-zh)}
+.en{font-family:var(--font-en)}
+.ico16{position:relative;flex:none;width:16px;height:16px}
+.ico24{position:relative;flex:none;width:24px;height:24px}
+.fill{position:absolute;inset:0;width:100%;height:100%}
+.list{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:var(--space-2xl);padding:0 var(--space-xl) 120px;scrollbar-width:none}
+.list::-webkit-scrollbar{display:none}
+
+.row{display:flex;gap:var(--space-md);align-items:flex-start;width:100%;flex:none}
+.avatar{flex:none;width:35px;height:35px}
+.avatar img{width:35px;height:35px}
+.col{flex:1 0 0;min-width:1px;display:flex;flex-direction:column;gap:var(--space-lg)}
+.text{display:flex;flex-direction:column;width:100%;font-size:var(--body-sm-font-size);line-height:var(--body-sm-line-height);letter-spacing:var(--body-sm-letter-spacing);word-break:break-word}
+.text .name{color:var(--color-text-tertiary)}
+.text .msg{color:var(--color-text-primary)}
+.body{display:flex;flex-direction:column;gap:5px;width:100%}
+.photo{position:relative;width:117px;height:154px;border-radius:var(--radius-component);flex:none}
+.photo.soft::before{content:"";position:absolute;inset:0;border-radius:var(--radius-component);background:var(--color-bg-brand-soft)}
+.photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:var(--radius-component);pointer-events:none}
+.meta{display:flex;flex-direction:column;gap:var(--space-2xs);width:100%}
+.meta-top{display:flex;align-items:center;justify-content:space-between;width:100%}
+.meta-l{display:flex;align-items:center;gap:var(--space-md);font-size:var(--caption-font-size);line-height:var(--caption-line-height);letter-spacing:var(--caption-letter-spacing);white-space:nowrap}
+.date{display:flex;align-items:center;gap:4px;color:var(--color-text-secondary)}
+.reply{color:var(--color-text-primary)}
+.meta-r{display:flex;align-items:center;gap:var(--space-xl)}
+.like{display:flex;align-items:flex-end}
+.like .h{position:relative;flex:none;width:18px;height:18px}
+.like span{font-size:var(--caption-font-size);line-height:var(--caption-line-height);letter-spacing:var(--caption-letter-spacing);color:var(--color-text-secondary);white-space:nowrap}
+.sad{position:relative;flex:none;width:16px;height:16px;overflow:hidden}
+.sad .g{position:absolute;inset:8.33%}
+.sad .g i{position:absolute;inset:-5%}
+.sad .g img{width:100%;height:100%}
+.expand{display:flex;align-items:center;gap:var(--space-sm);padding-left:var(--space-md);width:100%}
+.expand .ln{position:relative;flex:none;width:23px;height:0}
+.expand .ln i{position:absolute;inset:-.5px 0 0 0}
+.expand .ln img{width:100%;height:100%}
+.expand p{font-size:var(--caption-font-size);line-height:var(--caption-line-height);letter-spacing:var(--caption-letter-spacing);color:var(--color-text-primary);white-space:nowrap}
+
+/* 底部输入栏 + home indicator */
+.bottom{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:375px;display:flex;flex-direction:column;align-items:flex-start}
+.compose{width:100%;background:var(--color-surface-default);padding:var(--space-sm) var(--space-2xl)}
+.pill{display:flex;align-items:center;justify-content:space-between;width:100%;padding:var(--space-sm) var(--space-xl);border-radius:var(--radius-pill);background:var(--color-surface-subtle)}
+.pill p{font-size:var(--body-sm-font-size);line-height:var(--body-sm-line-height);letter-spacing:var(--body-sm-letter-spacing);color:var(--color-text-secondary);white-space:nowrap}
+.pill .tools{display:flex;align-items:center;gap:var(--space-md)}
+.ico22{position:relative;flex:none;width:22px;height:22px}
+.ico22.clip{overflow:hidden}
+.ico22 .g{position:absolute;inset:16.67% 10.42%}
+.ico22 .g i{position:absolute;inset:-4.53% -3.82%}
+.ico22 .g img{width:100%;height:100%}
+.home{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;width:100%;height:38px;padding:var(--space-sm) var(--space-2xl);background:var(--color-surface-default)}
+.home i{width:134px;height:5px;border-radius:var(--radius-pill);background:var(--color-bg-inverse)}
+</style>
+</head>
+<body>
+<main class="screen" aria-label="评论区">
+
+  <div class="status"><img src="assets/before/statusbar.png" alt=""></div>
+  <div class="cover"><img src="assets/before/note-cover.jpg" alt=""></div>
+
+  <section class="sheet" aria-label="评论">
+    <header class="sheet-head">
+      <div class="count">
+        <p class="zh">共</p>
+        <p class="en">668</p>
+        <p class="zh">条评论</p>
+        <div class="ico16"><img class="fill" src="assets/before/icon-sort.svg" alt=""></div>
+      </div>
+      <button class="ico24" aria-label="关闭"><img class="fill" src="assets/before/icon-close.svg" alt=""></button>
+    </header>
+
+    <div class="list">
+
+      <article class="row">
+        <div class="avatar"><img src="assets/before/avatar-1.png" alt="" width="35" height="35"></div>
+        <div class="col">
+          <div class="text">
+            <p class="name en">Gummybear</p>
+            <p class="msg zh">立刻交作业 谢谢阿老师</p>
+          </div>
+          <div class="body">
+            <div class="photo"><img src="assets/before/photo-1.jpg" alt=""></div>
+            <div class="meta">
+              <div class="meta-top">
+                <div class="meta-l">
+                  <div class="date"><p class="en">10-04</p><p class="zh">新西兰</p></div>
+                  <p class="reply zh">回复</p>
+                </div>
+                <div class="meta-r">
+                  <div class="like"><div class="h"><img class="fill" src="assets/before/icon-heart.svg" alt=""></div><span class="en">48</span></div>
+                  <div class="sad"><div class="g"><i><img src="assets/before/icon-sad.svg" alt=""></i></div></div>
+                </div>
+              </div>
+              <div class="expand"><div class="ln"><i><img src="assets/before/line.svg" alt=""></i></div><p class="zh">展开 12 条回复</p></div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="row">
+        <div class="avatar"><img src="assets/before/avatar-2.png" alt="" width="35" height="35"></div>
+        <div class="col">
+          <div class="text">
+            <p class="name en">momo</p>
+            <p class="msg zh">放了超多辣椒哈哈哈哈哈哈</p>
+          </div>
+          <div class="body">
+            <div class="photo"><img src="assets/before/photo-2.jpg" alt=""></div>
+            <div class="meta">
+              <div class="meta-top">
+                <div class="meta-l">
+                  <div class="date"><p class="en">10-04</p><p class="zh">北京</p></div>
+                  <p class="reply zh">回复</p>
+                </div>
+                <div class="meta-r">
+                  <div class="like"><div class="h"><img class="fill" src="assets/before/icon-heart.svg" alt=""></div><span class="en">48</span></div>
+                  <div class="sad"><div class="g"><i><img src="assets/before/icon-sad.svg" alt=""></i></div></div>
+                </div>
+              </div>
+              <div class="expand"><div class="ln"><i><img src="assets/before/line.svg" alt=""></i></div><p class="zh">展开 12 条回复</p></div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="row">
+        <div class="avatar"><img src="assets/before/avatar-3.png" alt="" width="35" height="35"></div>
+        <div class="col">
+          <div class="text zh">
+            <p class="name">爱吃草的肉肉酱</p>
+            <p class="msg">做成了披萨</p>
+          </div>
+          <div class="body">
+            <div class="photo soft"><img src="assets/before/photo-3.jpg" alt=""></div>
+            <div class="meta">
+              <div class="meta-top">
+                <div class="meta-l">
+                  <div class="date"><p class="en">10-04</p><p class="zh">江苏</p></div>
+                  <p class="reply zh">回复</p>
+                </div>
+                <div class="meta-r">
+                  <div class="like"><div class="h"><img class="fill" src="assets/before/icon-heart.svg" alt=""></div><span class="en">48</span></div>
+                  <div class="sad"><div class="g"><i><img src="assets/before/icon-sad.svg" alt=""></i></div></div>
+                </div>
+              </div>
+              <div class="expand"><div class="ln"><i><img src="assets/before/line.svg" alt=""></i></div><p class="zh">展开 12 条回复</p></div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <footer class="bottom">
+    <div class="compose">
+      <div class="pill">
+        <p class="zh">有话要说，快来评论</p>
+        <div class="tools">
+          <div class="ico22"><img class="fill" src="assets/before/icon-mic.svg" alt=""></div>
+          <div class="ico22 clip"><div class="g"><i><img src="assets/before/icon-pic.svg" alt=""></i></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="home"><i></i></div>
+  </footer>
+
+</main>
+</body>
+</html>

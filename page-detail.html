@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>美食作业榜</title>
+<style>
+/* tokens：取自 Figma 文件 rednote-ds 的变量定义（node 35:2702） */
+:root{
+  --color-bg-inverse:#1f1f1f;
+  --color-status-warning-icon:#ad6800;
+  --space-sm:8px;--space-2xl:24px;
+  --radius-pill:999px;
+  --font-status:"SF Pro Text",-apple-system,BlinkMacSystemFont,"Helvetica Neue",sans-serif;
+  --stage:#2a2a2a;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background:var(--stage);display:flex;align-items:center;justify-content:center}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+img{display:block;max-width:none}
+
+/* 375×812 页面框架：窄屏铺满，宽屏居中 */
+.page{position:relative;width:375px;height:812px;overflow:hidden;background:linear-gradient(to bottom,#fff5eb 64.594%,#fff)}
+@media (max-width:375px){body{display:block}.page{width:100vw;height:100dvh}}
+
+/* 顶部渐变条 */
+.band{position:absolute;top:0;left:50%;transform:translateX(-50%);width:375px;height:95px;background:linear-gradient(to bottom,#fecace,#fff5eb)}
+
+/* 装饰彩带 */
+.confetti{position:absolute;display:flex;align-items:center;justify-content:center;pointer-events:none}
+.confetti .in{flex:none}
+.confetti img{position:relative;display:block;width:100%;height:100%;object-fit:cover;opacity:.2}
+.c1{left:-14px;top:-13px;width:89px;height:89px}
+.c1 .in{width:89px;height:89px;transform:rotate(180deg)}
+.c2{left:320px;top:32px;width:73px;height:73px}
+.c2 .in{width:73px;height:73px;transform:rotate(180deg) scale(1,-1)}
+
+/* 状态栏 */
+.status{position:absolute;top:0;left:50%;transform:translateX(-50%);width:375px;height:47px;overflow:hidden}
+.status .notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:172px;height:32px}
+.status .time{position:absolute;top:14px;left:calc(16.67% - 10.5px);transform:translateX(-50%);width:54px;height:21px;border-radius:24px}
+.status .time p{position:absolute;top:1px;left:27px;transform:translateX(-50%);width:54px;height:20px;text-align:center;font-family:var(--font-status);font-weight:600;font-size:16px;line-height:21px;letter-spacing:-.32px;color:#000;white-space:nowrap}
+.status .right{position:absolute;top:19px;left:calc(83.33% - .3px);transform:translateX(-50%);width:77.401px;height:13px}
+.fill{position:absolute;inset:0;width:100%;height:100%}
+
+/* 标题栏 */
+.title{position:absolute;top:63px;left:50%;transform:translateX(-50%);width:149px;height:32px}
+.title img{position:absolute;inset:0;width:100%;height:100%;object-position:bottom;pointer-events:none}
+.rule{position:absolute;top:79px;height:0;display:flex;align-items:center;justify-content:center}
+.rule .in{flex:none;position:relative;height:0;transform:rotate(180deg)}
+.rule .in i{position:absolute;inset:-2px 0 0 0}
+.rule .in img{display:block;width:100%;height:100%}
+.r1{left:52px;width:49px}.r1 .in{width:49px}
+.r2{left:269px;width:50px}.r2 .in{width:50px}
+.back{position:absolute;left:16px;top:69px;width:22px;height:22px;padding:0}
+.back:focus-visible{outline:2px solid var(--color-status-warning-icon);outline-offset:2px;border-radius:4px}
+
+/* 内容区：标题栏下方，留给后续组件 */
+.content{position:absolute;left:0;right:0;top:95px;bottom:28px;overflow-y:auto;scrollbar-width:none}
+.content::-webkit-scrollbar{display:none}
+
+/* home indicator（设计稿里是两条相差 1px 的横条） */
+.home{position:absolute;left:0;top:783px;width:375px;height:28px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding:var(--space-sm) var(--space-2xl);pointer-events:none}
+.home i{flex:none;width:134px;height:5px;border-radius:var(--radius-pill);background:var(--color-bg-inverse)}
+.home2{position:absolute;left:120.5px;top:799px;width:134px;height:5px;border-radius:var(--radius-pill);background:var(--color-bg-inverse);pointer-events:none}
+</style>
+</head>
+<body>
+<div class="page" id="page">
+
+  <div class="band"></div>
+
+  <div class="confetti c1"><div class="in"><img src="assets/page/header-confetti-1.png" alt=""></div></div>
+
+  <div class="home"><i></i></div>
+
+  <div class="status" aria-hidden="true">
+    <div class="notch"><img class="fill" src="assets/page/statusbar-notch.svg" alt=""></div>
+    <div class="time"><p>9:41</p></div>
+    <div class="right"><img class="fill" src="assets/page/statusbar-right.svg" alt=""></div>
+  </div>
+
+  <h1 class="title"><img src="assets/page/header-title.png" alt="美食作业榜"></h1>
+
+  <div class="home2"></div>
+
+  <div class="rule r1"><div class="in"><i><img src="assets/page/header-line-1.svg" alt=""></i></div></div>
+  <div class="rule r2"><div class="in"><i><img src="assets/page/header-line-2.svg" alt=""></i></div></div>
+
+  <div class="confetti c2"><div class="in"><img src="assets/page/header-confetti-2.png" alt=""></div></div>
+
+  <button class="back" id="back" aria-label="返回"><img class="fill" src="assets/page/header-back.svg" alt=""></button>
+
+  <main class="content" id="content"></main>
+
+</div>
+</body>
+</html>

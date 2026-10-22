@@ -66,12 +66,12 @@ window.BOARD_CONTENT={
    "label": "川渝麻辣版",
    "summary": "酱换成**郫县豆瓣酱**，刷**红油**撒**二荆条辣椒面**和**花椒面**，辣里带麻，多放肉和洋葱，比原版重口得多！",
    "main": {
-    "name": "露洁",
-    "avatar": "assets/avatars/avatar-05.png",
-    "text": "豆瓣酱加红油，最后撒一把花椒面，辣得一边流泪一边吃，根本停不下来！",
+    "name": "辣妹子很怕拉",
+    "avatar": "assets/components/comment-avatar-1.png",
+    "text": "对老几太好了，加了超量的辣椒，还加了巨多的肉、洋葱和胡萝卜碎，直接变成肉夹馍，超级爆炸满足！！",
     "date": "10-04",
     "loc": "四川",
-    "likes": 215,
+    "likes": 129,
     "replyTo": null,
     "author": false
    },
@@ -83,7 +83,7 @@ window.BOARD_CONTENT={
      "date": "10-04",
      "loc": "重庆",
      "likes": 18,
-     "replyTo": "露洁",
+     "replyTo": "辣妹子很怕拉",
      "author": false
     },
     {
@@ -107,8 +107,8 @@ window.BOARD_CONTENT={
      "author": false
     },
     {
-     "name": "露洁",
-     "avatar": "assets/avatars/avatar-05.png",
+     "name": "辣妹子很怕拉",
+     "avatar": "assets/components/comment-avatar-1.png",
      "text": "可以的，我第二张只放了一半，麻味更突出",
      "date": "10-05",
      "loc": "四川",

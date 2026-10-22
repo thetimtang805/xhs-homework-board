@@ -565,7 +565,11 @@ p{font-weight:400}
   }
   /* 大图模式的名字条 = 该组第 1 条评论的人 */
   function fillNameTag(i){
-    var t=C.tabs&&C.tabs[tabKey];var g=t&&(t.groups[i]||t.groups[0]);if(!g) return;
+    var t=C.tabs&&C.tabs[tabKey];var g=t&&(t.groups[i]||t.groups[0]);
+    fillNameTagFrom(g);
+  }
+  function fillNameTagFrom(g){
+    if(!g) return;
     var m=g.main;
     document.getElementById('nav').src=m.avatar;
     var nm=document.getElementById('nnm');nm.textContent=m.name;nm.className='nm '+fam(m.name);
@@ -622,6 +626,20 @@ p{font-weight:400}
       setTimeout(function(){
         frames.forEach(function(f,k){var im=f.querySelector('img');im.src=next[k];im.style.transition='opacity '+(reduce.matches?1:240)+'ms var(--ease)';im.style.opacity=1;});
         GROUPS[g].imgs=next;
+        /* 名字也跟着换：随机换成另一位评论人，这一组的评论区同步成她的评论 */
+        var t=C.tabs&&C.tabs[tabKey];
+        if(t&&t.groups[g]){
+          var curName=t.groups[g].main.name,all=[];
+          Object.keys(C.tabs).forEach(function(k){C.tabs[k].groups.forEach(function(x){if(x.main.name!==curName) all.push(x);});});
+          if(all.length){
+            var pick=all[Math.floor(Math.random()*all.length)];
+            t.groups[g]=pick;
+            var tag=document.querySelector('.ntag');
+            tag.style.transition='opacity .16s ease-in';tag.style.opacity=0;
+            setTimeout(function(){fillNameTagFrom(pick);tag.style.transition='opacity .24s var(--ease)';tag.style.opacity='';},reduce.matches?1:160);
+            if(curGroup===g) renderComment(pick);
+          }
+        }
         var ci=cards[g]&&cards[g].querySelector('.ph img');if(ci) ci.src=next[0];
         setTimeout(function(){refreshing=false;},reduce.matches?1:240);
       },ms);

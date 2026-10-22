@@ -23,7 +23,7 @@ html,body{height:100%}
 /* 手机框固定 375×812，按屏幕等比缩放后居中（缩放比例由脚本算好写进 --s，手机上不再留空白也不会被地址栏遮住） */
 html{overscroll-behavior:none;-webkit-text-size-adjust:100%}
 body{position:fixed;inset:0;overflow:hidden;background:var(--stage);display:flex;align-items:center;justify-content:center;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
-.phone{position:relative;flex:none;width:375px;height:812px;overflow:hidden;background:#000;transform:scale(var(--s,1));transform-origin:center center}
+.phone{position:relative;flex:none;width:375px;height:812px;overflow:hidden;background:#000;transform:translateY(var(--ty,0px)) scale(var(--s,1));transform-origin:center center}
 .phone iframe{position:absolute;border:0;background:transparent;display:block}
 #video{inset:0;width:100%;height:100%}
 #dim{position:absolute;inset:0;background:#000;opacity:0;pointer-events:none;transition:opacity .24s ease-out}
@@ -51,9 +51,17 @@ body{position:fixed;inset:0;overflow:hidden;background:var(--stage);display:flex
 (function(){
   /* 等比缩放到可见区域：手机上铺满（不放大超过屏幕），桌面上最多 1 倍 */
   function fit(){
-    var w=window.innerWidth,h=window.innerHeight,s=Math.min(w/375,h/812);
+    var w=window.innerWidth,h=window.innerHeight,s=Math.min(w/375,h/812),ty=0;
     if(w>600) s=Math.min(s,1);
+    /* 主屏幕全屏：尽量按宽度铺满，两边不留黑边。设计稿顶部 47px 是被隐藏的假状态栏、底部约 20px 是假 Home 横条，
+       屏幕高度不够时先裁这两块（顶部先裁），仍不够再整体略微缩小；裁得最多 67px。 */
+    if(standalone&&w<=600){
+      var sc=Math.min(w/375,h/745),crop=812-h/sc;
+      s=sc;
+      if(crop>0){var top=Math.min(47,crop);ty=-top*sc+crop*sc/2;}
+    }
     document.documentElement.style.setProperty('--s',String(s));
+    document.documentElement.style.setProperty('--ty',ty+'px');
   }
   /* 从主屏幕全屏打开时，真机自带刘海、状态栏和 Home 横条，页面里画的假状态栏/刘海/横条要藏起来，否则会叠在一起（?standalone 可在浏览器里预览这个状态） */
   var standalone=navigator.standalone===true||(window.matchMedia&&matchMedia('(display-mode: standalone)').matches)||/[?&]standalone\b/.test(location.search);

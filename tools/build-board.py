@@ -28,7 +28,7 @@ ntag_css=css_D[ntag_start:ntag_end]
 ntag_css=ntag_css.replace('.ntag .av img{position:absolute;inset:0;width:100%;height:100%;display:block}','.ntag .av img{position:absolute;inset:0;width:100%;height:100%;display:block;border-radius:50%;object-fit:cover}')
 # 名字条改成绝对定位
 ntag_css=re.sub(r'\.ntag\{[^\n]*\}',
-  '.ntag{position:absolute;left:16px;top:650px;display:flex;align-items:center;justify-content:space-between;width:343px;max-width:calc(100% - 32px);padding:var(--space-lg) var(--space-xl);border-radius:var(--radius-container);background:#fdeede}',ntag_css,count=1)
+  '.ntag{position:absolute;left:16px;top:650px;display:flex;align-items:center;justify-content:space-between;width:343px;max-width:calc(100% - 32px);padding:var(--space-lg) var(--space-lg) var(--space-lg) var(--space-xl);border-radius:var(--radius-container);background:#fdeede}',ntag_css,count=1)
 
 board_css='''
 /* ===== 作业榜：列表态 ⇄ 大图态（data-mode）。筛选行固定，列表内容在 .scroll 里 ===== */

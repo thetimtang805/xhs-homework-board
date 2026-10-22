@@ -604,6 +604,7 @@ p{font-weight:400}
       chips.forEach(function(x){var on=(x===c);x.classList.toggle('on',on);x.querySelector('.lbl').setAttribute('aria-selected',on?'true':'false');});
             c.scrollIntoView({inline:'nearest',block:'nearest',behavior:reduce.matches?'auto':'smooth'});
       swapTab(KEYS[idx]||'all');
+      if(mode==='detail') syncDetail();
       emit('filter:change',{index:idx});
     });
     c.querySelector('.rf').addEventListener('click',function(){if(mode==='detail') refreshImages();emit('filter:refresh',{index:idx});});
@@ -612,6 +613,22 @@ p{font-weight:400}
   /* 大图模式下再点一次已选中的筛选：这一组随机换图（同一组内不重复，也避开当前这几张） */
   var POOL=[1,2,3,4,5,6,7,8,9,10,11,13,14,15,17].map(function(n){return 'assets/gallery/pic-'+(n<10?'0':'')+n+'.jpg';});
   var refreshing=false;
+  /* 大图模式下切换筛选：这一组换成新筛选的图和评论人（淡出换图、名字条同步） */
+  function syncDetail(){
+    var g=group,imgs=GROUPS[g].imgs,frames=[].slice.call(pager.children),rm=reduce.matches,tag=document.querySelector('.ntag');
+    var t=C.tabs&&C.tabs[tabKey],grp=t&&(t.groups[g]||t.groups[0]);
+    var loaded=0;
+    imgs.forEach(function(u){var im=new Image();im.onload=im.onerror=function(){if(++loaded===imgs.length) go();};im.src=u;});
+    function go(){
+      frames.forEach(function(f){var im=f.querySelector('img');im.style.transition='opacity '+(rm?1:140)+'ms ease-in';im.style.opacity=0;});
+      tag.style.transition='opacity '+(rm?1:140)+'ms ease-in';tag.style.opacity=0;
+      setTimeout(function(){
+        frames.forEach(function(f,k){var im=f.querySelector('img');if(imgs[k]) im.src=imgs[k];im.style.transition='opacity '+(rm?1:220)+'ms var(--ease)';im.style.opacity=1;});
+        fillNameTagFrom(grp);
+        tag.style.transition='opacity '+(rm?1:220)+'ms var(--ease)';tag.style.opacity='';
+      },rm?1:140);
+    }
+  }
   function refreshImages(){
     if(mode!=='detail'||busy||refreshing) return;
     var g=group,cur=GROUPS[g].imgs,left=POOL.filter(function(u){return cur.indexOf(u)<0;}),next=[];

@@ -317,16 +317,16 @@ window.BOARD_CONTENT={
    ],
    "images": [
     [
-     "assets/gallery/pic-02.jpg",
-     "assets/gallery/pic-10.jpg"
+     "assets/gallery/pic-06.jpg",
+     "assets/gallery/pic-13.jpg"
     ],
     [
-     "assets/gallery/pic-14.jpg",
-     "assets/gallery/pic-02.jpg"
+     "assets/gallery/pic-07.jpg",
+     "assets/gallery/pic-03.jpg"
     ],
     [
-     "assets/gallery/pic-15.jpg",
-     "assets/gallery/pic-10.jpg"
+     "assets/gallery/pic-08.jpg",
+     "assets/gallery/pic-17.jpg"
     ]
    ]
   },

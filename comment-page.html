@@ -11,6 +11,7 @@
 :root{
   --color-text-primary:#1f1f1f;
   --color-text-secondary:#8a8a8a;
+  --color-icon-secondary:#8a8a8a;
   --color-text-tertiary:#b8b8b8;
   --color-text-accent:#ff2442;
   --color-text-inverse:#ffffff;
@@ -127,8 +128,7 @@ p{font-weight:400}
 .sheet .sad .g img{display:block;width:100%;height:100%}
 .sheet .bmore{display:flex;align-items:center;gap:var(--space-sm);padding-left:var(--space-md);width:100%}
 .sheet .bmore .ln{position:relative;flex:none;width:23px;height:0}
-.sheet .bmore .ln i{position:absolute;inset:-.5px 0 0 0}
-.sheet .bmore .ln img{display:block;width:100%;height:100%}
+.sheet .bmore .ln::before{content:"";position:absolute;left:0;right:0;top:-1px;height:1px;background:var(--color-icon-secondary);transform:scaleY(.5);transform-origin:bottom}
 .sheet .bmore p{font-size:var(--caption-font-size);line-height:var(--caption-line-height);letter-spacing:var(--caption-letter-spacing);color:var(--color-text-primary);white-space:nowrap}
 
 /* ===== 底部评论输入栏 + home indicator（共 92px） ===== */
@@ -201,7 +201,7 @@ p{font-weight:400}
                   <div class="sad"><div class="g"><i><img src="assets/before/icon-sad.svg" alt=""></i></div></div>
                 </div>
               </div>
-              <div class="bmore"><div class="ln"><i><img src="assets/components/comment-line.svg" alt=""></i></div><p class="zh">展开 12 条回复</p></div>
+              <div class="bmore"><div class="ln"></div><p class="zh">展开 12 条回复</p></div>
             </div>
           </div>
         </div>
@@ -221,7 +221,7 @@ p{font-weight:400}
                   <div class="sad"><div class="g"><i><img src="assets/before/icon-sad.svg" alt=""></i></div></div>
                 </div>
               </div>
-              <div class="bmore"><div class="ln"><i><img src="assets/components/comment-line.svg" alt=""></i></div><p class="zh">展开 12 条回复</p></div>
+              <div class="bmore"><div class="ln"></div><p class="zh">展开 12 条回复</p></div>
             </div>
           </div>
         </div>
@@ -241,7 +241,7 @@ p{font-weight:400}
                   <div class="sad"><div class="g"><i><img src="assets/before/icon-sad.svg" alt=""></i></div></div>
                 </div>
               </div>
-              <div class="bmore"><div class="ln"><i><img src="assets/components/comment-line.svg" alt=""></i></div><p class="zh">展开 12 条回复</p></div>
+              <div class="bmore"><div class="ln"></div><p class="zh">展开 12 条回复</p></div>
             </div>
           </div>
         </div>

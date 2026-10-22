@@ -214,8 +214,8 @@ window.BOARD_CONTENT={
     },
     {
      "main": {
-      "name": "小星星",
-      "avatar": "assets/avatars/avatar-17.png",
+      "name": "露洁",
+      "avatar": "assets/avatars/avatar-05.png",
       "text": "辣度放了三倍，一口下去直接冒汗，但还想再来一块",
       "date": "10-05",
       "loc": "重庆",
@@ -231,7 +231,7 @@ window.BOARD_CONTENT={
        "date": "10-06",
        "loc": "福建",
        "likes": 59,
-       "replyTo": "小星星",
+       "replyTo": "露洁",
        "author": true
       },
       {
@@ -245,8 +245,8 @@ window.BOARD_CONTENT={
        "author": false
       },
       {
-       "name": "小星星",
-       "avatar": "assets/avatars/avatar-17.png",
+       "name": "露洁",
+       "avatar": "assets/avatars/avatar-05.png",
        "text": "网上买干的二荆条辣椒面就行",
        "date": "10-06",
        "loc": "重庆",
@@ -258,34 +258,34 @@ window.BOARD_CONTENT={
     },
     {
      "main": {
-      "name": "CCC",
-      "avatar": "assets/avatars/avatar-19.png",
+      "name": "芯芯向荣",
+      "avatar": "assets/avatars/avatar-18.png",
       "text": "麻味太上头了，花椒面撒多了舌头发麻哈哈",
       "date": "10-06",
-      "loc": "四川",
+      "loc": "广东",
       "likes": 52,
       "replyTo": null,
       "author": false
      },
      "replies": [
       {
-       "name": "芯芯向荣",
-       "avatar": "assets/avatars/avatar-18.png",
+       "name": "Ada",
+       "avatar": "assets/avatars/avatar-07.png",
        "text": "少放花椒面会不会更平衡？",
        "date": "10-06",
-       "loc": "广东",
+       "loc": "北京",
        "likes": 9,
        "replyTo": null,
        "author": false
       },
       {
-       "name": "CCC",
-       "avatar": "assets/avatars/avatar-19.png",
+       "name": "芯芯向荣",
+       "avatar": "assets/avatars/avatar-18.png",
        "text": "下次放半勺试试",
        "date": "10-07",
-       "loc": "四川",
+       "loc": "广东",
        "likes": 3,
-       "replyTo": "芯芯向荣",
+       "replyTo": "Ada",
        "author": false
       },
       {
@@ -295,7 +295,7 @@ window.BOARD_CONTENT={
        "date": "10-07",
        "loc": "福建",
        "likes": 37,
-       "replyTo": "CCC",
+       "replyTo": "芯芯向荣",
        "author": true
       }
      ]

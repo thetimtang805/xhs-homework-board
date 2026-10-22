@@ -571,11 +571,12 @@ p{font-weight:400}
     document.getElementById('nlk').textContent=m.likes;
     document.getElementById('ncm').textContent=1+g.replies.length;
   }
+  /* 切换筛选：内容直接换，不做渐隐渐现 */
   function swapTab(key){
     if(key===tabKey) return;
-    var els=[ddbody,hls,ccard,gal];
-    els.forEach(function(e){e.style.opacity=0;});
-    setTimeout(function(){renderTab(key);els.forEach(function(e){e.style.opacity=1;});},reduce.matches?0:140);
+    clearTimeout(swapTimer);
+    ccard.style.transition='none';ccard.style.opacity=1;ccard.style.translate='0 0';
+    renderTab(key);
   }
   renderTab('all');
   if(document.fonts&&document.fonts.ready) document.fonts.ready.then(placeHighlights);

@@ -389,17 +389,17 @@ p{font-weight:400}
       <div class="gscroll" aria-label="作业画廊">
         <div class="gcard g1" role="button" tabindex="0" aria-label="查看作业，共 3 张">
           <div class="plate"></div>
-          <div class="slot"><div class="ph"><img src="assets/components/gallery-1.jpg" alt=""></div></div>
+          <div class="slot"><div class="ph"><img src="assets/gallery/pic-01.jpg" alt=""></div></div>
           <div class="tag"><p class="zh">3 张</p></div>
         </div>
         <div class="gcard g2" role="button" tabindex="0" aria-label="查看作业，共 2 张">
           <div class="plate"></div>
-          <div class="slot"><div class="ph"><img src="assets/components/gallery-2.jpg" alt=""></div></div>
+          <div class="slot"><div class="ph"><img src="assets/gallery/pic-03.jpg" alt=""></div></div>
           <div class="tag"><p class="zh">2 张</p></div>
         </div>
         <div class="gcard g3" role="button" tabindex="0" aria-label="查看作业，共 2 张">
           <div class="plate"></div>
-          <div class="slot"><div class="ph"><img src="assets/components/gallery-3.jpg" alt=""></div></div>
+          <div class="slot"><div class="ph"><img src="assets/gallery/pic-04.jpg" alt=""></div></div>
           <div class="tag"><p class="zh">2 张</p></div>
         </div>
       </div>
@@ -469,9 +469,9 @@ p{font-weight:400}
   var reduce=window.matchMedia('(prefers-reduced-motion: reduce)');
   var EASE_MS=reduce.matches?10:460;
   var GROUPS=[
-    {imgs:['assets/components/gallery-1.jpg','assets/components/entry-4.jpg','assets/components/entry-5.jpg']},
-    {imgs:['assets/components/gallery-2.jpg','assets/components/entry-5.jpg']},
-    {imgs:['assets/components/gallery-3.jpg','assets/components/entry-4.jpg']}
+    {imgs:['assets/gallery/pic-01.jpg','assets/gallery/pic-09.jpg','assets/gallery/pic-11.jpg']},
+    {imgs:['assets/gallery/pic-03.jpg','assets/gallery/pic-11.jpg']},
+    {imgs:['assets/gallery/pic-04.jpg','assets/gallery/pic-09.jpg']}
   ];
   /* 每个筛选自带 3 组图片：换封面和大图里的图 */
   window.applyImgs=function(t){

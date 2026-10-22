@@ -94,6 +94,7 @@ board_css='''
 .comment .ct .a{color:var(--color-text-primary)}
 .comment .ct .b{color:var(--color-text-secondary)}
 .comment .au{display:inline-block;margin-left:var(--space-xs);padding:0 var(--space-xs);border-radius:var(--radius-pill);background:var(--color-bg-brand-soft);color:var(--color-text-accent);font-size:var(--caption-font-size);line-height:var(--caption-line-height);letter-spacing:var(--caption-letter-spacing);vertical-align:1px}
+.comment .cin{display:flex;align-items:flex-start;gap:var(--space-md);width:100%}
 .comment .xwrap{display:grid;grid-template-rows:0fr;margin-top:calc(-1 * var(--space-lg));opacity:0;transition:grid-template-rows .26s var(--ease-strong),opacity .2s ease-out}
 .comment .xin{min-height:0;overflow:hidden;display:flex;flex-direction:column;gap:var(--space-lg);padding-top:var(--space-lg)}
 .comment .card.expanded .xwrap{grid-template-rows:1fr;opacity:1}
@@ -247,7 +248,7 @@ js=r'''<script src="assets/content.js"></script>
   }
   function renderComment(t){
     var m=t.main,vis=C.visibleReplies||2;
-    var html='<div class="av35"><img src="'+m.avatar+'" alt="" width="35" height="35"></div><div class="col"><div class="blk"><div class="txt zh">'
+    var html='<div class="cin"><div class="av35"><img src="'+m.avatar+'" alt="" width="35" height="35"></div><div class="col"><div class="blk"><div class="txt zh">'
       +'<p class="nm '+fam(m.name)+'">'+nameHTML(m)+'</p><p class="ct">'+esc(m.text)+'</p></div>'+mrow(m)+'</div>';
     t.replies.forEach(function(r,i){
       var pre=r.replyTo?'<span class="a">回复</span> <span class="b">'+esc(r.replyTo)+'</span> ':'';
@@ -257,7 +258,7 @@ js=r'''<script src="assets/content.js"></script>
     });
     if(t.replies.length>vis) html+='</div></div>';
     html+='<div class="more"><div class="mg"><div class="ln"></div><button class="zh" type="button" data-evt="homework:expand">展开更多回复</button></div>'
-      +'<button class="zh" type="button" data-evt="homework:collapse">收起</button></div></div>';
+      +'<button class="zh" type="button" data-evt="homework:collapse">收起</button></div></div></div>';
     ccard.innerHTML=html;ccard.classList.remove('expanded');
   }
   /* 高亮条：按 <b> 的实际位置画（跨行的词每行一条），和 Figma 一样略微逆时针 2° */
@@ -284,17 +285,24 @@ js=r'''<script src="assets/content.js"></script>
   }
   /* 左右切换图片组：底部评论跟着换。旧的朝滑动反方向淡出（110ms ease-in），
      新的从滑动方向淡入（200ms ease-out），中途再切会从当前状态接着走 */
-  var swapTimer=0;
+  /* 切换图片组：评论卡的底色和圆角一直不变，只有里面的内容淡出、换掉、淡入；
+     两组内容高度不同时，底板高度平滑过渡 */
+  var swapTimer=0,heightTimer=0;
   function swapComment(render,dir){
-    var rm=reduce.matches,dx=rm?0:10*dir;
-    clearTimeout(swapTimer);
-    ccard.style.transition='opacity '+(rm?1:110)+'ms ease-in,translate '+(rm?1:110)+'ms ease-in';
-    ccard.style.opacity=0;ccard.style.translate=(-dx)+'px 0';
+    var rm=reduce.matches,dx=rm?0:10*dir,cin=ccard.firstElementChild;
+    clearTimeout(swapTimer);clearTimeout(heightTimer);
+    if(cin){cin.style.transition='opacity '+(rm?1:110)+'ms ease-in,translate '+(rm?1:110)+'ms ease-in';cin.style.opacity=0;cin.style.translate=(-dx)+'px 0';}
     swapTimer=setTimeout(function(){
+      var h0=ccard.offsetHeight;
+      ccard.style.transition='none';ccard.style.height=h0+'px';
       render();
-      ccard.style.transition='none';ccard.style.translate=dx+'px 0';ccard.getBoundingClientRect();
-      ccard.style.transition='opacity '+(rm?1:200)+'ms var(--ease),translate '+(rm?1:200)+'ms var(--ease)';
-      ccard.style.opacity=1;ccard.style.translate='0 0';
+      var nc=ccard.firstElementChild,h1=ccard.scrollHeight;
+      nc.style.transition='none';nc.style.opacity='0';nc.style.translate=dx+'px 0';
+      ccard.getBoundingClientRect();
+      nc.style.transition='opacity '+(rm?1:200)+'ms var(--ease-strong),translate '+(rm?1:200)+'ms var(--ease-strong)';
+      nc.style.opacity='1';nc.style.translate='0 0';
+      if(h1!==h0){ccard.style.transition=rm?'none':'height 200ms var(--ease-strong)';ccard.style.height=h1+'px';}
+      heightTimer=setTimeout(function(){ccard.style.transition='';ccard.style.height='';},rm?1:230);
     },rm?0:110);
   }
   function setCommentGroup(i){
@@ -320,7 +328,7 @@ js=r'''<script src="assets/content.js"></script>
   function swapTab(key){
     if(key===tabKey) return;
     clearTimeout(swapTimer);
-    ccard.style.transition='none';ccard.style.opacity=1;ccard.style.translate='0 0';
+    clearTimeout(heightTimer);ccard.style.transition='';ccard.style.height='';
     renderTab(key);
   }
   renderTab('all');

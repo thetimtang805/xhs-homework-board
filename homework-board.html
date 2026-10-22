@@ -117,6 +117,9 @@ p{font-weight:400}
 .hf .chips{display:flex;align-items:center;gap:var(--space-sm);flex:1;min-width:0;height:100%;margin-left:0;padding:0 var(--space-xl);overflow-x:auto;scrollbar-width:none;scroll-padding-inline:var(--space-xl);transition:margin-left .44s var(--ease)}
 .hf .chips::-webkit-scrollbar{display:none}
 .hf .chips::after{content:"";flex:none;width:1px}
+/* 筛选行背后的半透明模糊层（与作业大图页一致），底边 12px 渐隐 */
+.hf::before{content:"";position:absolute;left:0;right:0;top:0;bottom:-12px;z-index:-1;pointer-events:none;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);-webkit-mask-image:linear-gradient(to bottom,#000 calc(100% - 12px),transparent);mask-image:linear-gradient(to bottom,#000 calc(100% - 12px),transparent)}
+@media (prefers-reduced-transparency:reduce){.hf::before{-webkit-backdrop-filter:none;backdrop-filter:none;background:rgba(255,245,235,.92)}}
 .page[data-mode="detail"] .hf{transform:translateY(-48px)}
 .page[data-mode="detail"] .hf .chips{margin-left:30px}
 

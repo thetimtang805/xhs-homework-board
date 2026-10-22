@@ -133,7 +133,7 @@ p{font-weight:400}
 .fab .label img{position:absolute;inset:0;width:100%;height:100%;object-position:bottom;pointer-events:none}
 .fab .pan{position:absolute;left:19px;top:-9px;width:52px;height:52px;pointer-events:none}
 .fab .pan img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.fab .inset{position:absolute;inset:0;border-radius:inherit;pointer-events:none;box-shadow:inset 0 -4px 4px 0 rgba(191,19,23,.35),inset 0 4px 4px 0 rgba(255,245,235,.3)}
+.fab .inset{/* 内阴影在背景之上、图标和文字之下 */position:absolute;inset:0;border-radius:inherit;pointer-events:none;box-shadow:inset 0 -4px 4px 0 rgba(191,19,23,.35),inset 0 4px 4px 0 rgba(255,245,235,.3)}
 .fab:focus-visible{outline:2px solid var(--color-text-primary);outline-offset:3px}
 .fab:active{transform:scale(.97)}
 @media (prefers-reduced-motion:reduce){.chip{transition:none}.fab:active{transform:none}}
@@ -227,9 +227,9 @@ p{font-weight:400}
 
   <!-- button -->
   <button class="fab" id="fab" aria-label="我也交作业">
+    <span class="inset"></span>
     <span class="label"><img src="assets/components/button-label.png" alt=""></span>
     <span class="pan"><img src="assets/components/button-icon.png" alt=""></span>
-    <span class="inset"></span>
   </button>
 
   <div class="home"></div>

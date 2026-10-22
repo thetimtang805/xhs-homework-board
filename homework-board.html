@@ -108,9 +108,12 @@ p{font-weight:400}
 
 /* ===== 作业榜：列表态 ⇄ 大图态（data-mode）。筛选行固定，列表内容在 .scroll 里 ===== */
 .page{--ease:cubic-bezier(.22,.8,.3,1)}
-.scroll{position:absolute;left:0;right:0;top:160px;bottom:0;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;z-index:2}
+.scroll{position:absolute;left:0;right:0;top:0;bottom:0;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;z-index:2}
 .scroll::-webkit-scrollbar{display:none}
-.stack{display:flex;flex-direction:column;align-items:stretch;padding-bottom:140px}
+.stack{display:flex;flex-direction:column;align-items:stretch;padding-top:160px;padding-bottom:140px}
+/* 列表满屏滚动：内容从头部渐变（到 0 透明度）下面穿过，而不是在 y=160 处被硬裁掉。头部渐变盖在内容之上、筛选行/标题之下 */
+.band{z-index:3;pointer-events:none}
+.c1{z-index:3}
 
 /* 筛选行：列表态在 y=95，大图态上移 48px 到 y=47；返回箭头是页面级固定元素，位置不动 */
 .hf{position:absolute;left:0;top:95px;width:100%;height:65px;z-index:3;display:flex;align-items:center;transition:transform .44s var(--ease)}

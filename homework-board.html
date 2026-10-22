@@ -159,7 +159,7 @@ p{font-weight:400}
 /* ---- 动态内容：点点总结的高亮条、评论卡 ---- */
 .dd .hls{position:absolute;inset:0;pointer-events:none}
 .dd .hls i{position:absolute;display:block;height:5px;background:var(--color-surface-selected);transform:rotate(-2deg)}
-.dd .body,.comment .card,.dd .hls{transition:opacity .14s ease-out}
+.dd .body,.comment .card,.dd .hls,.gscroll{transition:opacity .14s ease-out}
 .comment .av35 img,.comment .av23 img{border-radius:50%;object-fit:cover}
 .comment .ct .a{color:var(--color-text-primary)}
 .comment .ct .b{color:var(--color-text-secondary)}
@@ -473,6 +473,20 @@ p{font-weight:400}
     {imgs:['assets/components/gallery-2.jpg','assets/components/entry-5.jpg']},
     {imgs:['assets/components/gallery-3.jpg','assets/components/entry-4.jpg']}
   ];
+  /* 每个筛选自带 3 组图片：换封面和大图里的图 */
+  window.applyImgs=function(t){
+    if(!t||!t.images) return;
+    t.images.forEach(function(imgs,i){
+      if(!GROUPS[i]) return;
+      GROUPS[i].imgs=imgs;
+      var im=cards[i]&&cards[i].querySelector('.ph img');if(im) im.src=imgs[0];
+      var tg=cards[i]&&cards[i].querySelector('.tag p');if(tg) tg.textContent=imgs.length+' 张';
+      if(cards[i]) cards[i].setAttribute('aria-label','查看作业，共 '+imgs.length+' 张');
+    });
+  };
+  var BC=(window.BOARD_CONTENT||{}).tabs||{};
+  Object.keys(BC).forEach(function(k){(BC[k].images||[]).forEach(function(g){g.forEach(function(u){new Image().src=u;});});});
+  applyImgs(BC.all);
   var mode='list',busy=false,group=0,slide=0;
   function emit(name,detail){
     page.dispatchEvent(new CustomEvent(name,{bubbles:true,detail:detail}));
@@ -522,6 +536,7 @@ p{font-weight:400}
   function renderTab(key){
     var t=C.tabs&&C.tabs[key];if(!t) return;
     tabKey=key;
+    if(window.applyImgs) applyImgs(t);
     ddbody.innerHTML=esc(t.summary).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');
     renderComment(t.groups[curGroup]||t.groups[0]);
     placeHighlights();
@@ -558,7 +573,7 @@ p{font-weight:400}
   }
   function swapTab(key){
     if(key===tabKey) return;
-    var els=[ddbody,hls,ccard];
+    var els=[ddbody,hls,ccard,gal];
     els.forEach(function(e){e.style.opacity=0;});
     setTimeout(function(){renderTab(key);els.forEach(function(e){e.style.opacity=1;});},reduce.matches?0:140);
   }

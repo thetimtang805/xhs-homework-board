@@ -139,6 +139,16 @@ MORE = {
           u('曼食慢语', '玉米粒的甜味和甜辣酱超配', '10-08', '福建', 27, to='HY', author=True)),
     ],
 }
+# 每个筛选下 3 组图片（每组 2 张，第 1 张是画廊封面），图片见 assets/gallery/pic-XX.jpg（来自 Figma 37:3775）
+IMAGES = {
+    'all': [[1, 9], [3, 17], [4, 11]],
+    'chili': [[2, 10], [14, 2], [15, 10]],
+    'salt': [[5, 6], [7, 8], [17, 1]],
+    'deluxe': [[3, 13], [8, 5], [9, 6]],
+    'fusion': [[11, 4], [1, 17], [9, 3]],
+}
+for _t in TABS:
+    _t['images'] = [[f'assets/gallery/pic-{n:02d}.jpg' for n in grp] for grp in IMAGES[_t['key']]]
 for _t in TABS:
     _t['groups'] = [g(_t['main'], *_t['replies'])] + MORE[_t['key']]
 
@@ -174,7 +184,7 @@ def build_md():
 
 def build_js():
     data = {'author': AUTHOR, 'visibleReplies': VISIBLE_REPLIES,
-            'tabs': {t['key']: {'label': t['label'], 'summary': t['summary'], 'groups': t['groups']} for t in TABS}}
+            'tabs': {t['key']: {'label': t['label'], 'summary': t['summary'], 'groups': t['groups'], 'images': t['images']} for t in TABS}}
     return '/* 由 tools/build-content.py 生成，请改那边的数据 */\nwindow.BOARD_CONTENT=' + json.dumps(data, ensure_ascii=False, indent=1) + ';\n'
 
 

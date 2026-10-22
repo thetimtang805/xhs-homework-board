@@ -152,6 +152,20 @@ window.BOARD_CONTENT={
       }
      ]
     }
+   ],
+   "images": [
+    [
+     "assets/gallery/pic-01.jpg",
+     "assets/gallery/pic-09.jpg"
+    ],
+    [
+     "assets/gallery/pic-03.jpg",
+     "assets/gallery/pic-17.jpg"
+    ],
+    [
+     "assets/gallery/pic-04.jpg",
+     "assets/gallery/pic-11.jpg"
+    ]
    ]
   },
   "chili": {
@@ -300,6 +314,20 @@ window.BOARD_CONTENT={
       }
      ]
     }
+   ],
+   "images": [
+    [
+     "assets/gallery/pic-02.jpg",
+     "assets/gallery/pic-10.jpg"
+    ],
+    [
+     "assets/gallery/pic-14.jpg",
+     "assets/gallery/pic-02.jpg"
+    ],
+    [
+     "assets/gallery/pic-15.jpg",
+     "assets/gallery/pic-10.jpg"
+    ]
    ]
   },
   "salt": {
@@ -448,6 +476,20 @@ window.BOARD_CONTENT={
       }
      ]
     }
+   ],
+   "images": [
+    [
+     "assets/gallery/pic-05.jpg",
+     "assets/gallery/pic-06.jpg"
+    ],
+    [
+     "assets/gallery/pic-07.jpg",
+     "assets/gallery/pic-08.jpg"
+    ],
+    [
+     "assets/gallery/pic-17.jpg",
+     "assets/gallery/pic-01.jpg"
+    ]
    ]
   },
   "deluxe": {
@@ -596,6 +638,20 @@ window.BOARD_CONTENT={
       }
      ]
     }
+   ],
+   "images": [
+    [
+     "assets/gallery/pic-03.jpg",
+     "assets/gallery/pic-13.jpg"
+    ],
+    [
+     "assets/gallery/pic-08.jpg",
+     "assets/gallery/pic-05.jpg"
+    ],
+    [
+     "assets/gallery/pic-09.jpg",
+     "assets/gallery/pic-06.jpg"
+    ]
    ]
   },
   "fusion": {
@@ -744,6 +800,20 @@ window.BOARD_CONTENT={
       }
      ]
     }
+   ],
+   "images": [
+    [
+     "assets/gallery/pic-11.jpg",
+     "assets/gallery/pic-04.jpg"
+    ],
+    [
+     "assets/gallery/pic-01.jpg",
+     "assets/gallery/pic-17.jpg"
+    ],
+    [
+     "assets/gallery/pic-09.jpg",
+     "assets/gallery/pic-03.jpg"
+    ]
    ]
   }
  }

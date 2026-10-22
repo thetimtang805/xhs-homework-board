@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>视频播放页</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ===== tokens =====
+   1) rednote-ds 设计系统（Figma 文件 raHwc2vWWXXFdPW8iAksho，Components 页与各页面的变量）：能对上的一律用 token
+   2) 设计系统里没有对应项的才硬编码，集中在文末「取样值」，注明来源
+   该节点（36:3546）本身是整屏截图，没有图层和变量，所以取样值来自对截图的测量 */
+:root{
+  /* 颜色 */
+  --color-canvas-light:#ffffff;            /* 媒体/深色底上的白：状态栏、文字、图标 */
+  --color-brand-500:#ff2442;               /* 品牌红：关注按钮、RED 标、爱心 */
+  --alpha-white-40:rgba(255,255,255,.4);   /* 40% 白：分隔线、电池未充部分 */
+  --color-neutral-300:#dedede;             /* 头像底色（Avatar 组件） */
+  /* 间距 / 圆角 */
+  --space-2xs:4px;--space-xs:6px;--space-sm:8px;--space-xl:16px;
+  --radius-component:8px;--radius-pill:999px;
+  /* 字体样式：zh = Noto Sans SC，en = SF Pro */
+  --font-zh:"Noto Sans SC","PingFang SC",sans-serif;
+  --font-en:"SF Pro","SF Pro Text",-apple-system,BlinkMacSystemFont,"Helvetica Neue","Noto Sans SC",sans-serif;
+  --heading-font-size:17px;--heading-line-height:24px;--heading-letter-spacing:0px;   /* type/en/heading，状态栏时间 */
+  --caption-font-size:12px;--caption-line-height:16px;--caption-letter-spacing:0px;
+  --body-sm-font-size:14px;--body-sm-line-height:20px;--body-sm-letter-spacing:0px;
+
+  /* 由 --color-canvas-light 派生的不同透明度（设计系统只有 40%，其余档位按截图测得） */
+  --white-14:color-mix(in srgb,var(--color-canvas-light) 14%,transparent);
+  --white-18:color-mix(in srgb,var(--color-canvas-light) 18%,transparent);
+  --white-20:color-mix(in srgb,var(--color-canvas-light) 20%,transparent);
+  --white-28:color-mix(in srgb,var(--color-canvas-light) 28%,transparent);
+  --white-35:color-mix(in srgb,var(--color-canvas-light) 35%,transparent);
+  --white-55:color-mix(in srgb,var(--color-canvas-light) 55%,transparent);
+  --white-62:color-mix(in srgb,var(--color-canvas-light) 62%,transparent);
+  --white-72:color-mix(in srgb,var(--color-canvas-light) 72%,transparent);
+  --white-80:color-mix(in srgb,var(--color-canvas-light) 80%,transparent);
+  --white-85:color-mix(in srgb,var(--color-canvas-light) 85%,transparent);
+
+  /* 取样值：设计系统里没有对应 token */
+  --v-star:#fbbc53;          /* 收藏星标黄，截图取样 */
+  --v-input:#2c2c2c;         /* 底栏输入框底色，截图取样 */
+  --v-input-text:#9a9a9a;    /* 输入框占位文字与铅笔：原截图 #717171（2.86:1），提亮到 ≥4.5:1 */
+  --v-bar:#000000;           /* 底栏与页面底色 */
+  --v-gap-top:#dcd8cc;       /* 视频画面上下空隙的填充色，取画面首尾行 */
+  --v-gap-bottom:#bfbcae;
+  --v-shadow:color-mix(in srgb,var(--v-scrim) 40%,transparent); /* 白字/白图标压浅色画面时的投影 */
+  --v-scrim:#000000;         /* 播放器渐变遮罩，透明度由与设计稿的亮度对比测得 */
+  --v-badge:rgba(0,0,0,.35); /* 「精选视频」条底色（黑 35%），截图测得 */
+  --v-mini-cut:#2a2523;      /* 小程序图标缺口里露出的深色（锅的颜色） */
+  --v-clock-cut:#8f8c80;     /* 预约条日历图标里时钟的描边，取自画面底色 */
+  --stage:#2a2a2a;           /* 预览背景，不属于页面 */
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{-webkit-font-smoothing:antialiased;background:var(--stage);display:flex;align-items:center;justify-content:center;font-family:var(--font-zh)}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;text-align:left}
+svg{display:block;overflow:visible}
+p{font-weight:400}
+.en{font-family:var(--font-en)}
+
+/* ===== 375×812：窄屏铺满，宽屏居中 ===== */
+.page{--lift:-5px;position:relative;width:375px;height:812px;overflow:hidden;background:var(--v-bar);color:var(--color-canvas-light)}
+@media (max-width:375px){body{display:block}.page{width:100vw;height:100dvh}}
+
+/* ===== 视频画面（0–737）：画面按字幕位置对齐设计稿；上下各叠一层中性黑渐变遮罩，保证白字白图标可读 ===== */
+.video{position:absolute;left:0;top:0;width:100%;height:737px;overflow:hidden;background:var(--v-gap-bottom)}
+.video .gap{position:absolute;left:0;right:0;top:0;height:5px;background:var(--v-gap-top)}
+.video .vf{position:absolute;left:50%;top:4.11px;width:406.5px;height:722px;max-width:none;transform:translateX(-50%);display:block}
+.video .sc-top{position:absolute;left:0;right:0;top:0;height:120px;background:linear-gradient(to bottom,color-mix(in srgb,var(--v-scrim) 20%,transparent),color-mix(in srgb,var(--v-scrim) 11%,transparent) 35%,color-mix(in srgb,var(--v-scrim) 4%,transparent) 70%,transparent)}
+.video .sc-bot{position:absolute;left:0;right:0;bottom:0;height:237px;background:linear-gradient(to bottom,transparent,color-mix(in srgb,var(--v-scrim) 4%,transparent) 35%,color-mix(in srgb,var(--v-scrim) 12%,transparent) 65%,color-mix(in srgb,var(--v-scrim) 28%,transparent))}
+
+/* ===== 状态栏（深色，白字）：信号/Wi-Fi 用设计系统 Status Bar 的图标路径，时间用 heading 字体样式 ===== */
+.status{position:absolute;left:0;top:0;width:100%;height:44px;z-index:5;pointer-events:none;color:var(--color-canvas-light)}
+.status .time{position:absolute;left:38.5px;top:14.2px;font-family:var(--font-en);font-weight:590;font-size:var(--heading-font-size);line-height:var(--heading-line-height);letter-spacing:var(--heading-letter-spacing);font-variant-numeric:tabular-nums}
+.status .sig{position:absolute;left:274.5px;top:18.9px}
+.status .wifi{position:absolute;left:300px;top:19.35px}
+.status .bat{position:absolute;left:323px;top:19px;width:26px;height:12px;border-radius:4px;background:linear-gradient(to right,var(--color-canvas-light) 0 64%,var(--alpha-white-40) 64% 100%);display:flex;align-items:center;justify-content:center;font-family:var(--font-en);font-weight:700;font-size:var(--caption-font-size);line-height:var(--caption-line-height);letter-spacing:var(--caption-letter-spacing);color:var(--v-bar)}
+.status .bat::after{content:"";position:absolute;right:-3px;top:4px;width:1.6px;height:4px;border-radius:0 2px 2px 0;background:var(--alpha-white-40)}
+
+/* ===== 顶部导航：返回 / 分享用设计系统 Icon/chevron-left、Icon/share 的路径；小程序、搜索设计系统里没有 ===== */
+.nav button{position:absolute;z-index:5;padding:0;display:grid;place-items:center;color:var(--white-62)}
+.nav button::before{content:"";position:absolute;inset:-3px}
+.nav .mini::before{inset:-10px -9px}
+.nav .search::before{inset:-11px -9px -11px -12px}
+.nav .share::before{inset:-5.2px -5.2px -5.2px -4.2px}
+.nav .back{left:4.15px;top:53.35px;width:39.1px;height:39.1px;color:var(--white-80)}
+.nav .mini{left:55px;top:61px;width:20px;height:24px}
+.nav .search{left:293px;top:62px;width:22px;height:22px}
+.nav .share{left:328.5px;top:56.9px;width:33.6px;height:33.6px}
+.nav svg{pointer-events:none;filter:drop-shadow(0 1px 2px var(--v-shadow))}
+.nav button:focus-visible{outline:2px solid var(--color-canvas-light);outline-offset:-4px;border-radius:50%}
+
+/* ===== 信息区 =====
+   整组上提 5px（--lift），让预约条与进度条之间留出 12px；点「展开」时上面几行再上移 20px 给第二行文字腾位置 */
+.chip,.author,.follow,.duration,.desc,.live{translate:0 var(--lift);transition:translate 200ms ease-out}
+.page.expanded .chip,.page.expanded .author,.page.expanded .follow,.page.expanded .duration,.page.expanded .desc{translate:0 calc(var(--lift) - 20px)}
+@media (prefers-reduced-motion:reduce){.chip,.author,.follow,.duration,.desc,.live{transition:none}}
+.chip{position:absolute;left:15.5px;top:598px;height:25px;width:158.6px;display:flex;align-items:center;padding:0 10px 0 9px;border-radius:var(--radius-pill);background:var(--v-badge);box-shadow:inset 0 0 0 .5px var(--white-18);z-index:3;white-space:nowrap}
+.chip .dot{flex:none;width:9px;height:9px;border-radius:50%;background:var(--color-brand-500)}
+.chip .red{flex:none;margin-left:0;font-family:var(--font-en);font-weight:800;font-size:var(--body-sm-font-size);line-height:var(--body-sm-line-height);letter-spacing:var(--body-sm-letter-spacing);color:var(--color-brand-500);transform:translateY(.5px)}
+.chip .t1{margin-left:5px;font-size:var(--caption-font-size);letter-spacing:var(--caption-letter-spacing);font-weight:700;line-height:var(--caption-line-height);color:var(--color-canvas-light);position:relative;top:-1px}
+.chip .sep{flex:none;width:.5px;height:9px;margin:0 7px;background:var(--alpha-white-40)}
+.chip .t2{font-size:var(--caption-font-size);line-height:var(--caption-line-height);color:var(--white-72)}
+.chip:focus-visible{outline:2px solid var(--color-canvas-light);outline-offset:2px}
+/* 点击区：视觉不变；纵向叠着的几行互相只留 12px 左右的间隙，点击区按间隙对半分，取不重叠的最大值 */
+.chip::before{content:"";position:absolute;inset:-12.5px 0 -6.5px}
+.follow::before{content:"";position:absolute;inset:-6.5px -2px -6px}
+.desc::before{content:"";position:absolute;inset:-6px 0 -4.5px}
+.live::before{content:"";position:absolute;inset:-4.5px 0 -6px}
+
+.author{position:absolute;left:15.5px;top:631px;display:flex;align-items:center;z-index:3}
+.avatar{flex:none;width:34px;height:34px;border-radius:50%;overflow:hidden;background:var(--color-neutral-300);position:relative}
+.avatar img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scale(1.03)}
+.author .name{margin-left:9px;font-size:var(--body-sm-font-size);font-weight:500;line-height:var(--body-sm-line-height);letter-spacing:var(--body-sm-letter-spacing);color:var(--color-canvas-light);white-space:nowrap}
+.follow{position:absolute;left:127px;top:636px;width:47.7px;height:25px;border-radius:var(--radius-pill);background:var(--color-brand-500);display:grid;place-items:center;font-size:var(--caption-font-size);font-weight:500;line-height:var(--caption-line-height);letter-spacing:var(--caption-letter-spacing);color:var(--color-canvas-light);z-index:3}
+.follow[aria-pressed="true"]{background:var(--white-20);color:var(--white-85)}
+.follow:focus-visible{outline:2px solid var(--color-canvas-light);outline-offset:2px}
+.duration{position:absolute;right:var(--space-xl);top:638px;font-family:var(--font-en);font-size:var(--body-sm-font-size);line-height:var(--body-sm-line-height);letter-spacing:var(--body-sm-letter-spacing);color:var(--white-85);z-index:3}
+
+.desc{position:absolute;left:var(--space-xl);right:var(--space-xl);top:673.1px;font-size:var(--body-sm-font-size);line-height:var(--body-sm-line-height);letter-spacing:var(--body-sm-letter-spacing);color:var(--color-canvas-light);white-space:nowrap;z-index:3;text-align:left;padding:0;display:flex;gap:var(--space-xs);justify-content:space-between}
+.desc .txt{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;text-align:left}
+.desc .more{flex:none;color:var(--white-85)}
+.desc[aria-expanded="true"]{align-items:flex-end}
+.desc[aria-expanded="true"] .txt{white-space:normal;overflow:visible;text-overflow:clip}
+
+.live{position:absolute;left:15.5px;top:702px;width:187.6px;height:25px;display:flex;align-items:center;padding:0 9px 0 7px;border-radius:var(--radius-component);background:var(--white-14);box-shadow:inset 0 0 0 .5px var(--white-28);z-index:3;white-space:nowrap}
+.live svg{flex:none;color:var(--color-canvas-light)}
+.live .t1{margin-left:var(--space-xs);font-family:var(--font-en);font-size:var(--caption-font-size);line-height:var(--caption-line-height);letter-spacing:var(--caption-letter-spacing);color:var(--color-canvas-light);position:relative;top:1.6px}
+.live .sep{flex:none;width:.5px;height:9px;margin:0 var(--space-xs) 0 5.5px;background:var(--alpha-white-40)}
+.live .t2{font-size:var(--caption-font-size);line-height:var(--caption-line-height);color:var(--color-canvas-light)}
+.live:focus-visible{outline:2px solid var(--color-canvas-light);outline-offset:2px}
+
+/* ===== 进度条 ===== */
+.progress{--p:0;position:absolute;left:15.4px;right:var(--space-xl);top:734.3px;height:2.5px;background:var(--white-35);z-index:3;cursor:pointer;touch-action:none}
+.progress::before{content:"";position:absolute;left:0;right:0;top:-6.3px;bottom:-2.7px}
+.progress .fill{position:absolute;left:0;top:0;bottom:0;width:calc(var(--p) * 100%);background:var(--color-canvas-light);pointer-events:none}
+.progress .knob{position:absolute;left:calc(var(--p) * 100% - 1.5px - var(--p) * 3.1px);top:-1px;width:4.6px;height:4.6px;border-radius:50%;background:var(--color-canvas-light);pointer-events:none}
+.progress:focus-visible{outline:2px solid var(--color-canvas-light);outline-offset:4px}
+
+/* ===== 底部操作栏（737–812） ===== */
+.bar{position:absolute;left:0;right:0;top:737px;bottom:0;background:var(--v-bar);z-index:4}
+.input{position:absolute;left:var(--space-xl);top:9.6px;width:127.6px;height:32px;border-radius:var(--radius-pill);background:var(--v-input);display:flex;align-items:center;padding:0 0 0 15px;color:var(--v-input-text);font-size:var(--body-sm-font-size);line-height:var(--body-sm-line-height);letter-spacing:var(--body-sm-letter-spacing);white-space:nowrap}
+.input svg{flex:none}
+.input span{margin-left:7.4px;position:relative;top:-1px}
+.input svg{position:relative;top:-1px}
+.act{position:absolute;top:12.4px;height:25px;display:flex;align-items:center;padding:0}
+.act svg{flex:none}
+.act span{margin-left:var(--space-xs);font-family:var(--font-en);font-weight:500;font-size:var(--body-sm-font-size);line-height:var(--body-sm-line-height);letter-spacing:var(--body-sm-letter-spacing);color:var(--color-canvas-light);white-space:nowrap;position:relative;top:2.4px}
+.act.like[aria-pressed="false"] svg path{fill:none;stroke:var(--color-canvas-light);stroke-width:1.8}
+.act.star[aria-pressed="false"] svg path{fill:none;stroke:var(--color-canvas-light)}
+@keyframes v-pop{0%{transform:scale(.88)}50%{transform:scale(1.12)}100%{transform:scale(1)}}
+.act.pop svg{animation:v-pop 250ms ease-out}
+@media (prefers-reduced-motion:reduce){.act.pop svg{animation:none}}
+.act.like{left:152.9px}.act.star{left:229.45px}.act.cmt{left:305.4px;color:var(--color-canvas-light)}
+.act.star svg{position:relative;top:1px}
+.act.cmt svg{position:relative;top:.9px}
+.input::before{content:"";position:absolute;inset:-6px 0}
+.act::before{content:"";position:absolute;inset:-9.5px -4px}
+.act:focus-visible,.input:focus-visible{outline:2px solid var(--color-canvas-light);outline-offset:2px;border-radius:var(--radius-component)}
+</style>
+</head>
+<body>
+<div class="page" id="page">
+
+  <!-- 视频画面 -->
+  <div class="video" aria-hidden="true">
+    <i class="gap"></i><img class="vf" src="assets/video/frame.jpg" alt=""><i class="sc-top"></i><i class="sc-bot"></i>
+  </div>
+
+  <!-- 状态栏 -->
+  <div class="status" aria-hidden="true">
+    <div class="time">09:58</div>
+    <svg class="sig" width="18" height="12" viewBox="0 0 18 12" fill="currentColor"><path d="M2 7H1C.447715 7 0 7.44772 0 8V11C0 11.5523.447715 12 1 12H2C2.55228 12 3 11.5523 3 11V8C3 7.44772 2.55228 7 2 7Z"/><path d="M7 5H6C5.44772 5 5 5.44772 5 6V11C5 11.5523 5.44772 12 6 12H7C7.55228 12 8 11.5523 8 11V6C8 5.44772 7.55228 5 7 5Z"/><path opacity=".2" d="M12 2.5H11C10.4477 2.5 10 2.94772 10 3.5V11C10 11.5523 10.4477 12 11 12H12C12.5523 12 13 11.5523 13 11V3.5C13 2.94772 12.5523 2.5 12 2.5Z"/><path opacity=".2" d="M17 0H16C15.4477 0 15 .447715 15 1V11C15 11.5523 15.4477 12 16 12H17C17.5523 12 18 11.5523 18 11V1C18 .447715 17.5523 0 17 0Z"/></svg>
+    <svg class="wifi" width="16.32" height="11.04" viewBox="26.2 .1 13.6 9.2" fill="none"><path d="M27 3.2C28.6501 1.72414 30.7862.908204 33 .908204C35.2138.908204 37.3499 1.72414 39 3.2M29.2 5.9C30.2721 5.02264 31.6147 4.54327 33 4.54327C34.3853 4.54327 35.7279 5.02264 36.8 5.9M31.4 8.5C31.879 8.19799 32.4337 8.03772 33 8.03772C33.5663 8.03772 34.121 8.19799 34.6 8.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+    <div class="bat">64</div>
+  </div>
+
+  <!-- 顶部导航 -->
+  <nav class="nav" aria-label="顶部导航">
+    <button class="back" id="v-back" aria-label="返回"><svg width="39.1" height="39.1" viewBox="0 0 24 24" fill="none"><path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="1.04" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    <button class="mini" id="v-mini" aria-label="小程序"><svg width="19" height="22" viewBox="0 0 19 22" fill="none"><path d="M17.2 11.6V4.4A3.4 3.4 0 0 0 13.8 1H4.4A3.4 3.4 0 0 0 1 4.4v13.2A3.4 3.4 0 0 0 4.4 21H10.4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><rect x="10.7" y="12" width="7.5" height="9" rx="2.2" stroke="currentColor" stroke-width="1.7"/></svg></button>
+    <button class="search" id="v-search" aria-label="搜索"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="8.3" cy="8.3" r="7.2" stroke="currentColor" stroke-width="1.7"/><path d="m13.7 13.7 5 5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></button>
+    <button class="share" id="v-share" aria-label="分享"><svg width="33.6" height="33.6" viewBox="0 0 24 24" fill="none"><path d="M14 4.5L21 10.5L14 16.5V13.1C9 13.1 6 14.4 4 18.5C4.4 13.3 7.3 10.3 14 9.9V4.5Z" stroke="currentColor" stroke-width="1.21" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+  </nav>
+
+  <!-- 精选视频条 -->
+  <button class="chip" id="v-chip" aria-label="精选视频，去看看">
+    <span class="dot"></span><span class="red">RED</span><span class="t1">精选视频</span><span class="sep"></span><span class="t2">去看看</span>
+  </button>
+
+  <!-- 作者行 -->
+  <div class="author"><div class="avatar" aria-hidden="true"><img src="assets/video/avatar.jpg" alt=""></div><p class="name">曼食慢语</p></div>
+  <button class="follow" id="v-follow" aria-pressed="false">关注</button>
+  <p class="duration">2:26</p>
+
+  <!-- 简介 -->
+  <button class="desc" id="v-desc" aria-expanded="false"><span class="txt">酱香饼好吃的灵魂密码，是把每道缝都刷满酱 买路人都馋哭了</span><span class="more">展开</span></button>
+
+  <!-- 直播预约 -->
+  <button class="live" id="v-live" aria-label="10月23日13:00 直播，预约">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1.4 4.2c0-1.6 1.1-2.7 2.7-2.7h5.8c1.6 0 2.7 1.1 2.7 2.7v2.2H1.4V4.2Z" fill="currentColor" fill-opacity=".85"/><path d="M1.4 7.2h6.1a4.2 4.2 0 0 0-1.2 5.3H4.1c-1.6 0-2.7-1.1-2.7-2.7V7.2Z" fill="currentColor" fill-opacity=".85"/><circle cx="10.2" cy="10.2" r="3.1" fill="currentColor" fill-opacity=".85" stroke="var(--v-clock-cut)" stroke-width=".9"/><path d="M10.2 8.5v1.9l1.2.7" stroke="var(--v-clock-cut)" stroke-width=".9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <span class="t1">10月23日13:00 直播</span><span class="sep"></span><span class="t2">预约</span>
+  </button>
+
+  <!-- 进度条 -->
+  <div class="progress" id="v-progress" role="slider" tabindex="0" aria-label="播放进度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i class="fill"></i><i class="knob"></i></div>
+
+  <!-- 底部操作栏 -->
+  <footer class="bar">
+    <button class="input" id="v-input"><svg width="14.2" height="14.2" viewBox="0 0 13 13" fill="none"><path d="M8.3 1.4 11.6 4.7 4.6 11.7H1.3V8.4L8.3 1.4Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/><path d="M6.4 12.4H12.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg><span>说点什么...</span></button>
+    <button class="act like" id="v-like" aria-label="点赞 3.8万" aria-pressed="true"><svg width="26" height="24" viewBox="0 0 24 22"><path d="M12 21.4C5.1 16.1.9 12.3.9 7.4.9 3.9 3.5 1.3 6.8 1.3c2 0 3.8 1 5.2 2.9 1.4-1.9 3.2-2.9 5.2-2.9 3.3 0 5.9 2.6 5.9 6.1 0 4.9-4.2 8.7-11.1 14Z" fill="var(--color-brand-500)"/></svg><span>3.8万</span></button>
+    <button class="act star" id="v-star" aria-label="收藏 4.4万" aria-pressed="true"><svg width="27.6" height="27.6" viewBox="0 0 24 24"><path d="M12 2.8L14.8 8.7L21.2 9.6L16.5 14.1L17.7 20.5L12 17.4L6.3 20.5L7.5 14.1L2.8 9.6L9.2 8.7L12 2.8Z" fill="var(--v-star)" stroke="var(--v-star)" stroke-width="2" stroke-linejoin="round"/></svg><span>4.4万</span></button>
+    <button class="act cmt" id="v-comment" aria-label="评论 481"><svg width="25.3" height="25.3" viewBox="0 0 24 24" fill="none"><path d="M12 1.6C6 1.6 1.4 5.8 1.4 11c0 2.4 1 4.5 2.6 6.1L3.2 22l4.6-2c1.3.4 2.7.6 4.2.6 6 0 10.6-4.2 10.6-9.6S18 1.6 12 1.6Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="8.3" cy="11" r="1.6" fill="currentColor"/><circle cx="15.7" cy="11" r="1.6" fill="currentColor"/></svg><span>481</span></button>
+  </footer>
+
+</div>
+
+<script>
+/* 全部按钮只派发事件，交给宿主处理：video:back / mini / search / share / chip / follow / expand / live / input / like / star / comment / seek
+   本页自己维护的状态：点赞、收藏、关注（切换）、简介展开、进度条位置 */
+(function(){
+  var page=document.getElementById('page');
+  var reduce=window.matchMedia('(prefers-reduced-motion: reduce)');
+  function fire(name,detail){
+    page.dispatchEvent(new CustomEvent('video:'+name,{bubbles:true,detail:detail}));
+    try{ if(window.parent!==window) window.parent.postMessage({src:'video',type:'video:'+name,detail:detail||null},'*'); }catch(e){}
+  }
+  [['v-back','back'],['v-mini','mini'],['v-search','search'],['v-share','share'],['v-chip','chip'],['v-live','live'],['v-input','input'],['v-comment','comment']].forEach(function(p){
+    document.getElementById(p[0]).addEventListener('click',function(){ fire(p[1]); });
+  });
+  /* 点赞 / 收藏：切换选中态，图标轻弹一下 */
+  ['like','star'].forEach(function(k){
+    var el=document.getElementById('v-'+k);
+    el.addEventListener('click',function(){
+      var on=el.getAttribute('aria-pressed')!=='true';
+      el.setAttribute('aria-pressed',on?'true':'false');
+      if(!reduce.matches){ el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop'); }
+      fire(k,{pressed:on});
+    });
+    el.addEventListener('animationend',function(){ el.classList.remove('pop'); });
+  });
+  /* 关注：关注 ↔ 已关注 */
+  var follow=document.getElementById('v-follow');
+  follow.addEventListener('click',function(){
+    var on=follow.getAttribute('aria-pressed')!=='true';
+    follow.setAttribute('aria-pressed',on?'true':'false');
+    follow.textContent=on?'已关注':'关注';
+    fire('follow',{pressed:on});
+  });
+  /* 简介：展开 ↔ 收起，上面几行上移一行的高度 */
+  var desc=document.getElementById('v-desc'),more=desc.querySelector('.more');
+  desc.addEventListener('click',function(){
+    var on=desc.getAttribute('aria-expanded')!=='true';
+    desc.setAttribute('aria-expanded',on?'true':'false');
+    page.classList.toggle('expanded',on);
+    more.textContent=on?'收起':'展开';
+    fire('expand',{expanded:on});
+  });
+  /* 进度条：点按或拖动定位，方向键 ±5%（只改显示位置，不接真实播放） */
+  var bar=document.getElementById('v-progress');
+  function setP(p,notify){
+    p=Math.max(0,Math.min(1,p));
+    bar.style.setProperty('--p',p);
+    bar.setAttribute('aria-valuenow',Math.round(p*100));
+    if(notify!==false) fire('seek',{progress:p});
+  }
+  function fromEvent(e){ var r=bar.getBoundingClientRect(); return (e.clientX-r.left)/r.width; }
+  bar.addEventListener('pointerdown',function(e){ bar.setPointerCapture(e.pointerId); setP(fromEvent(e)); });
+  bar.addEventListener('pointermove',function(e){ if(bar.hasPointerCapture(e.pointerId)) setP(fromEvent(e)); });
+  bar.addEventListener('keydown',function(e){
+    var cur=(+bar.getAttribute('aria-valuenow'))/100,d={ArrowLeft:-.05,ArrowRight:.05}[e.key];
+    if(d!==undefined){ e.preventDefault(); setP(cur+d); }
+    else if(e.key==='Home'){ e.preventDefault(); setP(0); }
+    else if(e.key==='End'){ e.preventDefault(); setP(1); }
+  });
+})();
+</script>
+</body>
+</html>

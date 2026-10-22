@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>评论区入口页</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400&display=swap" rel="stylesheet">
+<style>
+/* tokens：取自 Figma 文件 rednote-ds 的变量定义（node 27:738） */
+:root{
+  --color-text-primary:#1f1f1f;
+  --color-text-secondary:#8a8a8a;
+  --color-icon-secondary:#8a8a8a;
+  --color-text-tertiary:#b8b8b8;
+  --color-text-accent:#ff2442;
+  --color-text-inverse:#ffffff;
+  --color-icon-accent:#ff2442;
+  --color-border-subtle:#f5f5f5;
+  --color-bg-inverse:#1f1f1f;
+  --color-bg-brand-soft:#fff2f4;
+  --color-surface-default:#ffffff;
+  --color-surface-subtle:#f5f5f5;
+  --space-2xs:4px;--space-sm:8px;--space-md:10px;--space-lg:12px;--space-xl:16px;--space-2xl:24px;
+  --radius-component:8px;--radius-control:6px;--radius-container:16px;--radius-pill:999px;
+  --body-sm-font-size:14px;--body-sm-line-height:20px;--body-sm-letter-spacing:0px;
+  --caption-font-size:12px;--caption-line-height:16px;--caption-letter-spacing:0px;
+  --font-zh:"Noto Sans SC","PingFang SC",sans-serif;
+  --font-en:"SF Pro",-apple-system,BlinkMacSystemFont,"Helvetica Neue",sans-serif;
+  --font-status:"SF Pro Text",-apple-system,BlinkMacSystemFont,"Helvetica Neue",sans-serif;
+  --stage:#2a2a2a;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{-webkit-font-smoothing:antialiased;background:var(--stage);display:flex;align-items:center;justify-content:center;font-family:var(--font-zh)}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+img{display:block;max-width:none}
+p{font-weight:400}
+.zh{font-family:var(--font-zh)}.en{font-family:var(--font-en)}
+.fill{position:absolute;inset:0;width:100%;height:100%}
+
+/* ===== 375×812 页面：窄屏铺满，宽屏居中 ===== */
+.page{position:relative;width:375px;height:812px;overflow:hidden;background:#000}
+@media (max-width:375px){body{display:block}.page{width:100vw;height:100dvh}}
+
+/* ===== 状态栏（深色模式） ===== */
+.status{position:absolute;top:0;left:50%;transform:translateX(-50%);width:375px;height:47px;overflow:hidden;z-index:4}
+.status .notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:172px;height:32px}
+.status .time{position:absolute;top:14px;left:calc(16.67% - 10.5px);transform:translateX(-50%);width:54px;height:21px;border-radius:24px}
+.status .time p{position:absolute;top:1px;left:27px;transform:translateX(-50%);width:54px;height:20px;text-align:center;font-family:var(--font-status);font-weight:600;font-size:16px;line-height:21px;letter-spacing:-.32px;color:#fff;white-space:nowrap}
+.status .right{position:absolute;top:19px;left:calc(83.33% - .3px);transform:translateX(-50%);width:77.401px;height:13px}
+
+/* ===== 评论弹窗：从 y=219 起，内容在弹窗内滚动 ===== */
+.sheet{position:absolute;left:0;right:0;top:219px;bottom:0;z-index:1;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;background:var(--color-surface-default);border-radius:var(--radius-container) var(--radius-container) 0 0;transition:transform .32s cubic-bezier(.32,.72,0,1)}
+.sheet::-webkit-scrollbar{display:none}
+.sheet[data-open="false"]{transform:translateY(100%);visibility:hidden;transition:transform .24s cubic-bezier(.32,.72,0,1),visibility 0s .24s}
+.sheet .bh{position:sticky;top:0;z-index:2;display:flex;align-items:center;justify-content:space-between;padding:var(--space-xl) var(--space-xl) var(--space-2xl);background:var(--color-surface-default)}
+.sheet .count{display:flex;align-items:center;gap:var(--space-2xs)}
+.sheet .count p{font-size:var(--body-sm-font-size);line-height:var(--body-sm-line-height);letter-spacing:var(--body-sm-letter-spacing);color:var(--color-text-primary);white-space:nowrap}
+.sheet .i16{position:relative;flex:none;width:16px;height:16px}
+.sheet .i24{position:relative;flex:none;width:24px;height:24px;padding:0}
+.sheet .i24::before{content:"";position:absolute;inset:-10px}
+.sheet .i16 img,.sheet .i24 img{position:absolute;inset:0;width:100%;height:100%;display:block}
+.sheet .i24:focus-visible{outline:2px solid var(--color-icon-accent);outline-offset:2px;border-radius:4px}
+.sheet .list{display:flex;flex-direction:column;align-items:flex-start;gap:var(--space-2xl);padding:0 var(--space-xl) calc(92px + var(--space-xl))}
+
+/* 作业榜入口卡 341×167：data-entry="hidden" 时整体移除（含间距） */
+.sheet[data-entry="hidden"] .entry{display:none}
+.entry{position:relative;width:341px;height:167px;overflow:hidden;border-radius:var(--radius-container);flex:none;cursor:pointer}
+.entry:focus-visible{outline:2px solid var(--color-icon-accent);outline-offset:2px}
+.entry .bg1,.entry .bg2,.entry .glow,.entry .wash{pointer-events:none}
+.entry .bg1{position:absolute;inset:0;border-radius:var(--radius-container);background:#fff5eb}
+.entry .bg2{position:absolute;inset:0;border-radius:var(--radius-container);mix-blend-mode:darken;background:linear-gradient(to bottom,#fff5eb,rgba(251,228,229,.3))}
+.entry .glow{position:absolute}
+.entry .glow i{position:absolute}
+.entry .glow img{display:block;width:100%;height:100%}
+.entry .gl1{left:-31px;top:-64px;width:178px;height:220px}.entry .gl1 i{inset:-30.41% -37.58%}
+.entry .gl2{left:78px;top:-33px;width:191px;height:131px}.entry .gl2 i{inset:-51.07% -35.03%}
+.entry .wash{position:absolute;left:0;top:40px;width:341px;height:127px;background:linear-gradient(163.758deg,rgba(252,233,219,0) 10.828%,rgb(255,234,220) 96.385%)}
+.entry .prow{position:absolute;left:16px;top:53px;display:flex;align-items:center}
+.entry .pw{display:flex;align-items:center;justify-content:center;flex:none;margin-right:-8px}
+.entry .pw:last-child{margin-right:0}
+.entry .pw1{width:77.926px;height:99.743px}.entry .pw1 .ph{transform:rotate(-5deg)}
+.entry .pw2{width:76.387px;height:98.654px}.entry .pw2 .ph{transform:rotate(4deg)}
+.entry .pw3{width:74.824px;height:97.535px}.entry .pw3 .ph{transform:rotate(-3deg)}
+.entry .pw4{width:74.824px;height:97.535px}.entry .pw4 .ph{transform:rotate(3deg)}
+.entry .pw5{width:77.926px;height:99.743px}.entry .pw5 .ph{transform:rotate(-5deg)}
+.entry .ph{position:relative;flex:none;width:70px;height:94px;border:2px solid var(--color-border-subtle);border-radius:var(--radius-component);box-shadow:0 4px 20px 0 rgba(135,67,15,.15)}
+.entry .ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:var(--radius-control);pointer-events:none}
+.entry .ph.soft::before{content:"";position:absolute;inset:0;border-radius:var(--radius-control);background:var(--color-bg-brand-soft)}
+.entry .eh{position:absolute;left:16px;top:14px;width:309px;display:flex;align-items:center;justify-content:space-between}
+.entry .el{display:flex;align-items:center;gap:var(--space-2xs);flex:none}
+.entry .eicon{position:relative;flex:none;width:32px;height:32px}
+.entry .eicon img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none}
+.entry .etitle{position:relative;flex:none;width:116px;height:25px}
+.entry .etitle img{position:absolute;inset:0;width:100%;height:100%;object-position:bottom;pointer-events:none}
+.entry .er{display:flex;align-items:center;gap:2px;flex:none}
+.entry .ecnt{font-variant-numeric:tabular-nums;display:flex;align-items:baseline;gap:2px;font-size:var(--body-sm-font-size);line-height:var(--body-sm-line-height);letter-spacing:var(--body-sm-letter-spacing);color:var(--color-text-accent);white-space:nowrap}
+.entry .echev{position:relative;flex:none;width:16px;height:16px}
+.entry .echev img{position:absolute;inset:0;width:100%;height:100%}
+
+/* 评论行 */
+.sheet .row{display:flex;align-items:flex-start;gap:var(--space-md);width:100%;flex:none}
+.sheet .av{position:relative;flex:none;width:35px;height:35px}
+.sheet .av img{position:absolute;inset:0;width:100%;height:100%;display:block;border-radius:50%;object-fit:cover}
+.sheet .col{flex:1 0 0;min-width:1px;display:flex;flex-direction:column;gap:var(--space-lg);align-items:flex-start}
+.sheet .txt{display:flex;flex-direction:column;width:100%;font-size:var(--body-sm-font-size);line-height:var(--body-sm-line-height);letter-spacing:var(--body-sm-letter-spacing);word-break:break-word}
+.sheet .txt .nm{color:var(--color-text-tertiary);width:100%}
+.sheet .txt .ct{color:var(--color-text-primary);width:100%}
+.sheet .body{display:flex;flex-direction:column;gap:5px;width:100%}
+.sheet .pw{display:flex;align-items:center}
+.sheet .photo{position:relative;flex:none;width:117px;height:154px;border-radius:var(--radius-component)}
+.sheet .photo.soft::before{content:"";position:absolute;inset:0;border-radius:var(--radius-component);background:var(--color-bg-brand-soft)}
+.sheet .photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:var(--radius-component);pointer-events:none}
+.sheet .meta{display:flex;flex-direction:column;gap:var(--space-2xs);width:100%}
+.sheet .mrow{display:flex;align-items:center;justify-content:space-between;width:100%}
+.sheet .ml{display:flex;align-items:center;gap:var(--space-md);font-size:var(--caption-font-size);line-height:var(--caption-line-height);letter-spacing:var(--caption-letter-spacing);white-space:nowrap}
+.sheet .ml .d{display:flex;align-items:center;gap:4px;color:var(--color-text-secondary)}
+.sheet .ml .r{color:var(--color-text-primary)}
+.sheet .mr{display:flex;align-items:center;gap:var(--space-xl)}
+.sheet .lk{display:flex;align-items:flex-end}
+.sheet .lk .h{position:relative;flex:none;width:18px;height:18px}
+.sheet .lk .h img{position:absolute;inset:0;width:100%;height:100%;display:block}
+.sheet .lk span{font-size:var(--caption-font-size);line-height:var(--caption-line-height);letter-spacing:var(--caption-letter-spacing);color:var(--color-text-secondary);white-space:nowrap}
+.sheet .sad{position:relative;flex:none;width:16px;height:16px;overflow:hidden}
+.sheet .sad .g{position:absolute;inset:8.33%}
+.sheet .sad .g i{position:absolute;inset:-5%}
+.sheet .sad .g img{display:block;width:100%;height:100%}
+.sheet .bmore{display:flex;align-items:center;gap:var(--space-sm);padding-left:var(--space-md);width:100%}
+.sheet .bmore .ln{position:relative;flex:none;width:23px;height:0}
+.sheet .bmore .ln::before{content:"";position:absolute;left:0;right:0;top:-1px;height:1px;background:var(--color-icon-secondary);transform:scaleY(.5);transform-origin:bottom}
+.sheet .bmore p{font-size:var(--caption-font-size);line-height:var(--caption-line-height);letter-spacing:var(--caption-letter-spacing);color:var(--color-text-primary);white-space:nowrap}
+
+/* ===== 底部评论输入栏 + home indicator（共 92px） ===== */
+.bottom{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:375px;max-width:100%;display:flex;flex-direction:column;align-items:flex-start;z-index:3}
+.compose{width:100%;background:var(--color-surface-default);padding:var(--space-sm) var(--space-xl)}
+.pill{display:flex;align-items:center;justify-content:space-between;width:100%;padding:var(--space-sm) var(--space-xl);border-radius:var(--radius-pill);background:var(--color-surface-subtle)}
+.pill .ph-txt{font-size:var(--body-sm-font-size);line-height:var(--body-sm-line-height);letter-spacing:var(--body-sm-letter-spacing);color:var(--color-text-secondary);white-space:nowrap;text-align:left;padding:0}
+.pill .tools{display:flex;align-items:center;gap:var(--space-md)}
+.ico22{position:relative;flex:none;width:22px;height:22px}
+.ico22.clip{overflow:hidden}
+.ico22 .g{position:absolute;inset:16.67% 10.42%}
+.ico22 .g i{position:absolute;inset:-4.53% -3.82%}
+.ico22 .g img{display:block;width:100%;height:100%}
+.home{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;width:100%;height:38px;padding:var(--space-sm) var(--space-2xl);background:var(--color-surface-default)}
+.home i{width:134px;height:5px;border-radius:var(--radius-pill);background:var(--color-bg-inverse)}
+.pill .ph-txt:focus-visible{outline:2px solid var(--color-icon-accent);outline-offset:4px;border-radius:4px}
+@media (prefers-reduced-motion:reduce){.sheet,.sheet[data-open="false"]{transition:none}}
+/* 嵌入流程时（?embed）：背景透明、不画状态栏，浮层铺满宿主给的 iframe（宿主把 iframe 放在屏幕下方 75%） */
+html.embed,html.embed body{background:transparent}
+html.embed .page{height:100vh;background:transparent}
+html.embed .status{display:none}
+html.embed .sheet{top:0}
+/* 底部输入栏：浮层关闭时隐藏，打开时直接出现，不做动画 */
+html.embed .sheet[data-open="false"] ~ .bottom{visibility:hidden}
+</style>
+<script>if(/[?&]embed\b/.test(location.search))document.documentElement.classList.add('embed')</script>
+</head>
+<body>
+<div class="page" id="page">
+
+  <!-- 评论弹窗（popup）：data-open 控制开合，data-entry 控制作业榜入口 -->
+  <section class="sheet" id="sheet" data-open="true" data-entry="show" role="dialog" aria-label="评论">
+    <div class="bh">
+      <div class="count">
+        <p class="zh">共</p><p class="en">668</p><p class="zh">条评论</p>
+        <div class="i16"><img src="assets/before/icon-sort.svg" alt=""></div>
+      </div>
+      <button class="i24" id="close" aria-label="关闭评论"><img src="assets/before/icon-close.svg" alt=""></button>
+    </div>
+
+    <div class="list">
+
+      <div class="entry" id="entry" role="button" tabindex="0" aria-label="美食作业榜，全部 39">
+        <div class="bg1"></div><div class="bg2"></div>
+        <div class="glow gl1"><i><img src="assets/components/entry-glow-1.svg" alt=""></i></div>
+        <div class="glow gl2"><i><img src="assets/components/entry-glow-2.svg" alt=""></i></div>
+        <div class="wash"></div>
+        <div class="prow">
+          <div class="pw pw1"><div class="ph"><img src="assets/gallery/pic-01.jpg" alt=""></div></div>
+          <div class="pw pw2"><div class="ph"><img src="assets/gallery/pic-05.jpg" alt=""></div></div>
+          <div class="pw pw3"><div class="ph"><img src="assets/gallery/pic-17.jpg" alt=""></div></div>
+          <div class="pw pw4"><div class="ph soft"><img src="assets/gallery/pic-07.jpg" alt=""></div></div>
+          <div class="pw pw5"><div class="ph"><img src="assets/gallery/pic-11.jpg" alt=""></div></div>
+        </div>
+        <div class="eh">
+          <div class="el">
+            <div class="eicon"><img src="assets/page/header-confetti-2.png" alt=""></div>
+            <div class="etitle"><img src="assets/components/entry-title-v2.png" alt="美食作业榜"></div>
+          </div>
+          <div class="er">
+            <div class="ecnt"><p class="zh">全部</p><p class="en">39</p></div>
+            <div class="echev"><img src="assets/components/entry-chevron.svg" alt=""></div>
+          </div>
+        </div>
+      </div>
+
+      <article class="row">
+        <div class="av"><img src="assets/avatars/avatar-04.png" alt="" width="35" height="35"></div>
+        <div class="col">
+          <div class="txt"><p class="nm zh">罐罐儿</p><p class="ct zh">立刻交作业 谢谢阿老师</p></div>
+          <div class="body">
+            <div class="pw"><div class="photo"><img src="assets/before/photo-1.jpg" alt=""></div></div>
+            <div class="meta">
+              <div class="mrow">
+                <div class="ml"><div class="d"><p class="en">10-04</p><p class="zh">新西兰</p></div><p class="r zh">回复</p></div>
+                <div class="mr">
+                  <div class="lk"><div class="h"><img src="assets/before/icon-heart.svg" alt=""></div><span class="en">48</span></div>
+                  <div class="sad"><div class="g"><i><img src="assets/before/icon-sad.svg" alt=""></i></div></div>
+                </div>
+              </div>
+              <div class="bmore"><div class="ln"></div><p class="zh">展开 12 条回复</p></div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="row">
+        <div class="av"><img src="assets/avatars/avatar-06.png" alt="" width="35" height="35"></div>
+        <div class="col">
+          <div class="txt"><p class="nm zh">财正</p><p class="ct zh">放了超多辣椒哈哈哈哈哈哈</p></div>
+          <div class="body">
+            <div class="pw"><div class="photo"><img src="assets/before/photo-2.jpg" alt=""></div></div>
+            <div class="meta">
+              <div class="mrow">
+                <div class="ml"><div class="d"><p class="en">10-04</p><p class="zh">北京</p></div><p class="r zh">回复</p></div>
+                <div class="mr">
+                  <div class="lk"><div class="h"><img src="assets/before/icon-heart.svg" alt=""></div><span class="en">48</span></div>
+                  <div class="sad"><div class="g"><i><img src="assets/before/icon-sad.svg" alt=""></i></div></div>
+                </div>
+              </div>
+              <div class="bmore"><div class="ln"></div><p class="zh">展开 12 条回复</p></div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="row">
+        <div class="av"><img src="assets/avatars/avatar-13.png" alt="" width="35" height="35"></div>
+        <div class="col">
+          <div class="txt zh"><p class="nm">星星</p><p class="ct">做成了披萨</p></div>
+          <div class="body">
+            <div class="pw"><div class="photo soft"><img src="assets/before/photo-3.jpg" alt=""></div></div>
+            <div class="meta">
+              <div class="mrow">
+                <div class="ml"><div class="d"><p class="en">10-04</p><p class="zh">江苏</p></div><p class="r zh">回复</p></div>
+                <div class="mr">
+                  <div class="lk"><div class="h"><img src="assets/before/icon-heart.svg" alt=""></div><span class="en">48</span></div>
+                  <div class="sad"><div class="g"><i><img src="assets/before/icon-sad.svg" alt=""></i></div></div>
+                </div>
+              </div>
+              <div class="bmore"><div class="ln"></div><p class="zh">展开 12 条回复</p></div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- 底部评论输入栏 -->
+  <footer class="bottom">
+    <div class="compose">
+      <div class="pill">
+        <button class="ph-txt zh" id="compose">有话要说，快来评论</button>
+        <div class="tools">
+          <div class="ico22"><img class="fill" src="assets/before/icon-mic.svg" alt=""></div>
+          <div class="ico22 clip"><div class="g"><i><img src="assets/before/icon-pic.svg" alt=""></i></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="home"><i></i></div>
+  </footer>
+
+  <!-- 状态栏 -->
+  <div class="status" aria-hidden="true">
+    <div class="notch"><img class="fill" src="assets/page/statusbar-notch.svg" alt=""></div>
+    <div class="time"><p>9:41</p></div>
+    <div class="right"><img class="fill" src="assets/page/statusbar-right-dark.svg" alt=""></div>
+  </div>
+
+</div>
+
+<script>
+/* 弹窗：
+   setSheetOpen(true|false)  开合评论弹窗（✕ 关闭，点底部输入栏重新打开，Esc 关闭）
+   setSheetEntry(true|false) 显示或隐藏作业榜入口，隐藏时入口卡连同间距一起移除
+   点击入口卡派发 sheet:entry 事件，关闭派发 sheet:close */
+var sheet=document.getElementById('sheet');
+function setSheetOpen(open){
+  sheet.setAttribute('data-open',open?'true':'false');
+  sheet.setAttribute('aria-hidden',open?'false':'true');
+  if(open){sheet.scrollTop=0}
+}
+function setSheetEntry(show){
+  sheet.setAttribute('data-entry',show?'show':'hidden');
+}
+(function(){
+  var page=document.getElementById('page'),entry=document.getElementById('entry');
+  document.getElementById('close').addEventListener('click',function(){setSheetOpen(false);page.dispatchEvent(new CustomEvent('sheet:close',{bubbles:true}))});
+  document.getElementById('compose').addEventListener('click',function(){setSheetOpen(true)});
+  function openEntry(){page.dispatchEvent(new CustomEvent('sheet:entry',{bubbles:true}))}
+  entry.addEventListener('click',openEntry);
+  entry.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();openEntry()}});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&sheet.getAttribute('data-open')==='true'){setSheetOpen(false);page.dispatchEvent(new CustomEvent('sheet:close',{bubbles:true}))}});
+  /* 嵌入时：初始关闭，由宿主用消息开合；入口、关闭事件转发给宿主 */
+  if(document.documentElement.classList.contains('embed')){
+    setSheetOpen(false);
+    window.addEventListener('message',function(e){var d=e.data||{};if(d.cmd==='open')setSheetOpen(true);else if(d.cmd==='close')setSheetOpen(false)});
+    ['sheet:entry','sheet:close'].forEach(function(n){page.addEventListener(n,function(){try{window.parent.postMessage({src:'sheet',type:n},'*')}catch(err){}})});
+  }
+})();
+</script>
+</body>
+</html>

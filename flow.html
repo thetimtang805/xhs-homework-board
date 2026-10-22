@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>作业榜 · 完整流程</title>
+<style>
+/* 流程外壳：视频播放页 → 评论浮层（75%）→ 作业榜（列表 ⇄ 大图）。
+   三个页面各自放在 iframe 里，外壳只负责转场和消息转发：
+   video:comment → 开评论浮层；sheet:entry → 进作业榜；sheet:close → 关浮层；homework:back → 回到浮层 */
+:root{--ease:cubic-bezier(.32,.72,0,1);--stage:#2a2a2a}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background:var(--stage);display:flex;align-items:center;justify-content:center}
+.phone{position:relative;width:375px;height:812px;overflow:hidden;background:#000}
+@media (max-width:375px){body{display:block}.phone{width:100vw;height:100dvh}}
+.phone iframe{position:absolute;border:0;background:transparent;display:block}
+#video{inset:0;width:100%;height:100%}
+#dim{position:absolute;inset:0;background:#000;opacity:0;pointer-events:none;transition:opacity .24s ease-out}
+#dim.on{opacity:.42;pointer-events:auto;transition-duration:.32s}
+/* 评论浮层：占屏幕下方 75%，iframe 只盖这一块，上面 25% 的点击落到遮罩 */
+#sheet{left:0;bottom:0;width:100%;height:75%;pointer-events:none}
+#sheet.on{pointer-events:auto}
+/* 作业榜：从右侧推入，下面的页面略微左移 */
+#board{inset:0;width:100%;height:100%;transform:translateX(100%);transition:transform .29s var(--ease);box-shadow:-10px 0 28px rgba(0,0,0,.28);visibility:hidden}
+.phone.board-on #board{transform:none;visibility:visible;transition-duration:.38s}
+#board.leaving{visibility:visible}
+#video,#sheet,#dim{transition:transform .29s var(--ease),opacity .24s ease-out}
+.phone.board-on #video,.phone.board-on #sheet,.phone.board-on #dim{transform:translateX(-22%);transition-duration:.38s,.32s}
+@media (prefers-reduced-motion:reduce){#board,#video,#sheet,#dim{transition-duration:.01s!important}}
+</style>
+</head>
+<body>
+<div class="phone" id="phone">
+  <iframe id="video" src="video-page.html" title="视频播放页"></iframe>
+  <div id="dim"></div>
+  <iframe id="sheet" src="comment-page.html?embed=1" title="评论"></iframe>
+  <iframe id="board" src="homework-board.html" title="美食作业榜"></iframe>
+</div>
+<script>
+(function(){
+  var phone=document.getElementById('phone'),dim=document.getElementById('dim');
+  var sheet=document.getElementById('sheet'),board=document.getElementById('board');
+  var sheetOpen=false,boardOn=false,closeTimer=0;
+  function post(frame,msg){try{frame.contentWindow.postMessage(msg,'*');}catch(e){}}
+
+  function openSheet(){
+    if(sheetOpen) return;
+    sheetOpen=true;clearTimeout(closeTimer);
+    sheet.classList.add('on');dim.classList.add('on');
+    post(sheet,{cmd:'open'});
+  }
+  function closeSheet(){
+    if(!sheetOpen) return;
+    sheetOpen=false;
+    dim.classList.remove('on');
+    post(sheet,{cmd:'close'});
+    closeTimer=setTimeout(function(){sheet.classList.remove('on');},260);
+  }
+  function openBoard(){
+    if(boardOn) return;
+    boardOn=true;
+    post(board,{cmd:'reset'});
+    phone.classList.add('board-on');
+  }
+  function closeBoard(){
+    if(!boardOn) return;
+    boardOn=false;
+    board.classList.add('leaving');
+    phone.classList.remove('board-on');
+    setTimeout(function(){board.classList.remove('leaving');},330);
+  }
+  dim.addEventListener('click',closeSheet);
+
+  window.addEventListener('message',function(e){
+    var d=e.data;if(!d||!d.type) return;
+    if(d.type==='video:comment') openSheet();
+    else if(d.type==='sheet:entry') openBoard();
+    else if(d.type==='sheet:close') closeSheet();
+    else if(d.type==='homework:back') closeBoard();
+  });
+  document.addEventListener('keydown',function(e){
+    if(e.key!=='Escape') return;
+    if(boardOn) post(board,{cmd:'escape'}); else closeSheet();
+  });
+  /* 供外部或调试使用 */
+  window.flow={openSheet:openSheet,closeSheet:closeSheet,openBoard:openBoard,closeBoard:closeBoard};
+})();
+</script>
+</body>
+</html>

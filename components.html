@@ -1,0 +1,651 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>作业榜组件</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* tokens：取自 Figma 文件 rednote-ds 的变量定义（33:2589 / 32:1795 / 32:1834） */
+:root{
+  --color-surface-default:#ffffff;
+  --color-text-primary:#1f1f1f;
+  --color-text-secondary:#8a8a8a;
+  --color-text-tertiary:#b8b8b8;
+  --color-surface-selected:#fbe5e8;
+  --color-text-accent:#ff2442;
+  --color-text-inverse:#ffffff;
+  --color-icon-accent:#ff2442;
+  --color-icon-secondary:#8a8a8a;
+  --color-border-subtle:#f5f5f5;
+  --color-bg-brand-soft:#fff2f4;
+  --color-overlay-scrim:#00000099;
+  --color-status-warning-text:#ad6800;
+  --color-status-danger-text:#b01129;
+  --color-status-danger-icon:#b01129;
+  --space-2xs:4px;--space-xs:6px;--space-sm:8px;--space-md:10px;--space-lg:12px;--space-xl:16px;--space-2xl:24px;
+  --radius-component:8px;--radius-control:6px;--radius-container:16px;--radius-pill:999px;
+  --body-sm-font-size:14px;--body-sm-line-height:20px;--body-sm-letter-spacing:0px;
+  --caption-font-size:12px;--caption-line-height:16px;--caption-letter-spacing:0px;
+  --font-zh:"Noto Sans SC","PingFang SC",sans-serif;
+  --font-en:"SF Pro",-apple-system,BlinkMacSystemFont,"Helvetica Neue",sans-serif;
+  --stage:#ececec;--label:#6b6b6b;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{-webkit-font-smoothing:antialiased;background:var(--stage);font-family:var(--font-zh);color:var(--color-text-primary);padding:40px 16px 56px;display:flex;flex-direction:column;align-items:center;gap:40px}
+img{display:block;max-width:none}
+p{font-weight:400}
+.zh{font-family:var(--font-zh)}.en{font-family:var(--font-en)}
+.demo{display:flex;flex-direction:column;gap:12px;max-width:100%}
+.demo h2{font-size:12px;font-weight:400;color:var(--label);letter-spacing:.04em}
+.demo .box{max-width:100%;overflow-x:auto}
+
+/* ---------- 1 entry · 341×167 ---------- */
+.entry{position:relative;width:341px;height:167px;overflow:hidden;border-radius:var(--radius-container);flex:none;cursor:pointer}
+.entry .bg1,.entry .bg2,.entry .glow,.entry .wash{pointer-events:none}
+.entry .bg1{position:absolute;inset:0;border-radius:var(--radius-container);background:#fff5eb}
+.entry .bg2{position:absolute;inset:0;border-radius:var(--radius-container);mix-blend-mode:darken;background:linear-gradient(to bottom,#fff5eb,rgba(251,228,229,.3))}
+.entry .glow{position:absolute}
+.entry .glow i{position:absolute}
+.entry .glow img{display:block;width:100%;height:100%}
+.entry .g1{left:-31px;top:-64px;width:178px;height:220px}
+.entry .g1 i{inset:-30.41% -37.58%}
+.entry .g2{left:78px;top:-33px;width:191px;height:131px}
+.entry .g2 i{inset:-51.07% -35.03%}
+.entry .wash{position:absolute;left:0;top:40px;width:341px;height:127px;background:linear-gradient(163.758deg,rgba(252,233,219,0) 10.828%,rgb(255,234,220) 96.385%)}
+.entry .slot{position:absolute;display:flex;align-items:center;justify-content:center}
+.entry .ph{position:relative;flex:none;width:70px;height:94px;border:2px solid var(--color-border-subtle);border-radius:var(--radius-component);box-shadow:0 4px 20px 0 rgba(135,67,15,.15)}
+.entry .ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:var(--radius-control);pointer-events:none}
+.entry .ph.soft::before{content:"";position:absolute;inset:0;border-radius:var(--radius-control);background:var(--color-bg-brand-soft)}
+.entry .s1{left:16px;top:52px;width:77.926px;height:99.743px}.entry .s1 .ph{transform:rotate(-5deg)}
+.entry .s2{left:85.93px;top:52.54px;width:76.387px;height:98.654px}.entry .s2 .ph{transform:rotate(4deg)}
+.entry .s3{left:154.31px;top:53.1px;width:74.824px;height:97.535px}.entry .s3 .ph{transform:rotate(-3deg)}
+.entry .s4{left:221.14px;top:53.1px;width:74.824px;height:97.535px}.entry .s4 .ph{transform:rotate(3deg)}
+.entry .s5{left:287.96px;top:52px;width:77.926px;height:99.743px}.entry .s5 .ph{transform:rotate(-5deg)}
+.entry .head{position:absolute;left:16px;top:15px;width:309px;display:flex;align-items:center;justify-content:space-between}
+.entry .title{position:relative;flex:none;width:76px;height:25px}
+.entry .title img{position:absolute;inset:0;width:100%;height:100%;object-position:bottom;pointer-events:none}
+.entry .more{display:flex;align-items:center;gap:var(--space-2xs)}
+.entry .more p{font-variant-numeric:tabular-nums;font-size:var(--body-sm-font-size);line-height:var(--body-sm-line-height);letter-spacing:var(--body-sm-letter-spacing);color:var(--color-text-accent);white-space:nowrap}
+.entry .more .chev{position:relative;flex:none;width:16px;height:16px}
+.entry .more .chev img{position:absolute;inset:0;width:100%;height:100%}
+
+/* ---------- 2 filter · 375×49 ---------- */
+.filter{display:flex;align-items:center;gap:var(--space-sm);padding:var(--space-sm) 0 var(--space-sm) var(--space-xl);width:max-content;min-width:375px;height:49px}
+/* 返回箭头：data-back="hidden" 时整体移除（含后面的间距），chip 回到 x=16 */
+.filter .back{position:relative;flex:none;width:22px;height:22px;padding:0;border:0;background:none;cursor:pointer}
+.filter .back img{position:absolute;inset:0;width:100%;height:100%;display:block}
+.filter .back::before{content:"";position:absolute;inset:-11px}
+.filter .back:focus-visible{outline:2px solid var(--color-icon-accent);outline-offset:2px;border-radius:4px}
+.filter[data-back="hidden"] .back{display:none}
+.demo-head{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.demo-head label{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--label);cursor:pointer}
+.demo-head input{accent-color:var(--color-icon-accent);cursor:pointer}
+.chip{position:relative;flex:none;display:flex;align-items:center;justify-content:center;gap:4px;padding:calc(var(--space-xs) + .5px) calc(var(--space-xl) + .5px);border:0;box-shadow:inset 0 0 0 .5px var(--bc);border-radius:var(--radius-pill);cursor:pointer;font-size:var(--body-sm-font-size);line-height:var(--body-sm-line-height);letter-spacing:var(--body-sm-letter-spacing);white-space:nowrap;background:none}
+.chip p{font-size:inherit;line-height:inherit;letter-spacing:inherit}
+.chip .em{position:relative;flex:none}
+.chip .em .clip{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.chip .em img{position:absolute;max-width:none}
+.chip.all{--bc:#c2790c;background:var(--color-status-warning-text);padding:calc(var(--space-xs) + .5px) calc(var(--space-2xl) + .5px);color:var(--color-text-inverse)}
+.chip.chili{--bc:var(--color-icon-accent);background:color-mix(in srgb,var(--color-bg-brand-soft) 85%,transparent);color:var(--color-text-accent)}
+.chip.salt{--bc:var(--color-icon-secondary);background:rgba(255,255,255,.85);color:var(--color-text-primary);height:33px}
+.chip.deluxe{--bc:var(--color-status-danger-icon);background:color-mix(in srgb,var(--color-bg-brand-soft) 85%,transparent);color:var(--color-status-danger-text)}
+.chip.fusion{--bc:#ad0000;background:rgba(255,247,230,.85)}
+.chip.fusion .t{display:flex;align-items:center;gap:4px}
+.chip.fusion .grad{background:linear-gradient(to left,var(--color-status-warning-text),#ad0000);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent}
+.chip.fusion .en{color:var(--color-status-warning-text)}
+.chip:focus-visible{outline:2px solid var(--color-icon-accent);outline-offset:2px}
+/* 选中态的「刷新」：仅当返回箭头显示（data-back="show"）且 chip 为选中态时出现 */
+.chip .lbl{font:inherit;color:inherit;background:none;border:0;padding:0;margin:0;cursor:pointer;white-space:nowrap}
+.chip .lbl:focus-visible{outline:2px solid var(--color-icon-accent);outline-offset:4px;border-radius:4px}
+.chip .rf{display:none;position:relative;flex:none;width:16px;height:16px;padding:0;border:0;background:none;cursor:pointer}
+.chip .rf::before{content:"";position:absolute;inset:-9px}
+.chip .rf:focus-visible{outline:2px solid var(--color-text-inverse);outline-offset:2px;border-radius:4px}
+.chip .rf .rg{position:absolute;inset:0;overflow:hidden}
+.chip .rf .rg .gp{position:absolute;inset:12.5% 16.42% 12.5% 16.67%}
+.chip .rf .rg .gp i{position:absolute;inset:-5.56% -6.23%}
+.chip .rf .rg .gp img{display:block;width:100%;height:100%}
+.filter[data-back="show"] .chip .lbl[aria-selected="true"] ~ .rf{display:block}
+
+/* ---------- 3 gallery · 580×233 ---------- */
+.gallery{display:flex;align-items:center;gap:28px;width:579.74px;height:232.644px}
+.gcard{position:relative;flex:none}
+.gcard .back{position:absolute;top:0;width:160px;height:215px;border:2px solid var(--color-border-subtle);border-radius:var(--radius-container);box-shadow:0 4px 20px 0 rgba(135,67,15,.15)}
+.gcard .slot{position:absolute;left:0;display:flex;align-items:center;justify-content:center}
+.gcard .ph{position:relative;flex:none;width:160px;height:214.857px;border:2px solid var(--color-border-subtle);border-radius:var(--radius-container);box-shadow:0 4px 20px 0 rgba(135,67,15,.15)}
+.gcard .ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:var(--radius-container);pointer-events:none}
+.gcard .tag{position:absolute;display:flex;align-items:center;padding:var(--space-2xs) var(--space-sm);border-radius:var(--radius-pill);background:var(--color-overlay-scrim)}
+.gcard .tag p{font-size:var(--caption-font-size);line-height:var(--caption-line-height);letter-spacing:var(--caption-letter-spacing);color:var(--color-text-inverse);white-space:nowrap}
+.g1{width:178.117px;height:232.644px}
+.g1 .back{left:18px;background:#eed1b0}
+.g1 .slot{top:4.66px;width:178.117px;height:227.984px}.g1 .ph{transform:rotate(-5deg)}
+.g1 .tag{left:132.49px;top:189px}
+.g2{width:174.598px;height:230.495px}
+.g2 .back{left:0;background:#e8d4bb}
+.g2 .slot{top:5px;width:174.598px;height:225.495px}.g2 .ph{transform:rotate(4deg);box-shadow:0 9.143px 45.714px 0 rgba(135,67,15,.15)}
+.g2 .tag{left:115.88px;top:187.93px}
+.g3{width:171.025px;height:231px}
+.g3 .back{left:11px;background:#e2d7c4}
+.g3 .slot{top:8px;width:171.025px;height:222.936px}.g3 .ph{transform:rotate(-3deg)}
+.g3 .tag{left:123.28px;top:188.18px}
+
+/* ---------- 4 comment · 343×313 ---------- */
+.comment{display:flex;flex-direction:column;align-items:flex-start;width:343px;flex:none}
+.comment .tail{position:relative;flex:none;width:192px;height:17px;margin-bottom:-6px}
+.comment .tail img{position:absolute;inset:0;width:100%;height:100%;display:block}
+.comment .card{display:flex;align-items:flex-start;gap:var(--space-md);width:100%;padding:var(--space-lg);border-radius:var(--radius-container);background:#fdeede;flex:none}
+.comment .av35{position:relative;flex:none;width:35px;height:35px}
+.comment .av35 img,.comment .av23 img{position:absolute;inset:0;width:100%;height:100%;display:block}
+.comment .av23{position:relative;flex:none;width:23px;height:23px}
+.comment .col{flex:1 0 0;min-width:1px;display:flex;flex-direction:column;gap:var(--space-lg);align-items:flex-start}
+.comment .blk{display:flex;flex-direction:column;gap:var(--space-2xs);width:100%}
+.comment .sub{display:flex;align-items:flex-start;gap:var(--space-sm);width:100%}
+.comment .sub .col2{flex:1 0 0;min-width:1px;display:flex;flex-direction:column;gap:var(--space-2xs)}
+.comment .txt{display:flex;flex-direction:column;width:100%;font-size:var(--body-sm-font-size);line-height:var(--body-sm-line-height);letter-spacing:var(--body-sm-letter-spacing);word-break:break-word}
+.comment .txt .nm{color:var(--color-text-tertiary);width:100%}
+.comment .txt .ct{color:#603d09;width:100%}
+.comment .txt .rp{display:flex;align-items:flex-start;gap:var(--space-2xs);white-space:nowrap}
+.comment .txt .rp .a{color:var(--color-text-primary)}
+.comment .txt .rp .b{color:var(--color-text-tertiary)}
+.comment .txt .rp .c{color:#603d09}
+.comment .mrow{display:flex;align-items:center;justify-content:space-between;width:100%}
+.comment .ml{display:flex;align-items:center;gap:var(--space-md);font-size:var(--caption-font-size);line-height:var(--caption-line-height);letter-spacing:var(--caption-letter-spacing);white-space:nowrap}
+.comment .ml .d{display:flex;align-items:center;gap:4px;color:var(--color-text-secondary)}
+.comment .ml .r{color:var(--color-text-primary)}
+.comment .mr{display:flex;align-items:center;gap:var(--space-xl)}
+.comment .lk{display:flex;align-items:flex-end}
+.comment .lk .h{position:relative;flex:none;width:18px;height:18px}
+.comment .lk .h img{position:absolute;inset:0;width:100%;height:100%;display:block}
+.comment .lk span{font-size:var(--caption-font-size);line-height:var(--caption-line-height);letter-spacing:var(--caption-letter-spacing);color:var(--color-text-secondary);white-space:nowrap}
+.comment .sad{position:relative;flex:none;width:16px;height:16px;overflow:hidden}
+.comment .sad .g{position:absolute;inset:8.33%}
+.comment .sad .g i{position:absolute;inset:-5%}
+.comment .sad .g img{display:block;width:100%;height:100%}
+.comment .more{display:flex;align-items:center;gap:var(--space-2xl);width:100%}
+.comment .more .mg{display:flex;align-items:center;gap:var(--space-sm);flex:none}
+.comment .more .ln{position:relative;flex:none;width:23px;height:0}
+.comment .more .ln::before{content:"";position:absolute;left:0;right:0;top:-1px;height:1px;background:var(--color-icon-secondary);transform:scaleY(.5);transform-origin:bottom}
+.comment .more p{font-size:var(--caption-font-size);line-height:var(--caption-line-height);letter-spacing:var(--caption-letter-spacing);color:var(--color-text-primary);white-space:nowrap}
+
+/* ---------- 5 diandian · 343×87 ---------- */
+.diandian{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:var(--space-2xs);width:343px;height:87px;padding:var(--space-lg);border-radius:var(--radius-container);background:#fffaf5;flex:none}
+.diandian .hl{position:absolute;display:flex;align-items:center;justify-content:center}
+.diandian .hl i{display:block;flex:none;height:5px;background:var(--color-surface-selected);transform:rotate(-2deg)}
+.diandian .hl1{left:12px;top:70px;width:14.304px;height:5.49px}.diandian .hl1 i{width:14.139px}
+.diandian .hl2{left:54.02px;top:48.74px;width:71.073px;height:7.473px}.diandian .hl2 i{width:70.941px}
+.diandian .hl3{left:152px;top:50.29px;width:26.945px;height:5.932px}.diandian .hl3 i{width:26.787px}
+.diandian .hl4{left:195px;top:48.36px;width:82.19px;height:7.861px}.diandian .hl4 i{width:82.065px}
+.diandian .hl5{left:293px;top:50.29px;width:26.679px;height:5.923px}.diandian .hl5 i{width:26.521px}
+.diandian .who{position:relative;display:flex;align-items:center;gap:var(--space-2xs);flex:none}
+.diandian .who .ic{position:relative;flex:none;width:19px;height:19px}
+.diandian .who .ic img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none}
+.diandian .who p{font-size:var(--caption-font-size);line-height:var(--caption-line-height);letter-spacing:var(--caption-letter-spacing);color:var(--color-text-tertiary);white-space:nowrap}
+.diandian .body{position:relative;flex:none;width:100%;font-size:14px;line-height:var(--body-sm-line-height);letter-spacing:var(--body-sm-letter-spacing);color:var(--color-text-primary)}
+.diandian .body b{font-weight:500;color:#ff2442}
+
+/* ---------- 6 button · 191×43 ---------- */
+.stagepad{padding-top:12px}
+.btn{position:relative;display:block;width:191px;height:43px;border:0;border-radius:var(--radius-pill);background:#ff3e42;cursor:pointer;flex:none;padding:0}
+.btn .label{position:absolute;left:calc(50% + 20.5px);top:11px;width:102px;height:21px;transform:translateX(-50%);pointer-events:none}
+.btn .label img{position:absolute;inset:0;width:100%;height:100%;object-position:bottom;pointer-events:none}
+.btn .pan{position:absolute;left:19px;top:-9px;width:52px;height:52px;pointer-events:none}
+.btn .pan img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.btn .inset{/* 内阴影在背景之上、图标和文字之下（Figma 里是 button 框自带的 inner shadow） */position:absolute;inset:0;border-radius:inherit;pointer-events:none;box-shadow:inset 0 -4px 4px 0 rgba(191,19,23,.35),inset 0 4px 4px 0 rgba(255,245,235,.3)}
+.btn:focus-visible{outline:2px solid var(--color-text-primary);outline-offset:3px}
+
+/* ---------- 7 comment-bottom-sheet · 375×875 ---------- */
+.bsheet{display:flex;flex-direction:column;align-items:flex-start;gap:var(--space-2xl);width:375px;height:auto;padding:var(--space-xl);border-radius:var(--radius-container) var(--radius-container) 0 0;background:var(--color-surface-default);flex:none}
+.bsheet .bh{display:flex;align-items:center;justify-content:space-between;width:100%;flex:none}
+.bsheet .count{display:flex;align-items:center;gap:var(--space-2xs)}
+.bsheet .count p{font-size:var(--body-sm-font-size);line-height:var(--body-sm-line-height);letter-spacing:var(--body-sm-letter-spacing);color:var(--color-text-primary);white-space:nowrap}
+.bsheet .i16{position:relative;flex:none;width:16px;height:16px}
+.bsheet .i24{position:relative;flex:none;width:24px;height:24px}
+.bsheet .i16 img,.bsheet .i24 img{position:absolute;inset:0;width:100%;height:100%;display:block}
+.bsheet .row{display:flex;align-items:flex-start;gap:var(--space-md);width:100%;flex:none}
+.bsheet .av{position:relative;flex:none;width:35px;height:35px}
+.bsheet .av img{position:absolute;inset:0;width:100%;height:100%;display:block}
+.bsheet .col{flex:1 0 0;min-width:1px;display:flex;flex-direction:column;gap:var(--space-lg);align-items:flex-start}
+.bsheet .txt{display:flex;flex-direction:column;width:100%;font-size:var(--body-sm-font-size);line-height:var(--body-sm-line-height);letter-spacing:var(--body-sm-letter-spacing);word-break:break-word}
+.bsheet .txt .nm{color:var(--color-text-tertiary);width:100%}
+.bsheet .txt .ct{color:var(--color-text-primary);width:100%}
+.bsheet .body{display:flex;flex-direction:column;gap:5px;width:100%}
+.bsheet .pw{display:flex;align-items:center}
+.bsheet .photo{position:relative;flex:none;width:117px;height:154px;border-radius:var(--radius-component)}
+.bsheet .photo.soft::before{content:"";position:absolute;inset:0;border-radius:var(--radius-component);background:var(--color-bg-brand-soft)}
+.bsheet .photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:var(--radius-component);pointer-events:none}
+.bsheet .meta{display:flex;flex-direction:column;gap:var(--space-2xs);width:100%}
+.bsheet .mrow{display:flex;align-items:center;justify-content:space-between;width:100%}
+.bsheet .ml{display:flex;align-items:center;gap:var(--space-md);font-size:var(--caption-font-size);line-height:var(--caption-line-height);letter-spacing:var(--caption-letter-spacing);white-space:nowrap}
+.bsheet .ml .d{display:flex;align-items:center;gap:4px;color:var(--color-text-secondary)}
+.bsheet .ml .r{color:var(--color-text-primary)}
+.bsheet .mr{display:flex;align-items:center;gap:var(--space-xl)}
+.bsheet .lk{display:flex;align-items:flex-end}
+.bsheet .lk .h{position:relative;flex:none;width:18px;height:18px}
+.bsheet .lk .h img{position:absolute;inset:0;width:100%;height:100%;display:block}
+.bsheet .lk span{font-size:var(--caption-font-size);line-height:var(--caption-line-height);letter-spacing:var(--caption-letter-spacing);color:var(--color-text-secondary);white-space:nowrap}
+.bsheet .sad{position:relative;flex:none;width:16px;height:16px;overflow:hidden}
+.bsheet .sad .g{position:absolute;inset:8.33%}
+.bsheet .sad .g i{position:absolute;inset:-5%}
+.bsheet .sad .g img{display:block;width:100%;height:100%}
+.bsheet .bmore{display:flex;align-items:center;gap:var(--space-sm);padding-left:var(--space-md);width:100%}
+.bsheet .bmore .ln{position:relative;flex:none;width:23px;height:0}
+.bsheet .bmore .ln::before{content:"";position:absolute;left:0;right:0;top:-1px;height:1px;background:var(--color-icon-secondary);transform:scaleY(.5);transform-origin:bottom}
+/* 作业榜入口卡：data-entry="hidden" 时整体移除（含上下间距），弹层高度 1066 → 875 */
+.bsheet[data-entry="hidden"] .entry{display:none}
+.bsheet .entry:focus-visible{outline:2px solid var(--color-icon-accent);outline-offset:2px}
+.bsheet .bmore p{font-size:var(--caption-font-size);line-height:var(--caption-line-height);letter-spacing:var(--caption-letter-spacing);color:var(--color-text-primary);white-space:nowrap}
+
+/* ---------- 8 pic-carousel · 343×497 ---------- */
+.pc{display:flex;flex-direction:column;align-items:flex-start;gap:var(--space-lg);width:343px;flex:none}
+.pc .frame{position:relative;flex:none;width:100%;aspect-ratio:343/461;border:3px solid var(--color-border-subtle);border-radius:var(--radius-container);box-shadow:0 4px 20px 0 rgba(135,67,15,.15)}
+.pc .frame img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:var(--radius-container);pointer-events:none}
+.pc .dots{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:var(--space-sm) 0;flex:none}
+.pc .dot{position:relative;flex:none;width:8px;height:8px;padding:0;border:0;background:none;cursor:pointer}
+.pc .dot::before{content:"";position:absolute;inset:-8px}
+.pc .dot img{position:absolute;inset:0;width:100%;height:100%;display:block}
+.pc .dot .on{display:none}
+.pc .dot[aria-current="true"] .on{display:block}
+.pc .dot[aria-current="true"] .off{display:none}
+.pc .dot:focus-visible{outline:2px solid var(--color-icon-accent);outline-offset:3px;border-radius:50%}
+
+/* ---------- 9 name-tag · 343×59 ---------- */
+.ntag{display:flex;align-items:center;justify-content:space-between;width:343px;padding:var(--space-lg) var(--space-xl);border-radius:var(--radius-container);background:#fdeede;flex:none}
+.ntag .nl{display:flex;align-items:center;gap:var(--space-sm);flex:none}
+.ntag .av{position:relative;flex:none;width:35px;height:35px}
+.ntag .av img{position:absolute;inset:0;width:100%;height:100%;display:block;border-radius:50%;object-fit:cover}
+.ntag .nm{font-size:var(--body-sm-font-size);line-height:var(--body-sm-line-height);letter-spacing:var(--body-sm-letter-spacing);color:var(--color-text-secondary);white-space:nowrap}
+.ntag .nr{display:flex;align-items:center;gap:var(--space-2xl);flex:none}
+.ntag .ni{display:flex;align-items:center;gap:2px;flex:none}
+.ntag .ic{position:relative;flex:none;width:18px;height:18px}
+.ntag .ic img{position:absolute;inset:0;width:100%;height:100%;display:block}
+.ntag .ni span{font-size:var(--body-sm-font-size);line-height:var(--body-sm-line-height);letter-spacing:var(--body-sm-letter-spacing);color:var(--color-text-secondary);white-space:nowrap}
+
+.en2{position:relative;width:341px;height:167px;overflow:hidden;border-radius:var(--radius-container);flex:none;cursor:pointer}
+.en2:focus-visible{outline:2px solid var(--color-icon-accent);outline-offset:2px}
+.en2 .bg1,.en2 .bg2,.en2 .glow,.en2 .wash{pointer-events:none}
+.en2 .bg1{position:absolute;inset:0;border-radius:var(--radius-container);background:#fff5eb}
+.en2 .bg2{position:absolute;inset:0;border-radius:var(--radius-container);mix-blend-mode:darken;background:linear-gradient(to bottom,#fff5eb,rgba(251,228,229,.3))}
+.en2 .glow{position:absolute}
+.en2 .glow i{position:absolute}
+.en2 .glow img{display:block;width:100%;height:100%}
+.en2 .gl1{left:-31px;top:-64px;width:178px;height:220px}.en2 .gl1 i{inset:-30.41% -37.58%}
+.en2 .gl2{left:78px;top:-33px;width:191px;height:131px}.en2 .gl2 i{inset:-51.07% -35.03%}
+.en2 .wash{position:absolute;left:0;top:40px;width:341px;height:127px;background:linear-gradient(163.758deg,rgba(252,233,219,0) 10.828%,rgb(255,234,220) 96.385%)}
+.en2 .prow{position:absolute;left:16px;top:53px;display:flex;align-items:center}
+.en2 .pw{display:flex;align-items:center;justify-content:center;flex:none;margin-right:-8px}
+.en2 .pw:last-child{margin-right:0}
+.en2 .pw1{width:77.926px;height:99.743px}.en2 .pw1 .ph{transform:rotate(-5deg)}
+.en2 .pw2{width:76.387px;height:98.654px}.en2 .pw2 .ph{transform:rotate(4deg)}
+.en2 .pw3{width:74.824px;height:97.535px}.en2 .pw3 .ph{transform:rotate(-3deg)}
+.en2 .pw4{width:74.824px;height:97.535px}.en2 .pw4 .ph{transform:rotate(3deg)}
+.en2 .pw5{width:77.926px;height:99.743px}.en2 .pw5 .ph{transform:rotate(-5deg)}
+.en2 .ph{position:relative;flex:none;width:70px;height:94px;border:2px solid var(--color-border-subtle);border-radius:var(--radius-component);box-shadow:0 4px 20px 0 rgba(135,67,15,.15)}
+.en2 .ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:var(--radius-control);pointer-events:none}
+.en2 .ph.soft::before{content:"";position:absolute;inset:0;border-radius:var(--radius-control);background:var(--color-bg-brand-soft)}
+.en2 .eh{position:absolute;left:16px;top:14px;width:309px;display:flex;align-items:center;justify-content:space-between}
+.en2 .el{display:flex;align-items:center;gap:var(--space-2xs);flex:none}
+.en2 .eicon{position:relative;flex:none;width:32px;height:32px}
+.en2 .eicon img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none}
+.en2 .etitle{position:relative;flex:none;width:116px;height:25px}
+.en2 .etitle img{position:absolute;inset:0;width:100%;height:100%;object-position:bottom;pointer-events:none}
+.en2 .er{display:flex;align-items:center;gap:2px;flex:none}
+.en2 .ecnt{font-variant-numeric:tabular-nums;display:flex;align-items:baseline;gap:2px;font-size:var(--body-sm-font-size);line-height:var(--body-sm-line-height);letter-spacing:var(--body-sm-letter-spacing);color:var(--color-text-accent);white-space:nowrap}
+.en2 .echev{position:relative;flex:none;width:16px;height:16px}
+.en2 .echev img{position:absolute;inset:0;width:100%;height:100%}
+</style>
+</head>
+<body>
+
+<section class="demo">
+  <h2>1 · entry（作业榜入口卡 341×167，v2）</h2>
+  <div class="box">
+    <div class="en2" role="button" tabindex="0" aria-label="美食作业榜，全部 39">
+      <div class="bg1"></div><div class="bg2"></div>
+      <div class="glow gl1"><i><img src="assets/components/entry-glow-1.svg" alt=""></i></div>
+      <div class="glow gl2"><i><img src="assets/components/entry-glow-2.svg" alt=""></i></div>
+      <div class="wash"></div>
+      <div class="prow">
+        <div class="pw pw1"><div class="ph"><img src="assets/gallery/pic-01.jpg" alt=""></div></div>
+        <div class="pw pw2"><div class="ph"><img src="assets/gallery/pic-05.jpg" alt=""></div></div>
+        <div class="pw pw3"><div class="ph"><img src="assets/gallery/pic-17.jpg" alt=""></div></div>
+        <div class="pw pw4"><div class="ph soft"><img src="assets/gallery/pic-07.jpg" alt=""></div></div>
+        <div class="pw pw5"><div class="ph"><img src="assets/gallery/pic-11.jpg" alt=""></div></div>
+      </div>
+      <div class="eh">
+        <div class="el">
+          <div class="eicon"><img src="assets/page/header-confetti-2.png" alt=""></div>
+          <div class="etitle"><img src="assets/components/entry-title-v2.png" alt="美食作业榜"></div>
+        </div>
+        <div class="er">
+          <div class="ecnt"><p class="zh">全部</p><p class="en">39</p></div>
+          <div class="echev"><img src="assets/components/entry-chevron.svg" alt=""></div>
+        </div>
+      </div>
+    </div>
+  
+  </div>
+</section>
+
+<section class="demo">
+  <div class="demo-head">
+    <h2>2 · filter（流派筛选 375×49，可横向滚动）</h2>
+    <label for="toggle-back"><input type="checkbox" id="toggle-back" checked> 显示返回箭头（选中态同时出现刷新）</label>
+  </div>
+  <div class="box">
+    <div class="filter" id="filter" data-back="show" role="tablist">
+      <button class="back" id="filter-back" aria-label="返回"><img src="assets/page/header-back.svg" alt=""></button>
+      <div class="chip all">
+        <button class="lbl zh" role="tab" aria-selected="true">全部</button>
+        <button class="rf" id="filter-refresh" aria-label="刷新"><span class="rg"><span class="gp"><i><img src="assets/components/filter-refresh.svg" alt=""></i></span></span></button>
+      </div>
+      <button class="chip chili" role="tab" aria-selected="false">
+        <span class="em" style="width:19px;height:19px"><span class="clip"><img src="assets/components/filter-chili.png" alt="" style="left:-31.58%;top:-23.68%;width:147.37%;height:147.37%"></span></span>
+        <p class="zh">川渝麻辣版</p>
+      </button>
+      <button class="chip salt" role="tab" aria-selected="false">
+        <span class="em" style="width:17.434px;height:22.228px"><span class="clip"><img src="assets/components/filter-salt.png" alt="" style="left:-33.33%;top:-15.36%;width:155.56%;height:122.01%"></span></span>
+        <p class="zh">少油少盐</p>
+      </button>
+      <button class="chip deluxe" role="tab" aria-selected="false">
+        <span class="em" style="width:25.099px;height:19px"><span class="clip"><img src="assets/components/filter-deluxe.png" alt="" style="left:-8.05%;top:-23.68%;width:111.56%;height:147.37%"></span></span>
+        <p class="zh">加料豪华版</p>
+      </button>
+      <button class="chip fusion" role="tab" aria-selected="false">
+        <span class="em" style="width:22.047px;height:19px"><span class="clip"><img src="assets/components/filter-fusion.png" alt="" style="left:0;top:-12.53%;width:104.98%;height:121.82%"></span></span>
+        <span class="t"><p class="grad zh">中西</p><p class="en">Fusion</p></span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<section class="demo">
+  <h2>3 · gallery（作业画廊 580×233）</h2>
+  <div class="box">
+    <div class="gallery">
+      <div class="gcard g1">
+        <div class="back"></div>
+        <div class="slot"><div class="ph"><img src="assets/gallery/pic-01.jpg" alt=""></div></div>
+        <div class="tag"><p class="zh">3 张</p></div>
+      </div>
+      <div class="gcard g2">
+        <div class="back"></div>
+        <div class="slot"><div class="ph"><img src="assets/gallery/pic-03.jpg" alt=""></div></div>
+        <div class="tag"><p class="zh">2 张</p></div>
+      </div>
+      <div class="gcard g3">
+        <div class="back"></div>
+        <div class="slot"><div class="ph"><img src="assets/gallery/pic-04.jpg" alt=""></div></div>
+        <div class="tag"><p class="zh">2 张</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="demo">
+  <h2>4 · comment（评论与回复 343×313）</h2>
+  <div class="box">
+    <div class="comment">
+      <div class="tail"><img src="assets/components/comment-tail.svg" alt=""></div>
+      <div class="card">
+        <div class="av35"><img src="assets/components/comment-avatar-1.png" alt="" width="35" height="35"></div>
+        <div class="col">
+          <div class="blk">
+            <div class="txt zh">
+              <p class="nm">辣妹子很怕拉</p>
+              <p class="ct">对老几太好了，加了超量的辣椒，还加了巨多的肉、洋葱和胡萝卜碎，直接变成肉夹馍，超级爆炸满足！！</p>
+            </div>
+            <div class="mrow">
+              <div class="ml"><div class="d"><p class="en">10-04</p><p class="zh">四川</p></div><p class="r zh">回复</p></div>
+              <div class="mr">
+                <div class="lk"><div class="h"><img src="assets/components/comment-heart.svg" alt=""></div><span class="en">129</span></div>
+                <div class="sad"><div class="g"><i><img src="assets/components/comment-sad.svg" alt=""></i></div></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="sub">
+            <div class="av23"><img src="assets/components/comment-avatar-2.png" alt="" width="23" height="23"></div>
+            <div class="col2">
+              <div class="txt">
+                <p class="nm en">Anna</p>
+                <p class="ct zh">放什么辣椒好吃啊？</p>
+              </div>
+              <div class="mrow">
+                <div class="ml"><div class="d"><p class="en">10-04</p><p class="zh">中国香港</p></div><p class="r zh">回复</p></div>
+                <div class="mr">
+                  <div class="lk"><div class="h"><img src="assets/components/comment-heart.svg" alt=""></div><span class="en">32</span></div>
+                  <div class="sad"><div class="g"><i><img src="assets/components/comment-sad.svg" alt=""></i></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="sub">
+            <div class="av23"><img src="assets/components/comment-avatar-3.png" alt="" width="23" height="23"></div>
+            <div class="col2">
+              <div class="txt">
+                <p class="nm zh">辣妹子很怕拉</p>
+                <div class="rp"><p class="a zh">回复</p><p class="b en">Anna</p><p class="c zh">我用二荆条辣椒面哦！</p></div>
+              </div>
+              <div class="mrow">
+                <div class="ml"><div class="d"><p class="en">10-04</p><p class="zh">四川</p></div><p class="r zh">回复</p></div>
+                <div class="mr">
+                  <div class="lk"><div class="h"><img src="assets/components/comment-heart.svg" alt=""></div><span class="en">68</span></div>
+                  <div class="sad"><div class="g"><i><img src="assets/components/comment-sad.svg" alt=""></i></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="more">
+            <div class="mg">
+              <div class="ln"></div>
+              <p class="zh">展开更多回复</p>
+            </div>
+            <p class="zh">收起</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="demo">
+  <h2>5 · diandian（AI 总结卡 343×87）</h2>
+  <div class="box">
+    <div class="diandian">
+      <div class="hl hl1"><i></i></div>
+      <div class="hl hl2"><i></i></div>
+      <div class="hl hl3"><i></i></div>
+      <div class="hl hl4"><i></i></div>
+      <div class="hl hl5"><i></i></div>
+      <div class="who"><div class="ic"><img src="assets/components/diandian-icon.png" alt=""></div><p class="zh">点点</p></div>
+      <p class="body zh">酱换成<b>郫县豆瓣酱</b>，刷<b>红油</b>撒<b>二荆条辣椒面</b>和<b>花椒面</b>，辣里带麻，多放肉和洋葱，比原版重口得多！</p>
+    </div>
+  </div>
+</section>
+
+<section class="demo">
+  <h2>6 · button（「我也交作业」191×43）</h2>
+  <div class="box stagepad">
+    <button class="btn" aria-label="我也交作业">
+      <span class="inset"></span>
+      <span class="label"><img src="assets/components/button-label.png" alt=""></span>
+      <span class="pan"><img src="assets/components/button-icon.png" alt=""></span>
+    </button>
+  </div>
+</section>
+
+<section class="demo">
+  <div class="demo-head">
+    <h2>7 · comment-bottom-sheet（评论弹层 375×1066，隐藏入口卡时 375×875）</h2>
+    <label for="toggle-entry"><input type="checkbox" id="toggle-entry" checked> 显示作业榜入口</label>
+  </div>
+  <div class="box">
+    <div class="bsheet" id="bsheet" data-entry="show">
+      <div class="bh">
+        <div class="count">
+          <p class="zh">共</p><p class="en">668</p><p class="zh">条评论</p>
+          <div class="i16"><img src="assets/before/icon-sort.svg" alt=""></div>
+        </div>
+        <button class="i24" aria-label="关闭" style="background:none;border:0;padding:0;cursor:pointer"><img src="assets/before/icon-close.svg" alt=""></button>
+      </div>
+
+      <div class="entry" id="sheet-entry" role="button" tabindex="0" aria-label="作业榜，作业 39">
+        <div class="bg1"></div><div class="bg2"></div>
+        <div class="glow g1"><i><img src="assets/components/entry-glow-1.svg" alt=""></i></div>
+        <div class="glow g2"><i><img src="assets/components/entry-glow-2.svg" alt=""></i></div>
+        <div class="wash"></div>
+        <div class="slot s1"><div class="ph"><img src="assets/gallery/pic-01.jpg" alt=""></div></div>
+        <div class="slot s2"><div class="ph"><img src="assets/gallery/pic-05.jpg" alt=""></div></div>
+        <div class="slot s3"><div class="ph"><img src="assets/gallery/pic-17.jpg" alt=""></div></div>
+        <div class="slot s4"><div class="ph soft"><img src="assets/gallery/pic-07.jpg" alt=""></div></div>
+        <div class="slot s5"><div class="ph"><img src="assets/gallery/pic-11.jpg" alt=""></div></div>
+        <div class="head">
+          <div class="title"><img src="assets/components/entry-title.png" alt="作业榜"></div>
+          <div class="more">
+            <p class="zh">作业</p><p class="en">39</p>
+            <div class="chev"><img src="assets/components/entry-chevron.svg" alt=""></div>
+          </div>
+        </div>
+      </div>
+
+      <article class="row">
+        <div class="av"><img src="assets/before/avatar-1.png" alt="" width="35" height="35"></div>
+        <div class="col">
+          <div class="txt"><p class="nm en">Gummybear</p><p class="ct zh">立刻交作业 谢谢阿老师</p></div>
+          <div class="body">
+            <div class="pw"><div class="photo"><img src="assets/before/photo-1.jpg" alt=""></div></div>
+            <div class="meta">
+              <div class="mrow">
+                <div class="ml"><div class="d"><p class="en">10-04</p><p class="zh">新西兰</p></div><p class="r zh">回复</p></div>
+                <div class="mr">
+                  <div class="lk"><div class="h"><img src="assets/before/icon-heart.svg" alt=""></div><span class="en">48</span></div>
+                  <div class="sad"><div class="g"><i><img src="assets/before/icon-sad.svg" alt=""></i></div></div>
+                </div>
+              </div>
+              <div class="bmore"><div class="ln"></div><p class="zh">展开 12 条回复</p></div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="row">
+        <div class="av"><img src="assets/before/avatar-2.png" alt="" width="35" height="35"></div>
+        <div class="col">
+          <div class="txt"><p class="nm en">momo</p><p class="ct zh">放了超多辣椒哈哈哈哈哈哈</p></div>
+          <div class="body">
+            <div class="pw"><div class="photo"><img src="assets/before/photo-2.jpg" alt=""></div></div>
+            <div class="meta">
+              <div class="mrow">
+                <div class="ml"><div class="d"><p class="en">10-04</p><p class="zh">北京</p></div><p class="r zh">回复</p></div>
+                <div class="mr">
+                  <div class="lk"><div class="h"><img src="assets/before/icon-heart.svg" alt=""></div><span class="en">48</span></div>
+                  <div class="sad"><div class="g"><i><img src="assets/before/icon-sad.svg" alt=""></i></div></div>
+                </div>
+              </div>
+              <div class="bmore"><div class="ln"></div><p class="zh">展开 12 条回复</p></div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="row">
+        <div class="av"><img src="assets/before/avatar-3.png" alt="" width="35" height="35"></div>
+        <div class="col">
+          <div class="txt zh"><p class="nm">爱吃草的肉肉酱</p><p class="ct">做成了披萨</p></div>
+          <div class="body">
+            <div class="pw"><div class="photo soft"><img src="assets/before/photo-3.jpg" alt=""></div></div>
+            <div class="meta">
+              <div class="mrow">
+                <div class="ml"><div class="d"><p class="en">10-04</p><p class="zh">江苏</p></div><p class="r zh">回复</p></div>
+                <div class="mr">
+                  <div class="lk"><div class="h"><img src="assets/before/icon-heart.svg" alt=""></div><span class="en">48</span></div>
+                  <div class="sad"><div class="g"><i><img src="assets/before/icon-sad.svg" alt=""></i></div></div>
+                </div>
+              </div>
+              <div class="bmore"><div class="ln"></div><p class="zh">展开 12 条回复</p></div>
+            </div>
+          </div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="demo">
+  <h2>8 · pic-carousel（图片轮播 343×497）</h2>
+  <div class="box">
+    <div class="pc" id="pc" data-active="0">
+      <div class="frame"><img src="assets/gallery/pic-01.jpg" alt=""></div>
+      <div class="dots" role="tablist" aria-label="图片">
+        <button class="dot" role="tab" aria-label="第 1 张" aria-current="true"><img class="off" src="assets/components/carousel-dot-off.svg" alt=""><img class="on" src="assets/components/carousel-dot-on.svg" alt=""></button>
+        <button class="dot" role="tab" aria-label="第 2 张"><img class="off" src="assets/components/carousel-dot-off.svg" alt=""><img class="on" src="assets/components/carousel-dot-on.svg" alt=""></button>
+        <button class="dot" role="tab" aria-label="第 3 张"><img class="off" src="assets/components/carousel-dot-off.svg" alt=""><img class="on" src="assets/components/carousel-dot-on.svg" alt=""></button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="demo">
+  <h2>9 · name-tag（名字条 343×59）</h2>
+  <div class="box">
+    <div class="ntag">
+      <div class="nl">
+        <div class="av"><img src="assets/before/avatar-1.png" alt="" width="35" height="35"></div>
+        <p class="nm zh">辣妹子很怕拉</p>
+      </div>
+      <div class="nr">
+        <div class="ni"><div class="ic"><img src="assets/before/icon-heart.svg" alt=""></div><span class="en">129</span></div>
+        <div class="ni"><div class="ic"><img src="assets/components/nametag-comment.svg" alt=""></div><span class="en">24</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+/* pic-carousel 指示点：setCarouselIndex(el, i) 设置当前张；点击指示点同步，并派发 carousel:change（detail.index） */
+function setCarouselIndex(el, i){
+  var dots=el.querySelectorAll('.dot');
+  if(i<0||i>=dots.length) return;
+  el.setAttribute('data-active', i);
+  for(var k=0;k<dots.length;k++){ if(k===i) dots[k].setAttribute('aria-current','true'); else dots[k].removeAttribute('aria-current'); }
+}
+(function(){
+  var pc=document.getElementById('pc'), dots=pc.querySelectorAll('.dot');
+  for(var k=0;k<dots.length;k++){ (function(i){ dots[i].addEventListener('click',function(){ setCarouselIndex(pc,i); pc.dispatchEvent(new CustomEvent('carousel:change',{bubbles:true,detail:{index:i}})); }); })(k); }
+})();
+</script>
+
+<script>
+/* filter 返回箭头：setFilterBack(el, true|false) 控制显示；点击派发 filter:back 事件 */
+function setFilterBack(el, show){
+  el.setAttribute('data-back', show ? 'show' : 'hidden');
+}
+/* 评论弹层的作业榜入口：setSheetEntry(el, true|false) 控制出现或消失；点击入口派发 sheet:entry 事件 */
+function setSheetEntry(el, show){
+  el.setAttribute('data-entry', show ? 'show' : 'hidden');
+}
+(function(){
+  var s=document.getElementById('bsheet'), t=document.getElementById('toggle-entry'), e=document.getElementById('sheet-entry');
+  t.addEventListener('change',function(){ setSheetEntry(s,t.checked); });
+  function open(){ s.dispatchEvent(new CustomEvent('sheet:entry',{bubbles:true})); }
+  e.addEventListener('click',open);
+  e.addEventListener('keydown',function(ev){ if(ev.key==='Enter'||ev.key===' '){ ev.preventDefault(); open(); } });
+})();
+(function(){
+  var f=document.getElementById('filter'), t=document.getElementById('toggle-back'), b=document.getElementById('filter-back');
+  t.addEventListener('change',function(){ setFilterBack(f,t.checked); });
+  b.addEventListener('click',function(){ f.dispatchEvent(new CustomEvent('filter:back',{bubbles:true})); });
+  document.getElementById('filter-refresh').addEventListener('click',function(){ f.dispatchEvent(new CustomEvent('filter:refresh',{bubbles:true})); });
+})();
+(function(){
+  var e=document.querySelector('.en2');
+  function open(){ e.dispatchEvent(new CustomEvent('entry:open',{bubbles:true})); }
+  e.addEventListener('click',open);
+  e.addEventListener('keydown',function(ev){ if(ev.key==='Enter'||ev.key===' '){ ev.preventDefault(); open(); } });
+})();
+</script>
+</body>
+</html>

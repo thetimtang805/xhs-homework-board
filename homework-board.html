@@ -113,6 +113,7 @@ p{font-weight:400}
 .stack{display:flex;flex-direction:column;align-items:stretch;padding-top:160px;padding-bottom:140px}
 /* 列表满屏滚动：内容从头部渐变（到 0 透明度）下面穿过，而不是在 y=160 处被硬裁掉。头部渐变盖在内容之上、筛选行/标题之下 */
 .band{z-index:3;pointer-events:none}
+.page[data-mode="detail"] .band{z-index:1}  /* 大图态：渐变在图片下面，图片顶部不被盖 */
 .c1{z-index:3}
 
 /* 筛选行：列表态在 y=95，大图态上移 48px 到 y=47；返回箭头是页面级固定元素，位置不动 */

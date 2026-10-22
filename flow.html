@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#000000">
+<meta name="format-detection" content="telephone=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
@@ -53,6 +54,18 @@ body{position:fixed;inset:0;overflow:hidden;background:var(--stage);display:flex
     var w=window.innerWidth,h=window.innerHeight,s=Math.min(w/375,h/812);
     if(w>600) s=Math.min(s,1);
     document.documentElement.style.setProperty('--s',String(s));
+  }
+  /* 从主屏幕全屏打开时，真机自带刘海、状态栏和 Home 横条，页面里画的假状态栏/刘海/横条要藏起来，否则会叠在一起（?standalone 可在浏览器里预览这个状态） */
+  var standalone=navigator.standalone===true||(window.matchMedia&&matchMedia('(display-mode: standalone)').matches)||/[?&]standalone\b/.test(location.search);
+  if(standalone){
+    ['video','sheet','board'].forEach(function(id){
+      var f=document.getElementById(id);
+      function hideFake(){
+        try{var d=f.contentDocument;if(!d||!d.head||d.getElementById('no-fake-chrome')) return;
+          var st=d.createElement('style');st.id='no-fake-chrome';st.textContent='.status,.home,.home2{display:none!important}';d.head.appendChild(st);}catch(e){}
+      }
+      f.addEventListener('load',hideFake);hideFake();
+    });
   }
   fit();window.addEventListener('resize',fit);window.addEventListener('orientationchange',fit);
   if(window.visualViewport) window.visualViewport.addEventListener('resize',fit);

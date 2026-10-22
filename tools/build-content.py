@@ -183,8 +183,26 @@ def build_md():
     return '\n'.join(out)
 
 
+def build_lqip():
+    """每张图的 24px 宽模糊缩略图（base64 内嵌）：大图首次加载时先显示它，高清图到了再淡入。需要 Pillow。"""
+    import base64, io
+    from PIL import Image
+    out = {}
+    for t in TABS:
+        for grp in t['images']:
+            for rel in grp:
+                if rel in out:
+                    continue
+                im = Image.open(os.path.join(ROOT, rel)).convert('RGB')
+                im.thumbnail((24, 32))
+                buf = io.BytesIO()
+                im.save(buf, 'JPEG', quality=55)
+                out[rel] = 'data:image/jpeg;base64,' + base64.b64encode(buf.getvalue()).decode()
+    return out
+
+
 def build_js():
-    data = {'author': AUTHOR, 'visibleReplies': VISIBLE_REPLIES,
+    data = {'author': AUTHOR, 'visibleReplies': VISIBLE_REPLIES, 'lqip': build_lqip(),
             'tabs': {t['key']: {'label': t['label'], 'summary': t['summary'], 'groups': t['groups'], 'images': t['images']} for t in TABS}}
     return '/* 由 tools/build-content.py 生成，请改那边的数据 */\nwindow.BOARD_CONTENT=' + json.dumps(data, ensure_ascii=False, indent=1) + ';\n'
 

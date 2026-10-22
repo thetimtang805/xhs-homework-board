@@ -61,9 +61,6 @@ p{font-weight:400}
 
 /* ---- filter：返回箭头 + 流派 chip，选中态在箭头显示时出现刷新 ---- */
 .hf{display:flex;align-items:center;width:100%;height:65px;flex:none;position:sticky;top:0;z-index:5}
-/* filter 背后一层模糊：内容滚到筛选行下面时被虚化，底边 12px 渐隐，避免出现硬边 */
-.hf::before{content:"";position:absolute;left:0;right:0;top:0;bottom:-12px;z-index:-1;pointer-events:none;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);-webkit-mask-image:linear-gradient(to bottom,#000 calc(100% - 12px),transparent);mask-image:linear-gradient(to bottom,#000 calc(100% - 12px),transparent)}
-@media (prefers-reduced-transparency:reduce){.hf::before{-webkit-backdrop-filter:none;backdrop-filter:none;background:rgba(255,245,235,.92)}}
 .hf .chips{display:flex;align-items:center;gap:var(--space-sm);flex:1;min-width:0;height:100%;padding-right:var(--space-xl);overflow-x:auto;scrollbar-width:none;scroll-padding-inline:var(--space-xl)}
 .hf[data-back="hidden"] .chips{padding-left:var(--space-xl)}
 .hf .chips::-webkit-scrollbar{display:none}

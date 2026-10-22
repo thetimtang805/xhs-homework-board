@@ -69,11 +69,11 @@ p{font-weight:400}
 .video{position:absolute;left:0;top:0;width:100%;height:737px;overflow:hidden;background:var(--v-gap-bottom)}
 .video .gap{position:absolute;left:0;right:0;top:0;height:5px;background:var(--v-gap-top)}
 .video .vf{position:absolute;left:50%;top:4.11px;width:406.5px;height:722px;max-width:none;transform:translateX(-50%);display:block}
-.video .sc-top{position:absolute;left:0;right:0;top:0;height:120px;background:linear-gradient(to bottom,color-mix(in srgb,var(--v-scrim) 35%,transparent),color-mix(in srgb,var(--v-scrim) 20%,transparent) 35%,color-mix(in srgb,var(--v-scrim) 7%,transparent) 70%,transparent)}
-.video .sc-bot{position:absolute;left:0;right:0;bottom:0;height:237px;background:linear-gradient(to bottom,transparent,color-mix(in srgb,var(--v-scrim) 6%,transparent) 35%,color-mix(in srgb,var(--v-scrim) 20%,transparent) 65%,color-mix(in srgb,var(--v-scrim) 45%,transparent))}
+.video .sc-top{position:absolute;left:0;right:0;top:0;height:120px;background:linear-gradient(to bottom,color-mix(in srgb,var(--v-scrim) 20%,transparent),color-mix(in srgb,var(--v-scrim) 11%,transparent) 35%,color-mix(in srgb,var(--v-scrim) 4%,transparent) 70%,transparent)}
+.video .sc-bot{position:absolute;left:0;right:0;bottom:0;height:237px;background:linear-gradient(to bottom,transparent,color-mix(in srgb,var(--v-scrim) 4%,transparent) 35%,color-mix(in srgb,var(--v-scrim) 12%,transparent) 65%,color-mix(in srgb,var(--v-scrim) 28%,transparent))}
 
 /* ===== 状态栏（深色，白字）：信号/Wi-Fi 用设计系统 Status Bar 的图标路径，时间用 heading 字体样式 ===== */
-.status{position:absolute;left:0;top:0;width:100%;height:44px;z-index:5;pointer-events:none;color:var(--color-canvas-light);filter:drop-shadow(0 1px 2px var(--v-shadow))}
+.status{position:absolute;left:0;top:0;width:100%;height:44px;z-index:5;pointer-events:none;color:var(--color-canvas-light)}
 .status .time{position:absolute;left:38.5px;top:14.2px;font-family:var(--font-en);font-weight:590;font-size:var(--heading-font-size);line-height:var(--heading-line-height);letter-spacing:var(--heading-letter-spacing);font-variant-numeric:tabular-nums}
 .status .sig{position:absolute;left:274.5px;top:18.9px}
 .status .wifi{position:absolute;left:300px;top:19.35px}
@@ -98,7 +98,6 @@ p{font-weight:400}
 .chip,.author,.follow,.duration,.desc,.live{translate:0 var(--lift);transition:translate 200ms ease-out}
 .page.expanded .chip,.page.expanded .author,.page.expanded .follow,.page.expanded .duration,.page.expanded .desc{translate:0 calc(var(--lift) - 20px)}
 @media (prefers-reduced-motion:reduce){.chip,.author,.follow,.duration,.desc,.live{transition:none}}
-.author .name,.desc,.live .t1,.live .t2,.chip .t1,.chip .t2,.duration,.follow{text-shadow:0 1px 2px var(--v-shadow)}
 .chip{position:absolute;left:15.5px;top:598px;height:25px;width:158.6px;display:flex;align-items:center;padding:0 10px 0 9px;border-radius:var(--radius-pill);background:var(--v-badge);box-shadow:inset 0 0 0 .5px var(--white-18);z-index:3;white-space:nowrap}
 .chip .dot{flex:none;width:9px;height:9px;border-radius:50%;background:var(--color-brand-500)}
 .chip .red{flex:none;margin-left:0;font-family:var(--font-en);font-weight:800;font-size:var(--body-sm-font-size);line-height:var(--body-sm-line-height);letter-spacing:var(--body-sm-letter-spacing);color:var(--color-brand-500);transform:translateY(.5px)}

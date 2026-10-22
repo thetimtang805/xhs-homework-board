@@ -186,16 +186,16 @@ p{font-weight:400}
 .gcard:focus-visible{border-radius:var(--radius-container)}
 
 
-/* ===== 悬浮按钮托底：渐进模糊。从按钮上沿再往上 60px 开始，0→16px，按钮在其上方保持清晰 =====
-   6 层叠加，每层只在自己的区段渐显；叠加后总模糊 = √(Σ层²)，依次到 2.7/5.3/8/10.7/13.3/16px */
+/* ===== 悬浮按钮托底：渐进模糊。从按钮上沿再往上 60px 开始，0→8px、整体 80% 不透明（写在每层 mask 的 alpha 上；opacity 会截断 backdrop-filter），按钮在其上方保持清晰 =====
+   6 层叠加，每层只在自己的区段渐显；叠加后总模糊 = √(Σ层²)，依次到 1.3/2.7/4/5.3/6.7/8px */
 .dock{position:absolute;left:0;right:0;bottom:0;height:132px;z-index:2;pointer-events:none}
 .dock i{position:absolute;inset:0}
-.dock i:nth-child(1){-webkit-backdrop-filter:blur(2.67px);backdrop-filter:blur(2.67px);-webkit-mask-image:linear-gradient(to bottom,transparent 0.00%,#000 16.67%);mask-image:linear-gradient(to bottom,transparent 0.00%,#000 16.67%)}
-.dock i:nth-child(2){-webkit-backdrop-filter:blur(4.62px);backdrop-filter:blur(4.62px);-webkit-mask-image:linear-gradient(to bottom,transparent 16.67%,#000 33.33%);mask-image:linear-gradient(to bottom,transparent 16.67%,#000 33.33%)}
-.dock i:nth-child(3){-webkit-backdrop-filter:blur(5.96px);backdrop-filter:blur(5.96px);-webkit-mask-image:linear-gradient(to bottom,transparent 33.33%,#000 50.00%);mask-image:linear-gradient(to bottom,transparent 33.33%,#000 50.00%)}
-.dock i:nth-child(4){-webkit-backdrop-filter:blur(7.06px);backdrop-filter:blur(7.06px);-webkit-mask-image:linear-gradient(to bottom,transparent 50.00%,#000 66.67%);mask-image:linear-gradient(to bottom,transparent 50.00%,#000 66.67%)}
-.dock i:nth-child(5){-webkit-backdrop-filter:blur(8.00px);backdrop-filter:blur(8.00px);-webkit-mask-image:linear-gradient(to bottom,transparent 66.67%,#000 83.33%);mask-image:linear-gradient(to bottom,transparent 66.67%,#000 83.33%)}
-.dock i:nth-child(6){-webkit-backdrop-filter:blur(8.84px);backdrop-filter:blur(8.84px);-webkit-mask-image:linear-gradient(to bottom,transparent 83.33%,#000 100.00%);mask-image:linear-gradient(to bottom,transparent 83.33%,#000 100.00%)}
+.dock i:nth-child(1){-webkit-backdrop-filter:blur(1.33px);backdrop-filter:blur(1.33px);-webkit-mask-image:linear-gradient(to bottom,transparent 0.00%,rgba(0,0,0,.8) 16.67%);mask-image:linear-gradient(to bottom,transparent 0.00%,rgba(0,0,0,.8) 16.67%)}
+.dock i:nth-child(2){-webkit-backdrop-filter:blur(2.31px);backdrop-filter:blur(2.31px);-webkit-mask-image:linear-gradient(to bottom,transparent 16.67%,rgba(0,0,0,.8) 33.33%);mask-image:linear-gradient(to bottom,transparent 16.67%,rgba(0,0,0,.8) 33.33%)}
+.dock i:nth-child(3){-webkit-backdrop-filter:blur(2.98px);backdrop-filter:blur(2.98px);-webkit-mask-image:linear-gradient(to bottom,transparent 33.33%,rgba(0,0,0,.8) 50.00%);mask-image:linear-gradient(to bottom,transparent 33.33%,rgba(0,0,0,.8) 50.00%)}
+.dock i:nth-child(4){-webkit-backdrop-filter:blur(3.53px);backdrop-filter:blur(3.53px);-webkit-mask-image:linear-gradient(to bottom,transparent 50.00%,rgba(0,0,0,.8) 66.67%);mask-image:linear-gradient(to bottom,transparent 50.00%,rgba(0,0,0,.8) 66.67%)}
+.dock i:nth-child(5){-webkit-backdrop-filter:blur(4.00px);backdrop-filter:blur(4.00px);-webkit-mask-image:linear-gradient(to bottom,transparent 66.67%,rgba(0,0,0,.8) 83.33%);mask-image:linear-gradient(to bottom,transparent 66.67%,rgba(0,0,0,.8) 83.33%)}
+.dock i:nth-child(6){-webkit-backdrop-filter:blur(4.42px);backdrop-filter:blur(4.42px);-webkit-mask-image:linear-gradient(to bottom,transparent 83.33%,rgba(0,0,0,.8) 100.00%);mask-image:linear-gradient(to bottom,transparent 83.33%,rgba(0,0,0,.8) 100.00%)}
 @media (prefers-reduced-transparency:reduce){.dock i{display:none}.dock{background:linear-gradient(to bottom,rgba(255,255,255,0),#fff 80%)}}
 
 /* ===== 悬浮按钮「我也交作业」191×43：固定在评论区上方 ===== */

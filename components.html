@@ -183,8 +183,8 @@ p{font-weight:400}
 .btn:focus-visible{outline:2px solid var(--color-text-primary);outline-offset:3px}
 
 /* ---------- 7 comment-bottom-sheet · 375×875 ---------- */
-.bsheet{display:flex;flex-direction:column;align-items:flex-start;gap:var(--space-2xl);width:375px;height:875px;padding:var(--space-xl);border-radius:var(--radius-container) var(--radius-container) 0 0;background:var(--color-surface-default);flex:none}
-.bsheet .head{display:flex;align-items:center;justify-content:space-between;width:100%;flex:none}
+.bsheet{display:flex;flex-direction:column;align-items:flex-start;gap:var(--space-2xl);width:375px;height:auto;padding:var(--space-xl);border-radius:var(--radius-container) var(--radius-container) 0 0;background:var(--color-surface-default);flex:none}
+.bsheet .bh{display:flex;align-items:center;justify-content:space-between;width:100%;flex:none}
 .bsheet .count{display:flex;align-items:center;gap:var(--space-2xs)}
 .bsheet .count p{font-size:var(--body-sm-font-size);line-height:var(--body-sm-line-height);letter-spacing:var(--body-sm-letter-spacing);color:var(--color-text-primary);white-space:nowrap}
 .bsheet .i16{position:relative;flex:none;width:16px;height:16px}
@@ -216,11 +216,14 @@ p{font-weight:400}
 .bsheet .sad .g{position:absolute;inset:8.33%}
 .bsheet .sad .g i{position:absolute;inset:-5%}
 .bsheet .sad .g img{display:block;width:100%;height:100%}
-.bsheet .more{display:flex;align-items:center;gap:var(--space-sm);padding-left:var(--space-md);width:100%}
-.bsheet .more .ln{position:relative;flex:none;width:23px;height:0}
-.bsheet .more .ln i{position:absolute;inset:-.5px 0 0 0}
-.bsheet .more .ln img{display:block;width:100%;height:100%}
-.bsheet .more p{font-size:var(--caption-font-size);line-height:var(--caption-line-height);letter-spacing:var(--caption-letter-spacing);color:var(--color-text-primary);white-space:nowrap}
+.bsheet .bmore{display:flex;align-items:center;gap:var(--space-sm);padding-left:var(--space-md);width:100%}
+.bsheet .bmore .ln{position:relative;flex:none;width:23px;height:0}
+.bsheet .bmore .ln i{position:absolute;inset:-.5px 0 0 0}
+.bsheet .bmore .ln img{display:block;width:100%;height:100%}
+/* 作业榜入口卡：data-entry="hidden" 时整体移除（含上下间距），弹层高度 1066 → 875 */
+.bsheet[data-entry="hidden"] .entry{display:none}
+.bsheet .entry:focus-visible{outline:2px solid var(--color-icon-accent);outline-offset:2px}
+.bsheet .bmore p{font-size:var(--caption-font-size);line-height:var(--caption-line-height);letter-spacing:var(--caption-letter-spacing);color:var(--color-text-primary);white-space:nowrap}
 </style>
 </head>
 <body>
@@ -395,15 +398,37 @@ p{font-weight:400}
 </section>
 
 <section class="demo">
-  <h2>7 · comment-bottom-sheet（评论弹层 375×875）</h2>
+  <div class="demo-head">
+    <h2>7 · comment-bottom-sheet（评论弹层 375×1066，隐藏入口卡时 375×875）</h2>
+    <label for="toggle-entry"><input type="checkbox" id="toggle-entry" checked> 显示作业榜入口</label>
+  </div>
   <div class="box">
-    <div class="bsheet">
-      <div class="head">
+    <div class="bsheet" id="bsheet" data-entry="show">
+      <div class="bh">
         <div class="count">
           <p class="zh">共</p><p class="en">668</p><p class="zh">条评论</p>
           <div class="i16"><img src="assets/before/icon-sort.svg" alt=""></div>
         </div>
         <button class="i24" aria-label="关闭" style="background:none;border:0;padding:0;cursor:pointer"><img src="assets/before/icon-close.svg" alt=""></button>
+      </div>
+
+      <div class="entry" id="sheet-entry" role="button" tabindex="0" aria-label="作业榜，作业 39">
+        <div class="bg1"></div><div class="bg2"></div>
+        <div class="glow g1"><i><img src="assets/components/entry-glow-1.svg" alt=""></i></div>
+        <div class="glow g2"><i><img src="assets/components/entry-glow-2.svg" alt=""></i></div>
+        <div class="wash"></div>
+        <div class="slot s1"><div class="ph"><img src="assets/components/entry-1.jpg" alt=""></div></div>
+        <div class="slot s2"><div class="ph"><img src="assets/components/entry-2.jpg" alt=""></div></div>
+        <div class="slot s3"><div class="ph"><img src="assets/components/entry-3.jpg" alt=""></div></div>
+        <div class="slot s4"><div class="ph soft"><img src="assets/components/entry-4.jpg" alt=""></div></div>
+        <div class="slot s5"><div class="ph"><img src="assets/components/entry-5.jpg" alt=""></div></div>
+        <div class="head">
+          <div class="title"><img src="assets/components/entry-title.png" alt="作业榜"></div>
+          <div class="more">
+            <p class="zh">作业</p><p class="en">39</p>
+            <div class="chev"><img src="assets/components/entry-chevron.svg" alt=""></div>
+          </div>
+        </div>
       </div>
 
       <article class="row">
@@ -420,7 +445,7 @@ p{font-weight:400}
                   <div class="sad"><div class="g"><i><img src="assets/before/icon-sad.svg" alt=""></i></div></div>
                 </div>
               </div>
-              <div class="more"><div class="ln"><i><img src="assets/before/line.svg" alt=""></i></div><p class="zh">展开 12 条回复</p></div>
+              <div class="bmore"><div class="ln"><i><img src="assets/before/line.svg" alt=""></i></div><p class="zh">展开 12 条回复</p></div>
             </div>
           </div>
         </div>
@@ -440,7 +465,7 @@ p{font-weight:400}
                   <div class="sad"><div class="g"><i><img src="assets/before/icon-sad.svg" alt=""></i></div></div>
                 </div>
               </div>
-              <div class="more"><div class="ln"><i><img src="assets/before/line.svg" alt=""></i></div><p class="zh">展开 12 条回复</p></div>
+              <div class="bmore"><div class="ln"><i><img src="assets/before/line.svg" alt=""></i></div><p class="zh">展开 12 条回复</p></div>
             </div>
           </div>
         </div>
@@ -460,7 +485,7 @@ p{font-weight:400}
                   <div class="sad"><div class="g"><i><img src="assets/before/icon-sad.svg" alt=""></i></div></div>
                 </div>
               </div>
-              <div class="more"><div class="ln"><i><img src="assets/before/line.svg" alt=""></i></div><p class="zh">展开 12 条回复</p></div>
+              <div class="bmore"><div class="ln"><i><img src="assets/before/line.svg" alt=""></i></div><p class="zh">展开 12 条回复</p></div>
             </div>
           </div>
         </div>
@@ -474,6 +499,17 @@ p{font-weight:400}
 function setFilterBack(el, show){
   el.setAttribute('data-back', show ? 'show' : 'hidden');
 }
+/* 评论弹层的作业榜入口：setSheetEntry(el, true|false) 控制出现或消失；点击入口派发 sheet:entry 事件 */
+function setSheetEntry(el, show){
+  el.setAttribute('data-entry', show ? 'show' : 'hidden');
+}
+(function(){
+  var s=document.getElementById('bsheet'), t=document.getElementById('toggle-entry'), e=document.getElementById('sheet-entry');
+  t.addEventListener('change',function(){ setSheetEntry(s,t.checked); });
+  function open(){ s.dispatchEvent(new CustomEvent('sheet:entry',{bubbles:true})); }
+  e.addEventListener('click',open);
+  e.addEventListener('keydown',function(ev){ if(ev.key==='Enter'||ev.key===' '){ ev.preventDefault(); open(); } });
+})();
 (function(){
   var f=document.getElementById('filter'), t=document.getElementById('toggle-back'), b=document.getElementById('filter-back');
   t.addEventListener('change',function(){ setFilterBack(f,t.checked); });

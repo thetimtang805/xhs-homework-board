@@ -124,11 +124,12 @@ p{font-weight:400}
 .hfwrap{--mt:95px;position:absolute;inset:0;z-index:3;pointer-events:none;-webkit-mask-image:linear-gradient(to bottom,transparent var(--mt),#000 calc(var(--mt) + 16px));mask-image:linear-gradient(to bottom,transparent var(--mt),#000 calc(var(--mt) + 16px));transition:--mt .44s var(--ease)}
 .hfwrap .hf{pointer-events:auto}
 .page[data-mode="detail"] .hfwrap{--mt:-16px}
-.hf .chips{display:flex;align-items:center;gap:var(--space-sm);flex:1;min-width:0;height:100%;margin-left:0;padding:0 var(--space-xl);overflow-x:auto;scrollbar-width:none;scroll-padding-inline:var(--space-xl);transition:margin-left .44s var(--ease)}
+.hf .chips{display:flex;align-items:center;gap:var(--space-sm);flex:1;min-width:0;height:100%;margin-left:0;padding:0 var(--space-xl);overflow-x:auto;scrollbar-width:none;scroll-padding-inline:var(--space-xl);transition:margin-left .44s var(--ease),padding-left .44s var(--ease)}
 .hf .chips::-webkit-scrollbar{display:none}
 .hf .chips::after{content:"";flex:none;width:1px}
 .page[data-mode="detail"] .hf{transform:translateY(-48px)}
-.page[data-mode="detail"] .hf .chips{margin-left:30px}
+/* 箭头占 16～38，右边留 12px 底色，chip 滑到 x=50 处被裁掉 */
+.page[data-mode="detail"] .hf .chips{margin-left:50px;padding-left:0;scroll-padding-inline-start:0}
 
 /* 标题栏、彩带、托底：大图态淡出 */
 .title,.rule,.dock{transition:opacity .25s ease-out}

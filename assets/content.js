@@ -273,7 +273,7 @@ window.BOARD_CONTENT={
     {
      "main": {
       "name": "芯芯向荣",
-      "avatar": "assets/avatars/avatar-18.png",
+      "avatar": "assets/avatars/avatar-15.png",
       "text": "麻味太上头了，花椒面撒多了舌头发麻哈哈",
       "date": "10-06",
       "loc": "广东",
@@ -294,7 +294,7 @@ window.BOARD_CONTENT={
       },
       {
        "name": "芯芯向荣",
-       "avatar": "assets/avatars/avatar-18.png",
+       "avatar": "assets/avatars/avatar-15.png",
        "text": "下次放半勺试试",
        "date": "10-07",
        "loc": "广东",
@@ -608,7 +608,7 @@ window.BOARD_CONTENT={
      "replies": [
       {
        "name": "ian",
-       "avatar": "assets/avatars/avatar-15.png",
+       "avatar": "assets/avatars/avatar-18.png",
        "text": "蛋是怎么做到溏心的？",
        "date": "10-07",
        "loc": "深圳",
@@ -672,7 +672,7 @@ window.BOARD_CONTENT={
      "replies": [
       {
        "name": "ian",
-       "avatar": "assets/avatars/avatar-15.png",
+       "avatar": "assets/avatars/avatar-18.png",
        "text": "甜辣酱会不会太甜？",
        "date": "10-06",
        "loc": "深圳",

@@ -15,6 +15,7 @@ AVATAR = {n: f'assets/avatars/avatar-{i:02d}.png' for i, n in enumerate(
     ['马vv', '曼食慢语', 'Neil', '罐罐儿', '露洁', '财正', 'Ada', 'Kiki', '欢欢', '斯淇',
      '三三姐', 'HY', '星星', 'Molly', 'ian', '金灵', '小星星', '芯芯向荣', 'CCC', '東方神韵'], 1)}
 AVATAR['曼食慢语'] = AUTHOR['avatar']
+AVATAR['芯芯向荣'], AVATAR['ian'] = AVATAR['ian'], AVATAR['芯芯向荣']   # 换头像：芯芯向荣用古风人物，原来那张给 ian
 AVATAR['辣妹子很怕拉'] = 'assets/components/comment-avatar-1.png'   # 原稿评论，保留
 
 

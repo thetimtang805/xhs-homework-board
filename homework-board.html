@@ -568,6 +568,8 @@ p{font-weight:400}
       return Math.max(0,Math.min(max,s));
     });
     centers=cards.map(function(c,i){return c.offsetLeft+c.offsetWidth/2-snaps[i];});
+    /* 最后一组：箭头右缘离评论卡右缘 12px（三角形宽 20，尖角在中心） */
+    centers[centers.length-1]=16+343-12-10;
     updateTail();
   }
   function lerp(a,b,t){return a+(b-a)*t;}

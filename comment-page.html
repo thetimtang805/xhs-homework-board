@@ -51,9 +51,9 @@ p{font-weight:400}
 .status .right{position:absolute;top:19px;left:calc(83.33% - .3px);transform:translateX(-50%);width:77.401px;height:13px}
 
 /* ===== 评论弹窗：从 y=219 起，内容在弹窗内滚动 ===== */
-.sheet{position:absolute;left:0;right:0;top:219px;bottom:0;z-index:1;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;background:var(--color-surface-default);border-radius:var(--radius-container) var(--radius-container) 0 0;transition:transform .32s cubic-bezier(.22,.8,.3,1)}
+.sheet{position:absolute;left:0;right:0;top:219px;bottom:0;z-index:1;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;background:var(--color-surface-default);border-radius:var(--radius-container) var(--radius-container) 0 0;transition:transform .32s cubic-bezier(.32,.72,0,1)}
 .sheet::-webkit-scrollbar{display:none}
-.sheet[data-open="false"]{transform:translateY(100%);visibility:hidden;transition:transform .32s cubic-bezier(.22,.8,.3,1),visibility 0s .32s}
+.sheet[data-open="false"]{transform:translateY(100%);visibility:hidden;transition:transform .24s cubic-bezier(.32,.72,0,1),visibility 0s .24s}
 .sheet .bh{position:sticky;top:0;z-index:2;display:flex;align-items:center;justify-content:space-between;padding:var(--space-xl) var(--space-xl) var(--space-2xl);background:var(--color-surface-default)}
 .sheet .count{display:flex;align-items:center;gap:var(--space-2xs)}
 .sheet .count p{font-size:var(--body-sm-font-size);line-height:var(--body-sm-line-height);letter-spacing:var(--body-sm-letter-spacing);color:var(--color-text-primary);white-space:nowrap}

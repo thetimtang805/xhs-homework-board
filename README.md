@@ -9,5 +9,5 @@
 - 完整页面：打开 `homework-page.html`（Figma rednote-ds page-homework-page 30:1031，375×812：筛选 → 点点总结 → 画廊 → 评论 + 悬浮按钮）
 - 评论区入口页：打开 `comment-page.html`（Figma rednote-ds page-comment-entry 27:738，375×812：评论弹窗内含作业榜入口，`setSheetEntry()` 控制入口显示/隐藏，`setSheetOpen()` 控制弹窗开合）
 - 大图页：打开 `homework-detail.html`（Figma rednote-ds page-homework-detail 36:3181，375×812：page-detail 模板 + filter（返回箭头/刷新）+ pic-carousel + name-tag + button）
-- 视频播放页：打开 `video-page.html`（Figma rednote-ds page-video 36:3546，375×812；设计稿是整屏截图，界面按截图重画，视频画面用色块代替，无外部素材）
+- 视频播放页：打开 `video-page.html`（Figma rednote-ds page-video 36:3546，375×812；设计稿是整屏截图，界面按截图重画；视频画面和头像在 `assets/video/`）
 - 文档：`docs/xhs-homework-board-backlog.md`、`docs/PRD-xhs-homework-board.md`

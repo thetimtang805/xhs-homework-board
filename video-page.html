@@ -35,16 +35,12 @@ p{font-weight:400}
 .page{position:relative;width:375px;height:812px;overflow:hidden;background:#000;color:var(--color-text-inverse)}
 @media (max-width:375px){body{display:block}.page{width:100vw;height:100dvh}}
 
-/* ===== 视频画面：用色块代替截图（0–737） ===== */
-.video{position:absolute;left:0;top:0;width:100%;height:737px;overflow:hidden;background:#c9c3b2}
-.video i{position:absolute;display:block}
-.v-wall{left:0;top:0;width:100%;height:330px;background:#cfcabb}
-.v-pan{left:36px;top:-85px;width:458px;height:360px;border-radius:50%;background:#171311}
-.v-handle{left:-10px;top:118px;width:50px;height:32px;border-radius:8px;background:#8d8c89}
-.v-board{left:0;top:380px;width:375px;height:254px;background:#caa475;clip-path:polygon(0 0,100% 0,100% 38.6%,56% 100%,0 52%)}
-.v-cake{left:-6px;top:208px;width:386px;height:300px;border-radius:50%;background:#c27c33;transform:rotate(-9deg)}
-.v-cake::after{content:"";position:absolute;left:26px;top:30px;right:26px;bottom:34px;border-radius:50%;background:#9f6a3f}
-.v-floor{left:0;top:600px;width:100%;height:137px;background:#d0cec5}
+/* ===== 视频画面（0–737）：画面按字幕位置对齐设计稿，叠两层很淡的播放器遮罩 ===== */
+.video{position:absolute;left:0;top:0;width:100%;height:737px;overflow:hidden;background:#bfbcae}
+.video .gap{position:absolute;left:0;right:0;top:0;height:5px;background:#dcd8cc}
+.video .vf{position:absolute;left:50%;top:4.11px;width:406.5px;height:722px;max-width:none;transform:translateX(-50%);display:block}
+.video .sc-top{position:absolute;left:0;right:0;top:0;height:100px;background:linear-gradient(to bottom,rgba(0,0,0,.04),rgba(0,0,0,0))}
+.video .sc-bot{position:absolute;left:0;right:0;bottom:0;height:140px;background:linear-gradient(to bottom,rgba(0,0,0,0),rgba(0,0,0,.09))}
 
 /* ===== 状态栏（深色，白字） ===== */
 .status{position:absolute;left:0;top:0;width:100%;height:44px;z-index:5;pointer-events:none}
@@ -64,11 +60,6 @@ p{font-weight:400}
 .nav svg{pointer-events:none}
 .nav button:focus-visible{outline:2px solid #fff;outline-offset:3px;border-radius:6px}
 
-/* ===== 字幕 ===== */
-.subs{position:absolute;left:0;right:0;top:516px;text-align:center;z-index:3;text-shadow:0 1px 4px rgba(0,0,0,.45);pointer-events:none}
-.subs .cn{font-size:19.2px;line-height:24px;color:#fff;font-weight:400}
-.subs .enl{font-family:var(--font-en);font-size:18.5px;line-height:22px;letter-spacing:.3px;color:#fff;margin-top:2px;white-space:nowrap}
-
 /* ===== 信息区 ===== */
 .chip{position:absolute;left:15.5px;top:598px;height:25px;width:158.6px;display:flex;align-items:center;padding:0 10px 0 9px;border-radius:var(--radius-pill);background:rgba(0,0,0,.35);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.18);z-index:3;white-space:nowrap}
 .chip .dot{flex:none;width:9px;height:9px;border-radius:50%;background:var(--color-text-accent)}
@@ -79,7 +70,8 @@ p{font-weight:400}
 .chip:focus-visible{outline:2px solid #fff;outline-offset:2px}
 
 .author{position:absolute;left:15.5px;top:631px;display:flex;align-items:center;z-index:3}
-.avatar{flex:none;width:34px;height:34px;border-radius:50%;overflow:hidden;box-shadow:0 0 0 .5px rgba(255,255,255,.7);background:linear-gradient(#b98a62 0 42%,#e3e0dd 42% 100%)}
+.avatar{flex:none;width:34px;height:34px;border-radius:50%;overflow:hidden;background:#e3e0dd;position:relative}
+.avatar img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scale(1.03)}
 .author .name{margin-left:9px;font-size:15px;font-weight:500;line-height:20px;color:#fff;white-space:nowrap}
 .follow{position:absolute;left:127px;top:636px;width:47.7px;height:25px;border-radius:var(--radius-pill);background:var(--color-text-accent);display:grid;place-items:center;font-size:12px;font-weight:500;line-height:22.4px;color:#fff;z-index:3}
 .follow:focus-visible{outline:2px solid #fff;outline-offset:2px}
@@ -117,9 +109,9 @@ p{font-weight:400}
 <body>
 <div class="page" id="page">
 
-  <!-- 视频画面：色块 -->
+  <!-- 视频画面 -->
   <div class="video" aria-hidden="true">
-    <i class="v-wall"></i><i class="v-floor"></i><i class="v-board"></i><i class="v-cake"></i><i class="v-pan"></i><i class="v-handle"></i>
+    <i class="gap"></i><img class="vf" src="assets/video/frame.jpg" alt=""><i class="sc-top"></i><i class="sc-bot"></i>
   </div>
 
   <!-- 状态栏 -->
@@ -138,19 +130,13 @@ p{font-weight:400}
     <button class="share" id="v-share" aria-label="分享"><svg width="24" height="20" viewBox="0 0 24 20" fill="none"><path d="M23 7.6 15.6 1.2v3.9C8.4 5.4 3.2 9.6 1 17.8c3.2-3.4 7.7-5.2 14.6-5.1v4.1L23 10.4a1.7 1.7 0 0 0 0-2.8Z" stroke="#fff" stroke-opacity=".62" stroke-width="1.7" stroke-linejoin="round"/></svg></button>
   </nav>
 
-  <!-- 字幕 -->
-  <div class="subs" aria-live="off">
-    <p class="cn">酱香饼好不好吃啊</p>
-    <p class="enl">Is the sauce flavored cake delicious</p>
-  </div>
-
   <!-- 精选视频条 -->
   <button class="chip" id="v-chip" aria-label="精选视频，去看看">
     <span class="dot"></span><span class="red">RED</span><span class="t1">精选视频</span><span class="sep"></span><span class="t2">去看看</span>
   </button>
 
   <!-- 作者行 -->
-  <div class="author"><div class="avatar" aria-hidden="true"></div><p class="name">曼食慢语</p></div>
+  <div class="author"><div class="avatar" aria-hidden="true"><img src="assets/video/avatar.jpg" alt=""></div><p class="name">曼食慢语</p></div>
   <button class="follow" id="v-follow">关注</button>
   <p class="duration">2:26</p>
 

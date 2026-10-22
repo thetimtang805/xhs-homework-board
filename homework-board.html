@@ -117,11 +117,13 @@ p{font-weight:400}
 
 /* 筛选行：列表态在 y=95，大图态上移 48px 到 y=47；返回箭头是页面级固定元素，位置不动 */
 .hf{position:absolute;left:0;top:95px;width:100%;height:65px;z-index:3;display:flex;align-items:center;translate:0 var(--sy,0px);transition:transform .44s var(--ease),translate .44s var(--ease),opacity .3s ease-out}
-/* 列表态：筛选行跟着内容一起滚（--sy 由脚本按滚动位置写入，不做过渡）；上方 104px（头部渐变不透明的部分）以内被裁掉；进出大图态时才做过渡 */
+/* 列表态：筛选行跟着内容一起滚（--sy 由脚本按滚动位置写入，不做过渡）；上方在头部下面用渐变蒙版隐入；进出大图态时才做过渡 */
 .hf.follow{transition:transform .44s var(--ease)}
-.hfwrap{position:absolute;inset:0;z-index:3;pointer-events:none;clip-path:inset(104px 0 0 0);transition:clip-path .44s var(--ease)}
+/* 筛选行滚到头部下面时，用渐变蒙版柔和地隐入（y<95 完全隐藏，到 y=111 完全显示），没有硬切边，也不会和标题重叠；大图态蒙版收起 */
+@property --mt{syntax:'<length>';inherits:false;initial-value:95px}
+.hfwrap{--mt:95px;position:absolute;inset:0;z-index:3;pointer-events:none;-webkit-mask-image:linear-gradient(to bottom,transparent var(--mt),#000 calc(var(--mt) + 16px));mask-image:linear-gradient(to bottom,transparent var(--mt),#000 calc(var(--mt) + 16px));transition:--mt .44s var(--ease)}
 .hfwrap .hf{pointer-events:auto}
-.page[data-mode="detail"] .hfwrap{clip-path:inset(0)}
+.page[data-mode="detail"] .hfwrap{--mt:-16px}
 .hf .chips{display:flex;align-items:center;gap:var(--space-sm);flex:1;min-width:0;height:100%;margin-left:0;padding:0 var(--space-xl);overflow-x:auto;scrollbar-width:none;scroll-padding-inline:var(--space-xl);transition:margin-left .44s var(--ease)}
 .hf .chips::-webkit-scrollbar{display:none}
 .hf .chips::after{content:"";flex:none;width:1px}

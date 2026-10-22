@@ -128,7 +128,7 @@ p{font-weight:400}
 .scroll{transition:opacity .25s ease-out}
 .page[data-mode="detail"] .scroll{opacity:0;pointer-events:none}
 
-/* 点点总结：只在「川渝麻辣版」下出现，高度过渡把下面的内容推开 */
+/* 点点总结：在「全部」和「川渝麻辣版」下出现，其余筛选先不显示；高度过渡把下面的内容推开 */
 .ddw{height:87px;overflow:hidden;flex:none;transition:height .32s var(--ease)}
 .ddw .dd{transition:opacity .2s ease-out}
 .page[data-summary="off"] .ddw{height:0}
@@ -303,7 +303,7 @@ p{font-weight:400}
 </style>
 </head>
 <body>
-<div class="page" id="page" data-mode="list" data-summary="off">
+<div class="page" id="page" data-mode="list" data-summary="on">
 
   <!-- 固定层 -->
   <div class="band"></div>
@@ -520,7 +520,7 @@ p{font-weight:400}
   chips.forEach(function(c,idx){
     c.querySelector('.lbl').addEventListener('click',function(){
       chips.forEach(function(x){var on=(x===c);x.classList.toggle('on',on);x.querySelector('.lbl').setAttribute('aria-selected',on?'true':'false');});
-      page.setAttribute('data-summary',c.classList.contains('chili')?'on':'off');
+      page.setAttribute('data-summary',(c.classList.contains('all')||c.classList.contains('chili'))?'on':'off');
       c.scrollIntoView({inline:'nearest',block:'nearest',behavior:reduce.matches?'auto':'smooth'});
       emit('filter:change',{index:idx});
     });
@@ -694,7 +694,7 @@ p{font-weight:400}
     mode='list';busy=false;page.setAttribute('data-mode','list');page.removeAttribute('aria-busy');
     document.getElementById('dstage').setAttribute('aria-hidden','true');
     chips.forEach(function(x,k){var on=(k===0);x.classList.toggle('on',on);x.querySelector('.lbl').setAttribute('aria-selected',on?'true':'false');});
-    page.setAttribute('data-summary','off');
+    page.setAttribute('data-summary','on');
     chipsEl.scrollLeft=0;gal.scrollLeft=0;scroll.scrollTop=0;
     updateTail();
   }

@@ -224,7 +224,10 @@ p{font-weight:400}
 (function(){
   var page=document.getElementById('page');
   var reduce=window.matchMedia('(prefers-reduced-motion: reduce)');
-  function fire(name,detail){ page.dispatchEvent(new CustomEvent('video:'+name,{bubbles:true,detail:detail})); }
+  function fire(name,detail){
+    page.dispatchEvent(new CustomEvent('video:'+name,{bubbles:true,detail:detail}));
+    try{ if(window.parent!==window) window.parent.postMessage({src:'video',type:'video:'+name,detail:detail||null},'*'); }catch(e){}
+  }
   [['v-back','back'],['v-mini','mini'],['v-search','search'],['v-share','share'],['v-chip','chip'],['v-live','live'],['v-input','input'],['v-comment','comment']].forEach(function(p){
     document.getElementById(p[0]).addEventListener('click',function(){ fire(p[1]); });
   });

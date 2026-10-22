@@ -146,7 +146,17 @@ p{font-weight:400}
 .home i{width:134px;height:5px;border-radius:var(--radius-pill);background:var(--color-bg-inverse)}
 .pill .ph-txt:focus-visible{outline:2px solid var(--color-icon-accent);outline-offset:4px;border-radius:4px}
 @media (prefers-reduced-motion:reduce){.sheet,.sheet[data-open="false"]{transition:none}}
+/* 嵌入流程时（?embed）：背景透明、不画状态栏，浮层铺满宿主给的 iframe（宿主把 iframe 放在屏幕下方 75%） */
+html.embed,html.embed body{background:transparent}
+html.embed .page{height:100vh;background:transparent}
+html.embed .status{display:none}
+html.embed .sheet{top:0}
+/* 底部输入栏跟着浮层一起收起，否则关闭后它会留在视频上 */
+html.embed .bottom{transition:transform .32s cubic-bezier(.22,.8,.3,1)}
+html.embed .sheet[data-open="false"] ~ .bottom{transform:translateY(100%)}
+@media (prefers-reduced-motion:reduce){html.embed .bottom{transition:none}}
 </style>
+<script>if(/[?&]embed\b/.test(location.search))document.documentElement.classList.add('embed')</script>
 </head>
 <body>
 <div class="page" id="page">
@@ -294,7 +304,13 @@ function setSheetEntry(show){
   function openEntry(){page.dispatchEvent(new CustomEvent('sheet:entry',{bubbles:true}))}
   entry.addEventListener('click',openEntry);
   entry.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();openEntry()}});
-  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&sheet.getAttribute('data-open')==='true'){setSheetOpen(false)}});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&sheet.getAttribute('data-open')==='true'){setSheetOpen(false);page.dispatchEvent(new CustomEvent('sheet:close',{bubbles:true}))}});
+  /* 嵌入时：初始关闭，由宿主用消息开合；入口、关闭事件转发给宿主 */
+  if(document.documentElement.classList.contains('embed')){
+    setSheetOpen(false);
+    window.addEventListener('message',function(e){var d=e.data||{};if(d.cmd==='open')setSheetOpen(true);else if(d.cmd==='close')setSheetOpen(false)});
+    ['sheet:entry','sheet:close'].forEach(function(n){page.addEventListener(n,function(){try{window.parent.postMessage({src:'sheet',type:n},'*')}catch(err){}})});
+  }
 })();
 </script>
 </body>

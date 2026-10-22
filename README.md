@@ -9,5 +9,6 @@
 - 完整页面：打开 `homework-page.html`（Figma rednote-ds page-homework-page 30:1031，375×812：筛选 → 点点总结 → 画廊 → 评论 + 悬浮按钮）
 - 评论区入口页：打开 `comment-page.html`（Figma rednote-ds page-comment-entry 27:738，375×812：评论弹窗内含作业榜入口，`setSheetEntry()` 控制入口显示/隐藏，`setSheetOpen()` 控制弹窗开合）
 - 大图页：打开 `homework-detail.html`（Figma rednote-ds page-homework-detail 36:3181，375×812：page-detail 模板 + filter（返回箭头/刷新）+ pic-carousel + name-tag + button）
+- **完整流程**：打开 `flow.html`（视频播放页 → 点右下角评论 → 评论浮层占屏 75% → 点作业榜入口 → 作业榜：默认「全部」，滑动/点击筛选，选「川渝麻辣版」出现点点总结；画廊一次滑一组，评论区箭头跟着指向当前这一组；点一组 → 该组的框原位放大成大图，整框（白边框+图片）横向切换，返回箭头收回）。外壳用 iframe 装 `video-page.html`、`comment-page.html?embed=1`、`homework-board.html`，用 postMessage 转场；`homework-board.html` 是列表与大图合在一起的作业榜页（可单独打开）
 - 视频播放页：打开 `video-page.html`（Figma rednote-ds page-video 36:3546，375×812；设计稿是整屏截图，界面按截图重画；视频画面和头像在 `assets/video/`）
 - 文档：`docs/xhs-homework-board-backlog.md`、`docs/PRD-xhs-homework-board.md`

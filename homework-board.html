@@ -180,6 +180,7 @@ p{font-weight:400}
 .dpager{position:absolute;left:0;right:0;top:111px;height:509px;display:flex;gap:var(--space-xl);padding:24px var(--space-xl);overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scroll-padding-inline:var(--space-xl);scrollbar-width:none;pointer-events:auto;opacity:0;overscroll-behavior-x:contain}
 .dpager::-webkit-scrollbar{display:none}
 .dpager.ready{opacity:1}
+.dpager{touch-action:pan-x;-webkit-user-select:none;user-select:none}
 .dframe{position:relative;flex:none;width:343px;height:461px;scroll-snap-align:start;scroll-snap-stop:always;border:3px solid var(--color-border-subtle);border-radius:var(--radius-container);box-shadow:0 4px 20px 0 rgba(135,67,15,.15)}
 .dframe img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:var(--radius-container);pointer-events:none;-webkit-user-drag:none}
 .ddots{position:absolute;left:var(--space-xl);top:608px;width:343px;height:24px;display:flex;align-items:center;justify-content:center;gap:6px;padding:var(--space-sm) 0}
@@ -718,7 +719,7 @@ p{font-weight:400}
       el.style.scrollSnapType='none';
     });
     window.addEventListener('pointermove',function(e){
-      if(!down) return;
+      if(!down||pulling) return;
       var dx=e.clientX-down.x;
       if(Math.abs(dx)>4) down.moved=true;
       if(down.moved){ el.scrollLeft=down.left-dx; el.style.cursor='grabbing'; }
@@ -781,7 +782,7 @@ p{font-weight:400}
   mouseSwipe(pager,pagerSnaps);
 
   /* 放大中途可以反向（点返回 / Esc）：hero 的 transform 过渡会从当前位置重新指向卡片 */
-  var hero=null,animTimer=0,opening=false;
+  var hero=null,animTimer=0,opening=false,dragHero=null,pulling=false;
   function finishOpen(){
     opening=false;pager.classList.add('ready');if(hero){hero.remove();hero=null;}
     page.removeAttribute('aria-busy');document.getElementById('dstage').removeAttribute('aria-hidden');
@@ -789,6 +790,7 @@ p{font-weight:400}
   function openGroup(i){
     if(busy||opening||mode!=='list') return;
     opening=true;group=i;mode='detail';fillNameTag(i);
+    pager.style.visibility='';
     hf.classList.remove('follow');hf.style.setProperty('--sy','0px');
     var card=cards[i],ph=card.querySelector('.ph');
     buildPager(i);
@@ -808,7 +810,8 @@ p{font-weight:400}
     if(busy||mode!=='detail') return;
     busy=true;
     var i=group,card=cards[i],ph=card.querySelector('.ph');
-    if(opening){clearTimeout(animTimer);opening=false;}
+    if(dragHero){hero=dragHero;dragHero=null;}
+    else if(opening){clearTimeout(animTimer);opening=false;}
     else{
       var f=pager.children[slide],pr=page.getBoundingClientRect(),fr=f.getBoundingClientRect();
       var from={cx:fr.left-pr.left+fr.width/2,cy:fr.top-pr.top+fr.height/2,w:343,h:461,deg:0};
@@ -823,9 +826,62 @@ p{font-weight:400}
     hero.style.setProperty('--hd',CLOSE_MS+'ms');
     hero.getBoundingClientRect();
     place(hero,to);
-    animTimer=setTimeout(function(){card.classList.remove('is-hidden');hero.remove();hero=null;busy=false;page.removeAttribute('aria-busy');hf.classList.add('follow');followScroll();},CLOSE_MS);
+    animTimer=setTimeout(function(){pager.style.visibility='';card.classList.remove('is-hidden');hero.remove();hero=null;busy=false;page.removeAttribute('aria-busy');hf.classList.add('follow');followScroll();},CLOSE_MS);
     emit('board:close',{group:i});
   }
+  /* 大图下拉返回：按住图片往下拖，图片跟手缩小；拖过 120px（或快速下划）就从当前位置收回列表，否则弹回原位 */
+  var ntagEl=document.querySelector('.ntag'),pd=null;
+  function pullFrom(){
+    var f=pager.children[slide],pr=page.getBoundingClientRect(),fr=f.getBoundingClientRect();
+    return {cx:fr.left-pr.left+fr.width/2,cy:fr.top-pr.top+fr.height/2,w:343,h:461,deg:0};
+  }
+  function pullPlace(h,dx,dy){
+    var sc=1-Math.min(Math.max(dy,0)/700,.3);
+    h.style.transform='translate('+dx+'px,'+dy+'px) rotate(0deg) scale('+sc+','+sc+')';
+    h.style.borderRadius=(HERO_R/sc)+'px';
+    var o=String(1-Math.min(Math.max(dy,0)/160,1));
+    ntagEl.style.opacity=o;ddots.style.opacity=o;
+  }
+  pager.addEventListener('pointerdown',function(e){
+    if(mode!=='detail'||busy||opening||refreshing||e.button>0) return;
+    pd={id:e.pointerId,x:e.clientX,y:e.clientY,t:performance.now(),decided:false,active:false,lastY:e.clientY,lastT:performance.now(),v:0,dy:0};
+  });
+  window.addEventListener('pointermove',function(e){
+    if(!pd||e.pointerId!==pd.id) return;
+    var dx=e.clientX-pd.x,dy=e.clientY-pd.y;
+    if(!pd.decided){
+      if(Math.abs(dx)<6&&Math.abs(dy)<6) return;
+      pd.decided=true;
+      if(dy>0&&Math.abs(dy)>Math.abs(dx)*1.2){
+        pd.active=true;pulling=true;
+        dragHero=makeHero(GROUPS[group].imgs[slide]);
+        dragHero.style.transition='none';place(dragHero,pullFrom());
+        pager.style.visibility='hidden';
+        ntagEl.style.transition='none';ddots.style.transition='none';
+      } else { pd=null; return; }
+    }
+    if(!pd.active) return;
+    var now=performance.now();
+    pd.v=(e.clientY-pd.lastY)/Math.max(now-pd.lastT,1);pd.lastY=e.clientY;pd.lastT=now;
+    pd.dy=dy;
+    pullPlace(dragHero,dx*.6,dy>0?dy:dy*.2);
+  });
+  function endPull(e){
+    if(!pd||(e&&e.pointerId!==pd.id)) return;
+    var d=pd;pd=null;
+    if(!d.active){return;}
+    pulling=false;
+    var commit=e&&e.type==='pointerup'&&(d.dy>120||(d.v>.6&&d.dy>40));
+    var h=dragHero;
+    ntagEl.style.transition='';ddots.style.transition='';
+    if(commit){ ntagEl.style.opacity='';ddots.style.opacity=''; closeGroup(); return; }
+    h.style.transition='';h.style.setProperty('--hd',(reduce.matches?10:260)+'ms');
+    place(h,FINAL);
+    ntagEl.style.opacity='';ddots.style.opacity='';
+    setTimeout(function(){pager.style.visibility='';if(dragHero===h){dragHero=null;}h.remove();},reduce.matches?10:260);
+  }
+  window.addEventListener('pointerup',endPull);
+  window.addEventListener('pointercancel',endPull);
   window.openGroup=openGroup;window.closeGroup=closeGroup;
 
   cards.forEach(function(c,i){
@@ -852,7 +908,7 @@ p{font-weight:400}
   });
   /* ---------- 宿主消息：reset（每次进入都回到「全部」列表态）、escape ---------- */
   function resetBoard(){
-    clearTimeout(animTimer);hero=null;opening=false;
+    clearTimeout(animTimer);hero=null;opening=false;dragHero=null;pulling=false;pager.style.visibility='';[ntagEl,ddots].forEach(function(e){e.style.opacity='';e.style.transition='';});
     [].forEach.call(document.querySelectorAll('.hero'),function(h){h.remove();});
     pager.classList.remove('ready');
     cards.forEach(function(c){c.classList.remove('is-hidden');});

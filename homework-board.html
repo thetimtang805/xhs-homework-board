@@ -526,13 +526,26 @@ p{font-weight:400}
     renderComment(t.groups[curGroup]||t.groups[0]);
     placeHighlights();
   }
-  /* 左右切换图片组：底部评论跟着换 */
+  /* 左右切换图片组：底部评论跟着换。旧的朝滑动反方向淡出（110ms ease-in），
+     新的从滑动方向淡入（200ms ease-out），中途再切会从当前状态接着走 */
+  var swapTimer=0;
+  function swapComment(render,dir){
+    var rm=reduce.matches,dx=rm?0:10*dir;
+    clearTimeout(swapTimer);
+    ccard.style.transition='opacity '+(rm?1:110)+'ms ease-in,translate '+(rm?1:110)+'ms ease-in';
+    ccard.style.opacity=0;ccard.style.translate=(-dx)+'px 0';
+    swapTimer=setTimeout(function(){
+      render();
+      ccard.style.transition='none';ccard.style.translate=dx+'px 0';ccard.getBoundingClientRect();
+      ccard.style.transition='opacity '+(rm?1:200)+'ms var(--ease),translate '+(rm?1:200)+'ms var(--ease)';
+      ccard.style.opacity=1;ccard.style.translate='0 0';
+    },rm?0:110);
+  }
   function setCommentGroup(i){
     if(i===curGroup) return;
-    curGroup=i;
+    var dir=i>curGroup?1:-1;curGroup=i;
     var t=C.tabs&&C.tabs[tabKey];if(!t) return;
-    ccard.style.opacity=0;
-    setTimeout(function(){renderComment(t.groups[i]||t.groups[0]);ccard.style.opacity=1;},reduce.matches?0:120);
+    swapComment(function(){renderComment(t.groups[i]||t.groups[0]);},dir);
   }
   /* 大图模式的名字条 = 该组第 1 条评论的人 */
   function fillNameTag(i){

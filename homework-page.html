@@ -165,7 +165,8 @@ p{font-weight:400}
 .comment .sad .g{position:absolute;inset:8.33%}
 .comment .sad .g i{position:absolute;inset:-5%}
 .comment .sad .g img{display:block;width:100%;height:100%}
-.comment .more{display:flex;align-items:center;gap:var(--space-sm);padding-left:var(--space-md);width:100%}
+.comment .more{display:flex;align-items:center;gap:var(--space-2xl);width:100%}
+.comment .more .mg{display:flex;align-items:center;gap:var(--space-sm);flex:none}
 .comment .more .ln{position:relative;flex:none;width:23px;height:0}
 .comment .more .ln i{position:absolute;inset:-.5px 0 0 0}
 .comment .more .ln img{display:block;width:100%;height:100%}
@@ -179,8 +180,8 @@ p{font-weight:400}
 .comment .ml .r::before{content:"";position:absolute;inset:-14px -10px}
 .comment .lk::before{content:"";position:absolute;inset:-13px -1px -13px -8px}
 .comment .sad::before{content:"";position:absolute;inset:-14px -12px -14px -7px}
-.comment .more button:first-of-type::before{content:"";position:absolute;inset:-14px -4px}
-.comment .more button:last-of-type::before{content:"";position:absolute;inset:-14px -12px -14px -4px}
+.comment .more button:first-of-type::before{content:"";position:absolute;inset:-14px -10px}
+.comment .more button:last-of-type::before{content:"";position:absolute;inset:-14px -12px -14px -10px}
 .comment .lk:focus-visible,.comment .sad:focus-visible,.comment .ml .r:focus-visible,.comment .more button:focus-visible,.gcard:focus-visible{outline:2px solid var(--color-text-primary);outline-offset:2px;border-radius:4px}
 .gcard{cursor:pointer}
 .gcard:focus-visible{border-radius:var(--radius-container)}
@@ -337,8 +338,10 @@ p{font-weight:400}
             </div>
 
             <div class="more">
-              <div class="ln"><i><img src="assets/components/comment-line.svg" alt=""></i></div>
-              <button class="zh" type="button" data-evt="homework:expand">展开更多回复</button>
+              <div class="mg">
+                <div class="ln"><i><img src="assets/components/comment-line.svg" alt=""></i></div>
+                <button class="zh" type="button" data-evt="homework:expand">展开更多回复</button>
+              </div>
               <button class="zh" type="button" data-evt="homework:collapse">收起</button>
             </div>
           </div>

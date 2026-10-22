@@ -162,7 +162,8 @@ p{font-weight:400}
 .comment .sad .g{position:absolute;inset:8.33%}
 .comment .sad .g i{position:absolute;inset:-5%}
 .comment .sad .g img{display:block;width:100%;height:100%}
-.comment .more{display:flex;align-items:center;gap:var(--space-sm);padding-left:var(--space-md);width:100%}
+.comment .more{display:flex;align-items:center;gap:var(--space-2xl);width:100%}
+.comment .more .mg{display:flex;align-items:center;gap:var(--space-sm);flex:none}
 .comment .more .ln{position:relative;flex:none;width:23px;height:0}
 .comment .more .ln i{position:absolute;inset:-.5px 0 0 0}
 .comment .more .ln img{display:block;width:100%;height:100%}
@@ -440,8 +441,10 @@ p{font-weight:400}
           </div>
 
           <div class="more">
-            <div class="ln"><i><img src="assets/components/comment-line.svg" alt=""></i></div>
-            <p class="zh">展开更多回复</p>
+            <div class="mg">
+              <div class="ln"><i><img src="assets/components/comment-line.svg" alt=""></i></div>
+              <p class="zh">展开更多回复</p>
+            </div>
             <p class="zh">收起</p>
           </div>
         </div>

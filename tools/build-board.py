@@ -339,20 +339,35 @@ js=r'''<script src="assets/content.js"></script>
   var POOL=[1,2,3,4,5,6,7,8,9,10,11,13,14,15,17].map(function(n){return 'assets/gallery/pic-'+(n<10?'0':'')+n+'.jpg';});
   var refreshing=false;
   /* 大图模式下切换筛选：这一组换成新筛选的图和评论人（淡出换图、名字条同步） */
-  function syncDetail(){
-    var g=group,imgs=GROUPS[g].imgs,frames=[].slice.call(pager.children),rm=reduce.matches,tag=document.querySelector('.ntag');
-    var t=C.tabs&&C.tabs[tabKey],grp=t&&(t.groups[g]||t.groups[0]);
-    var loaded=0;
-    imgs.forEach(function(u){var im=new Image();im.onload=im.onerror=function(){if(++loaded===imgs.length) go();};im.src=u;});
+  /* 大图换图：新图先在后台解码好，再叠在旧图上方淡入（交叉淡化），旧图一直垫在下面，所以不会闪白屏；
+     解码没完成前什么都不动，用户看到的永远是完整的图 */
+  function crossfadeImgs(frames,srcs,done){
+    var rm=reduce.matches,ms=rm?1:240,ready=[],pending=srcs.length;
+    srcs.forEach(function(u,k){
+      var n=new Image();n.src=u;
+      (n.decode?n.decode():Promise.resolve()).catch(function(){}).then(function(){ready[k]=n;if(--pending===0) go();});
+    });
     function go(){
-      frames.forEach(function(f){var im=f.querySelector('img');im.style.transition='opacity '+(rm?1:140)+'ms ease-in';im.style.opacity=0;});
-      tag.style.transition='opacity '+(rm?1:140)+'ms ease-in';tag.style.opacity=0;
-      setTimeout(function(){
-        frames.forEach(function(f,k){var im=f.querySelector('img');if(imgs[k]) im.src=imgs[k];im.style.transition='opacity '+(rm?1:220)+'ms var(--ease)';im.style.opacity=1;});
-        fillNameTagFrom(grp);
-        tag.style.transition='opacity '+(rm?1:220)+'ms var(--ease)';tag.style.opacity='';
-      },rm?1:140);
+      frames.forEach(function(f,k){
+        var old=f.querySelector('img');if(!old||!srcs[k]) return;
+        var nw=document.createElement('img');nw.alt=old.alt;nw.src=srcs[k];
+        nw.style.opacity='0';nw.style.transition='opacity '+ms+'ms var(--ease-strong)';
+        f.appendChild(nw);nw.getBoundingClientRect();nw.style.opacity='1';
+        setTimeout(function(){nw.style.transition='';nw.style.opacity='';old.remove();},ms+30);
+      });
+      setTimeout(function(){if(done) done();},ms+30);
     }
+  }
+  function fadeNameTag(g){
+    var tag=document.querySelector('.ntag'),rm=reduce.matches;
+    tag.style.transition='opacity '+(rm?1:120)+'ms ease-in';tag.style.opacity=0;
+    setTimeout(function(){fillNameTagFrom(g);tag.style.transition='opacity '+(rm?1:200)+'ms var(--ease-strong)';tag.style.opacity='';},rm?1:120);
+  }
+  function syncDetail(){
+    var g=group,imgs=GROUPS[g].imgs,frames=[].slice.call(pager.children);
+    var t=C.tabs&&C.tabs[tabKey],grp=t&&(t.groups[g]||t.groups[0]);
+    fadeNameTag(grp);
+    crossfadeImgs(frames,imgs);
   }
   function refreshImages(){
     if(mode!=='detail'||busy||opening||refreshing) return;
@@ -360,32 +375,20 @@ js=r'''<script src="assets/content.js"></script>
     while(next.length<cur.length&&left.length){next.push(left.splice(Math.floor(Math.random()*left.length),1)[0]);}
     if(next.length<cur.length) return;
     refreshing=true;
-    var frames=[].slice.call(pager.children),loaded=0;
-    next.forEach(function(u){var im=new Image();im.onload=im.onerror=function(){if(++loaded===next.length) apply();};im.src=u;});
-    function apply(){
-      var ms=reduce.matches?1:160;
-      frames.forEach(function(f,k){var im=f.querySelector('img');im.style.transition='opacity '+ms+'ms ease-in';im.style.opacity=0;});
-      setTimeout(function(){
-        frames.forEach(function(f,k){var im=f.querySelector('img');im.src=next[k];im.style.transition='opacity '+(reduce.matches?1:240)+'ms var(--ease)';im.style.opacity=1;});
-        GROUPS[g].imgs=next;
-        /* 名字也跟着换：随机换成另一位评论人，这一组的评论区同步成她的评论 */
-        var t=C.tabs&&C.tabs[tabKey];
-        if(t&&t.groups[g]){
-          var curName=t.groups[g].main.name,all=[];
-          Object.keys(C.tabs).forEach(function(k){C.tabs[k].groups.forEach(function(x){if(x.main.name!==curName) all.push(x);});});
-          if(all.length){
-            var pick=all[Math.floor(Math.random()*all.length)];
-            t.groups[g]=pick;
-            var tag=document.querySelector('.ntag');
-            tag.style.transition='opacity .16s ease-in';tag.style.opacity=0;
-            setTimeout(function(){fillNameTagFrom(pick);tag.style.transition='opacity .24s var(--ease)';tag.style.opacity='';},reduce.matches?1:160);
-            if(curGroup===g) renderComment(pick);
-          }
-        }
-        var ci=cards[g]&&cards[g].querySelector('.ph img');if(ci) ci.src=next[0];
-        setTimeout(function(){refreshing=false;},reduce.matches?1:240);
-      },ms);
+    GROUPS[g].imgs=next;
+    var ci=cards[g]&&cards[g].querySelector('.ph img');if(ci) ci.src=next[0];
+    /* 名字也跟着换：随机换成另一位评论人，这一组的评论区同步成他的评论 */
+    var t=C.tabs&&C.tabs[tabKey];
+    if(t&&t.groups[g]){
+      var curName=t.groups[g].main.name,all=[];
+      Object.keys(C.tabs).forEach(function(k){C.tabs[k].groups.forEach(function(x){if(x.main.name!==curName) all.push(x);});});
+      if(all.length){
+        var pick=all[Math.floor(Math.random()*all.length)];
+        t.groups[g]=pick;fadeNameTag(pick);
+        if(curGroup===g) renderComment(pick);
+      }
     }
+    crossfadeImgs([].slice.call(pager.children),next,function(){refreshing=false;});
   }
 
   /* ---------- 画廊：一次一组 + 评论箭头跟随 ---------- */

@@ -116,7 +116,9 @@ p{font-weight:400}
 .c1{z-index:3}
 
 /* 筛选行：列表态在 y=95，大图态上移 48px 到 y=47；返回箭头是页面级固定元素，位置不动 */
-.hf{position:absolute;left:0;top:95px;width:100%;height:65px;z-index:3;display:flex;align-items:center;transition:transform .44s var(--ease)}
+.hf{position:absolute;left:0;top:95px;width:100%;height:65px;z-index:3;display:flex;align-items:center;translate:0 var(--sy,0px);transition:transform .44s var(--ease),translate .44s var(--ease),opacity .3s ease-out}
+/* 列表态：筛选行跟着内容一起滚（--sy 由脚本按滚动位置写入，不做过渡）；滚到标题栏下面时淡出；进出大图态时才做过渡 */
+.hf.follow{transition:transform .44s var(--ease)}
 .hf .chips{display:flex;align-items:center;gap:var(--space-sm);flex:1;min-width:0;height:100%;margin-left:0;padding:0 var(--space-xl);overflow-x:auto;scrollbar-width:none;scroll-padding-inline:var(--space-xl);transition:margin-left .44s var(--ease)}
 .hf .chips::-webkit-scrollbar{display:none}
 .hf .chips::after{content:"";flex:none;width:1px}
@@ -518,6 +520,17 @@ p{font-weight:400}
     try{ if(window.parent!==window) window.parent.postMessage({src:'board',type:name,detail:detail||null},'*'); }catch(e){}
   }
 
+  /* ---------- 筛选行跟着列表滚动 ---------- */
+  hf.classList.add('follow');
+  function followScroll(){
+    if(mode!=='list'||busy) return;
+    var y=scroll.scrollTop,o=Math.max(0,Math.min(1,1-(y-16)/44));
+    hf.style.setProperty('--sy',(-y)+'px');
+    hf.style.opacity=o;
+    hf.style.pointerEvents=o<.05?'none':'';
+  }
+  scroll.addEventListener('scroll',followScroll,{passive:true});
+
   /* ---------- 筛选 ---------- */
   var chips=[].slice.call(chipsEl.querySelectorAll('.chip'));
   chips.forEach(function(c,idx){
@@ -636,6 +649,7 @@ p{font-weight:400}
   function openGroup(i){
     if(busy||mode!=='list') return;
     busy=true;group=i;mode='detail';
+    hf.classList.remove('follow');hf.style.setProperty('--sy','0px');hf.style.opacity='';hf.style.pointerEvents='';
     var card=cards[i],ph=card.querySelector('.ph');
     buildPager(i);
     var start=geo(ph);
@@ -664,9 +678,10 @@ p{font-weight:400}
     document.getElementById('dstage').setAttribute('aria-hidden','true');
     var to=geo(ph);
     mode='list';page.setAttribute('data-mode','list');
+    (function(){var y=scroll.scrollTop,o=Math.max(0,Math.min(1,1-(y-16)/44));hf.style.setProperty('--sy',(-y)+'px');hf.style.opacity=o;hf.style.pointerEvents=o<.05?'none':'';})();
     hero.getBoundingClientRect();
     place(hero,to,2);
-    setTimeout(function(){card.classList.remove('is-hidden');hero.remove();busy=false;},EASE_MS);
+    setTimeout(function(){card.classList.remove('is-hidden');hero.remove();busy=false;hf.classList.add('follow');followScroll();},EASE_MS);
     emit('board:close',{group:i});
   }
   window.openGroup=openGroup;window.closeGroup=closeGroup;
@@ -698,6 +713,7 @@ p{font-weight:400}
     chips.forEach(function(x,k){var on=(k===0);x.classList.toggle('on',on);x.querySelector('.lbl').setAttribute('aria-selected',on?'true':'false');});
     page.setAttribute('data-summary','on');
     chipsEl.scrollLeft=0;gal.scrollLeft=0;scroll.scrollTop=0;
+    hf.classList.add('follow');hf.style.setProperty('--sy','0px');hf.style.opacity='';hf.style.pointerEvents='';
     updateTail();
   }
   window.addEventListener('message',function(e){

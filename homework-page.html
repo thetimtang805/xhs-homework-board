@@ -186,9 +186,9 @@ p{font-weight:400}
 .gcard:focus-visible{border-radius:var(--radius-container)}
 
 
-/* ===== 悬浮按钮托底：渐进模糊。从按钮上沿再往上 120px 开始，0→16px，按钮在其上方保持清晰 =====
+/* ===== 悬浮按钮托底：渐进模糊。从按钮上沿再往上 60px 开始，0→16px，按钮在其上方保持清晰 =====
    6 层叠加，每层只在自己的区段渐显；叠加后总模糊 = √(Σ层²)，依次到 2.7/5.3/8/10.7/13.3/16px */
-.dock{position:absolute;left:0;right:0;bottom:0;height:192px;z-index:2;pointer-events:none}
+.dock{position:absolute;left:0;right:0;bottom:0;height:132px;z-index:2;pointer-events:none}
 .dock i{position:absolute;inset:0}
 .dock i:nth-child(1){-webkit-backdrop-filter:blur(2.67px);backdrop-filter:blur(2.67px);-webkit-mask-image:linear-gradient(to bottom,transparent 0.00%,#000 16.67%);mask-image:linear-gradient(to bottom,transparent 0.00%,#000 16.67%)}
 .dock i:nth-child(2){-webkit-backdrop-filter:blur(4.62px);backdrop-filter:blur(4.62px);-webkit-mask-image:linear-gradient(to bottom,transparent 16.67%,#000 33.33%);mask-image:linear-gradient(to bottom,transparent 16.67%,#000 33.33%)}

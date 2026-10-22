@@ -155,13 +155,13 @@ p{font-weight:400}
 .comment .mrow{display:flex;align-items:center;justify-content:space-between;width:100%}
 .comment .ml{display:flex;align-items:center;gap:var(--space-md);font-size:var(--caption-font-size);line-height:var(--caption-line-height);letter-spacing:var(--caption-letter-spacing);white-space:nowrap}
 .comment .ml .d{display:flex;align-items:center;gap:4px;color:var(--color-text-secondary)}
-.comment .ml .r{color:var(--color-text-primary)}
+.comment .ml .r{position:relative;color:var(--color-text-primary)}
 .comment .mr{display:flex;align-items:center;gap:var(--space-xl)}
-.comment .lk{display:flex;align-items:flex-end}
+.comment .lk{display:flex;align-items:center;gap:2px;position:relative}
 .comment .lk .h{position:relative;flex:none;width:18px;height:18px}
 .comment .lk .h img{position:absolute;inset:0;width:100%;height:100%;display:block}
-.comment .lk span{font-size:var(--caption-font-size);line-height:var(--caption-line-height);letter-spacing:var(--caption-letter-spacing);color:var(--color-text-secondary);white-space:nowrap}
-.comment .sad{position:relative;flex:none;width:16px;height:16px;overflow:hidden}
+.comment .lk span{font-variant-numeric:tabular-nums;font-size:var(--caption-font-size);line-height:var(--caption-line-height);letter-spacing:var(--caption-letter-spacing);color:var(--color-text-secondary);white-space:nowrap}
+.comment .sad{position:relative;flex:none;width:16px;height:16px}
 .comment .sad .g{position:absolute;inset:8.33%}
 .comment .sad .g i{position:absolute;inset:-5%}
 .comment .sad .g img{display:block;width:100%;height:100%}
@@ -169,7 +169,21 @@ p{font-weight:400}
 .comment .more .ln{position:relative;flex:none;width:23px;height:0}
 .comment .more .ln i{position:absolute;inset:-.5px 0 0 0}
 .comment .more .ln img{display:block;width:100%;height:100%}
-.comment .more p{font-size:var(--caption-font-size);line-height:var(--caption-line-height);letter-spacing:var(--caption-letter-spacing);color:var(--color-text-primary);white-space:nowrap}
+.comment .more p,.comment .more button{position:relative;font-size:var(--caption-font-size);line-height:var(--caption-line-height);letter-spacing:var(--caption-letter-spacing);color:var(--color-text-primary);white-space:nowrap}
+
+
+/* ---- 点击区域：视觉不变，用伪元素扩到 44px 高；水平方向只扩到不与相邻控件重叠 ---- */
+.chip::before{content:"";position:absolute;inset:-5.5px 0}
+.back::before{inset:-11px}
+.fab::before{content:"";position:absolute;inset:-.5px 0}
+.comment .ml .r::before{content:"";position:absolute;inset:-14px -10px}
+.comment .lk::before{content:"";position:absolute;inset:-13px -1px -13px -8px}
+.comment .sad::before{content:"";position:absolute;inset:-14px -12px -14px -7px}
+.comment .more button:first-of-type::before{content:"";position:absolute;inset:-14px -4px}
+.comment .more button:last-of-type::before{content:"";position:absolute;inset:-14px -12px -14px -4px}
+.comment .lk:focus-visible,.comment .sad:focus-visible,.comment .ml .r:focus-visible,.comment .more button:focus-visible,.gcard:focus-visible{outline:2px solid var(--color-text-primary);outline-offset:2px;border-radius:4px}
+.gcard{cursor:pointer}
+.gcard:focus-visible{border-radius:var(--radius-container)}
 
 /* ===== 悬浮按钮「我也交作业」191×43：固定在评论区上方 ===== */
 .fab{position:absolute;left:calc(50% - 97.5px);bottom:29px;width:191px;height:43px;padding:0;border-radius:var(--radius-pill);background:#ff3e42;z-index:3}
@@ -179,8 +193,7 @@ p{font-weight:400}
 .fab .pan img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .fab .inset{position:absolute;inset:0;border-radius:inherit;pointer-events:none;box-shadow:inset 0 -4px 4px 0 rgba(191,19,23,.35),inset 0 4px 4px 0 rgba(255,245,235,.3)}
 .fab:focus-visible{outline:2px solid var(--color-text-primary);outline-offset:3px}
-.fab:active{transform:scale(.97)}
-@media (prefers-reduced-motion:reduce){.chip{transition:none}.fab:active{transform:none}}
+@media (prefers-reduced-motion:reduce){.chip{transition:none}}
 
 /* ===== home indicator（设计稿里是两条相差 1px 的横条） ===== */
 .home{position:absolute;left:0;top:783px;width:375px;height:28px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding:var(--space-sm) var(--space-2xl);pointer-events:none;z-index:6}
@@ -233,17 +246,17 @@ p{font-weight:400}
       </section>
 
       <div class="gscroll" aria-label="作业画廊">
-        <div class="gcard g1">
+        <div class="gcard g1" role="button" tabindex="0" data-evt="homework:photo" aria-label="查看作业，共 3 张">
           <div class="plate"></div>
           <div class="slot"><div class="ph"><img src="assets/components/gallery-1.jpg" alt=""></div></div>
           <div class="tag"><p class="zh">3 张</p></div>
         </div>
-        <div class="gcard g2">
+        <div class="gcard g2" role="button" tabindex="0" data-evt="homework:photo" aria-label="查看作业，共 2 张">
           <div class="plate"></div>
           <div class="slot"><div class="ph"><img src="assets/components/gallery-2.jpg" alt=""></div></div>
           <div class="tag"><p class="zh">2 张</p></div>
         </div>
-        <div class="gcard g3">
+        <div class="gcard g3" role="button" tabindex="0" data-evt="homework:photo" aria-label="查看作业，共 2 张">
           <div class="plate"></div>
           <div class="slot"><div class="ph"><img src="assets/components/gallery-3.jpg" alt=""></div></div>
           <div class="tag"><p class="zh">2 张</p></div>
@@ -261,10 +274,10 @@ p{font-weight:400}
                 <p class="ct">对老几太好了，加了超量的辣椒，还加了巨多的肉、洋葱和胡萝卜碎，直接变成肉夹馍，超级爆炸满足！！</p>
               </div>
               <div class="mrow">
-                <div class="ml"><div class="d"><p class="en">10-04</p><p class="zh">四川</p></div><p class="r zh">回复</p></div>
+                <div class="ml"><div class="d"><p class="en">10-04</p><p class="zh">四川</p></div><button class="r zh" type="button" data-evt="homework:reply" aria-label="回复辣妹子很怕拉">回复</button></div>
                 <div class="mr">
-                  <div class="lk"><div class="h"><img src="assets/components/comment-heart.svg" alt=""></div><span class="en">129</span></div>
-                  <div class="sad"><div class="g"><i><img src="assets/components/comment-sad.svg" alt=""></i></div></div>
+                  <button class="lk" type="button" data-evt="homework:like" aria-label="点赞，129"><span class="h"><img src="assets/components/comment-heart.svg" alt=""></span><span class="en">129</span></button>
+                  <button class="sad" type="button" data-evt="homework:dislike" aria-label="不喜欢"><span class="g"><i><img src="assets/components/comment-sad.svg" alt=""></i></span></button>
                 </div>
               </div>
             </div>
@@ -277,10 +290,10 @@ p{font-weight:400}
                   <p class="ct zh">放什么辣椒好吃啊？</p>
                 </div>
                 <div class="mrow">
-                  <div class="ml"><div class="d"><p class="en">10-04</p><p class="zh">中国香港</p></div><p class="r zh">回复</p></div>
+                  <div class="ml"><div class="d"><p class="en">10-04</p><p class="zh">中国香港</p></div><button class="r zh" type="button" data-evt="homework:reply" aria-label="回复Anna">回复</button></div>
                   <div class="mr">
-                    <div class="lk"><div class="h"><img src="assets/components/comment-heart.svg" alt=""></div><span class="en">32</span></div>
-                    <div class="sad"><div class="g"><i><img src="assets/components/comment-sad.svg" alt=""></i></div></div>
+                    <button class="lk" type="button" data-evt="homework:like" aria-label="点赞，32"><span class="h"><img src="assets/components/comment-heart.svg" alt=""></span><span class="en">32</span></button>
+                    <button class="sad" type="button" data-evt="homework:dislike" aria-label="不喜欢"><span class="g"><i><img src="assets/components/comment-sad.svg" alt=""></i></span></button>
                   </div>
                 </div>
               </div>
@@ -294,10 +307,10 @@ p{font-weight:400}
                   <div class="rp"><p class="a zh">回复</p><p class="b en">Anna</p><p class="c zh">我用二荆条辣椒面哦！</p></div>
                 </div>
                 <div class="mrow">
-                  <div class="ml"><div class="d"><p class="en">10-04</p><p class="zh">四川</p></div><p class="r zh">回复</p></div>
+                  <div class="ml"><div class="d"><p class="en">10-04</p><p class="zh">四川</p></div><button class="r zh" type="button" data-evt="homework:reply" aria-label="回复辣妹子很怕拉">回复</button></div>
                   <div class="mr">
-                    <div class="lk"><div class="h"><img src="assets/components/comment-heart.svg" alt=""></div><span class="en">68</span></div>
-                    <div class="sad"><div class="g"><i><img src="assets/components/comment-sad.svg" alt=""></i></div></div>
+                    <button class="lk" type="button" data-evt="homework:like" aria-label="点赞，68"><span class="h"><img src="assets/components/comment-heart.svg" alt=""></span><span class="en">68</span></button>
+                    <button class="sad" type="button" data-evt="homework:dislike" aria-label="不喜欢"><span class="g"><i><img src="assets/components/comment-sad.svg" alt=""></i></span></button>
                   </div>
                 </div>
               </div>
@@ -305,8 +318,8 @@ p{font-weight:400}
 
             <div class="more">
               <div class="ln"><i><img src="assets/components/comment-line.svg" alt=""></i></div>
-              <p class="zh">展开更多回复</p>
-              <p class="zh">收起</p>
+              <button class="zh" type="button" data-evt="homework:expand">展开更多回复</button>
+              <button class="zh" type="button" data-evt="homework:collapse">收起</button>
             </div>
           </div>
         </div>
@@ -342,16 +355,23 @@ p{font-weight:400}
 /* 筛选：点击切换选中的流派（设计稿只给出「川渝麻辣版」和「全部」的选中样式，其余沿用同一规则） */
 (function(){
   var chips=[].slice.call(document.querySelectorAll('#hf .chip'));
+  var reduce=window.matchMedia('(prefers-reduced-motion: reduce)');
   chips.forEach(function(c){
     c.addEventListener('click',function(){
       chips.forEach(function(x){x.setAttribute('aria-selected',x===c?'true':'false')});
-      c.scrollIntoView({inline:'nearest',block:'nearest',behavior:'smooth'});
+      c.scrollIntoView({inline:'nearest',block:'nearest',behavior:reduce.matches?'auto':'smooth'});
     });
   });
   /* 返回、我也交作业：只派发事件，交给宿主处理 */
   var page=document.getElementById('page');
   document.getElementById('back').addEventListener('click',function(){page.dispatchEvent(new CustomEvent('homework:back',{bubbles:true}))});
   document.getElementById('fab').addEventListener('click',function(){page.dispatchEvent(new CustomEvent('homework:join',{bubbles:true}))});
+  /* 评论互动与作业卡：同样只派发事件（data-evt），点赞数等状态由宿主维护 */
+  [].forEach.call(document.querySelectorAll('[data-evt]'),function(el){
+    function fire(){el.dispatchEvent(new CustomEvent(el.getAttribute('data-evt'),{bubbles:true}))}
+    el.addEventListener('click',fire);
+    if(el.getAttribute('role')==='button')el.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();fire()}});
+  });
 })();
 </script>
 </body>

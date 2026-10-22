@@ -417,12 +417,12 @@ p{font-weight:400}
     <div class="ddots" id="ddots"></div>
     <div class="ntag">
       <div class="nl">
-        <div class="av"><img src="assets/before/avatar-1.png" alt="" width="35" height="35"></div>
-        <p class="nm zh">辣妹子很怕拉</p>
+        <div class="av"><img id="nav" src="assets/components/comment-avatar-1.png" alt="" width="35" height="35"></div>
+        <p class="nm zh" id="nnm">辣妹子很怕拉</p>
       </div>
       <div class="nr">
-        <div class="ni"><div class="ic"><img src="assets/before/icon-heart.svg" alt=""></div><span class="en">129</span></div>
-        <div class="ni"><div class="ic"><img src="assets/components/nametag-comment.svg" alt=""></div><span class="en">24</span></div>
+        <div class="ni"><div class="ic"><img src="assets/before/icon-heart.svg" alt=""></div><span class="en" id="nlk">129</span></div>
+        <div class="ni"><div class="ic"><img src="assets/components/nametag-comment.svg" alt=""></div><span class="en" id="ncm">24</span></div>
       </div>
     </div>
   </div>
@@ -481,7 +481,7 @@ p{font-weight:400}
   /* ---------- 动态内容：点点总结 + 评论区（数据在 assets/content.js，来自 docs/dynamic-content.md） ---------- */
   var C=window.BOARD_CONTENT||{tabs:{}},KEYS=['all','chili','salt','deluxe','fusion'];
   var ddbody=document.getElementById('ddbody'),hls=document.getElementById('hls'),ccard=document.getElementById('ccard'),ddEl=document.querySelector('.dd');
-  var tabKey='all';
+  var tabKey='all',curGroup=0;
   function esc(t){return String(t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
   function fam(n){return /[\u4e00-\u9fff]/.test(n)?'zh':'en';}
   function nameHTML(r){return esc(r.name)+(r.author?'<span class="au zh">作者</span>':'');}
@@ -522,8 +522,25 @@ p{font-weight:400}
     var t=C.tabs&&C.tabs[key];if(!t) return;
     tabKey=key;
     ddbody.innerHTML=esc(t.summary).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');
-    renderComment(t);
+    renderComment(t.groups[curGroup]||t.groups[0]);
     placeHighlights();
+  }
+  /* 左右切换图片组：底部评论跟着换 */
+  function setCommentGroup(i){
+    if(i===curGroup) return;
+    curGroup=i;
+    var t=C.tabs&&C.tabs[tabKey];if(!t) return;
+    ccard.style.opacity=0;
+    setTimeout(function(){renderComment(t.groups[i]||t.groups[0]);ccard.style.opacity=1;},reduce.matches?0:120);
+  }
+  /* 大图模式的名字条 = 该组第 1 条评论的人 */
+  function fillNameTag(i){
+    var t=C.tabs&&C.tabs[tabKey];var g=t&&(t.groups[i]||t.groups[0]);if(!g) return;
+    var m=g.main;
+    document.getElementById('nav').src=m.avatar;
+    var nm=document.getElementById('nnm');nm.textContent=m.name;nm.className='nm '+fam(m.name);
+    document.getElementById('nlk').textContent=m.likes;
+    document.getElementById('ncm').textContent=1+g.replies.length;
   }
   function swapTab(key){
     if(key===tabKey) return;
@@ -587,7 +604,7 @@ p{font-weight:400}
     /* 评论卡左缘在 x=16，箭头图自身的尖角在图内 x=96 处，即屏幕 x=112 */
     tail.style.setProperty('--tx',(tailX(gal.scrollLeft)-112)+'px');
     var g=nearest(snaps,gal.scrollLeft);
-    if(g!==lastGroup){lastGroup=g;emit('board:group',{index:g});}
+    if(g!==lastGroup){lastGroup=g;setCommentGroup(g);emit('board:group',{index:g});}
   }
   gal.addEventListener('scroll',updateTail,{passive:true});
   window.addEventListener('resize',measure);
@@ -664,7 +681,7 @@ p{font-weight:400}
 
   function openGroup(i){
     if(busy||mode!=='list') return;
-    busy=true;group=i;mode='detail';
+    busy=true;group=i;mode='detail';fillNameTag(i);
     hf.classList.remove('follow');hf.style.setProperty('--sy','0px');
     var card=cards[i],ph=card.querySelector('.ph');
     buildPager(i);
@@ -733,6 +750,7 @@ p{font-weight:400}
     document.getElementById('dstage').setAttribute('aria-hidden','true');
     chips.forEach(function(x,k){var on=(k===0);x.classList.toggle('on',on);x.querySelector('.lbl').setAttribute('aria-selected',on?'true':'false');});
     page.setAttribute('data-summary','on');
+    curGroup=0;lastGroup=0;
     renderTab('all');
     chipsEl.scrollLeft=0;gal.scrollLeft=0;scroll.scrollTop=0;
     hf.classList.add('follow');hf.style.setProperty('--sy','0px');

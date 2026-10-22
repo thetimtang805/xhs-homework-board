@@ -65,9 +65,7 @@ p{font-weight:400}
 
 /* 作业榜入口卡 341×167：data-entry="hidden" 时整体移除（含间距） */
 .sheet[data-entry="hidden"] .entry{display:none}
-.entry{position:relative;width:341px;height:167px;overflow:hidden;border-radius:var(--radius-container);flex:none;cursor:pointer;transition:transform 150ms ease-out;-webkit-tap-highlight-color:transparent}
-.entry:active{transform:scale(.96)}
-@media (prefers-reduced-motion:reduce){.entry{transition:none}}
+.entry{position:relative;width:341px;height:167px;overflow:hidden;border-radius:var(--radius-container);flex:none;cursor:pointer}
 .entry:focus-visible{outline:2px solid var(--color-icon-accent);outline-offset:2px}
 .entry .bg1,.entry .bg2,.entry .glow,.entry .wash{pointer-events:none}
 .entry .bg1{position:absolute;inset:0;border-radius:var(--radius-container);background:#fff5eb}

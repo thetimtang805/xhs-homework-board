@@ -88,10 +88,10 @@ p{font-weight:400}
 .chip .em .clip{position:absolute;inset:0;overflow:hidden;pointer-events:none}
 .chip .em img{position:absolute;max-width:none}
 .chip.all{--bc:#c2790c;background:var(--color-status-warning-text);padding:calc(var(--space-xs) + .5px) calc(var(--space-2xl) + .5px);color:var(--color-text-inverse)}
-.chip.chili{--bc:var(--color-icon-accent);color:var(--color-text-accent)}
-.chip.salt{--bc:var(--color-icon-secondary);color:var(--color-text-primary);height:33px}
-.chip.deluxe{--bc:var(--color-status-danger-icon);color:var(--color-status-danger-text)}
-.chip.fusion{--bc:#ad0000}
+.chip.chili{--bc:var(--color-icon-accent);background:color-mix(in srgb,var(--color-bg-brand-soft) 50%,transparent);color:var(--color-text-accent)}
+.chip.salt{--bc:var(--color-icon-secondary);background:rgba(255,255,255,.5);color:var(--color-text-primary);height:33px}
+.chip.deluxe{--bc:var(--color-status-danger-icon);background:color-mix(in srgb,var(--color-bg-brand-soft) 70%,transparent);color:var(--color-status-danger-text)}
+.chip.fusion{--bc:#ad0000;background:rgba(255,247,230,.5)}
 .chip.fusion .t{display:flex;align-items:center;gap:4px}
 .chip.fusion .grad{background:linear-gradient(to left,var(--color-status-warning-text),#ad0000);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent}
 .chip.fusion .en{color:var(--color-status-warning-text)}

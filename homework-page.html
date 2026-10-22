@@ -186,16 +186,23 @@ p{font-weight:400}
 .gcard:focus-visible{border-radius:var(--radius-container)}
 
 
-/* ===== 悬浮按钮托底：渐进模糊。从按钮上沿再往上 60px 开始，0→8px、整体 80% 不透明（写在每层 mask 的 alpha 上；opacity 会截断 backdrop-filter），按钮在其上方保持清晰 =====
-   6 层叠加，每层只在自己的区段渐显；叠加后总模糊 = √(Σ层²)，依次到 1.3/2.7/4/5.3/6.7/8px */
+/* ===== 悬浮按钮托底：渐进模糊。从按钮上沿再往上 60px 开始，0→5px、整体 80% 不透明，按钮在其上方保持清晰 =====
+   12 层叠加，模糊随位置按平方缓入（顶部几乎不糊，靠近按钮才加深）；每层 mask 的 alpha 写 .8（opacity 会截断 backdrop-filter）；
+   叠加后总模糊 = √(Σ层²)，即 5px×(k/12) */
 .dock{position:absolute;left:0;right:0;bottom:0;height:132px;z-index:2;pointer-events:none}
 .dock i{position:absolute;inset:0}
-.dock i:nth-child(1){-webkit-backdrop-filter:blur(1.33px);backdrop-filter:blur(1.33px);-webkit-mask-image:linear-gradient(to bottom,transparent 0.00%,rgba(0,0,0,.8) 16.67%);mask-image:linear-gradient(to bottom,transparent 0.00%,rgba(0,0,0,.8) 16.67%)}
-.dock i:nth-child(2){-webkit-backdrop-filter:blur(2.31px);backdrop-filter:blur(2.31px);-webkit-mask-image:linear-gradient(to bottom,transparent 16.67%,rgba(0,0,0,.8) 33.33%);mask-image:linear-gradient(to bottom,transparent 16.67%,rgba(0,0,0,.8) 33.33%)}
-.dock i:nth-child(3){-webkit-backdrop-filter:blur(2.98px);backdrop-filter:blur(2.98px);-webkit-mask-image:linear-gradient(to bottom,transparent 33.33%,rgba(0,0,0,.8) 50.00%);mask-image:linear-gradient(to bottom,transparent 33.33%,rgba(0,0,0,.8) 50.00%)}
-.dock i:nth-child(4){-webkit-backdrop-filter:blur(3.53px);backdrop-filter:blur(3.53px);-webkit-mask-image:linear-gradient(to bottom,transparent 50.00%,rgba(0,0,0,.8) 66.67%);mask-image:linear-gradient(to bottom,transparent 50.00%,rgba(0,0,0,.8) 66.67%)}
-.dock i:nth-child(5){-webkit-backdrop-filter:blur(4.00px);backdrop-filter:blur(4.00px);-webkit-mask-image:linear-gradient(to bottom,transparent 66.67%,rgba(0,0,0,.8) 83.33%);mask-image:linear-gradient(to bottom,transparent 66.67%,rgba(0,0,0,.8) 83.33%)}
-.dock i:nth-child(6){-webkit-backdrop-filter:blur(4.42px);backdrop-filter:blur(4.42px);-webkit-mask-image:linear-gradient(to bottom,transparent 83.33%,rgba(0,0,0,.8) 100.00%);mask-image:linear-gradient(to bottom,transparent 83.33%,rgba(0,0,0,.8) 100.00%)}
+.dock i:nth-child(1){-webkit-backdrop-filter:blur(0.42px);backdrop-filter:blur(0.42px);-webkit-mask-image:linear-gradient(to bottom,transparent 0.00%,rgba(0,0,0,0.8) 28.87%);mask-image:linear-gradient(to bottom,transparent 0.00%,rgba(0,0,0,0.8) 28.87%)}
+.dock i:nth-child(2){-webkit-backdrop-filter:blur(0.72px);backdrop-filter:blur(0.72px);-webkit-mask-image:linear-gradient(to bottom,transparent 28.87%,rgba(0,0,0,0.8) 40.82%);mask-image:linear-gradient(to bottom,transparent 28.87%,rgba(0,0,0,0.8) 40.82%)}
+.dock i:nth-child(3){-webkit-backdrop-filter:blur(0.93px);backdrop-filter:blur(0.93px);-webkit-mask-image:linear-gradient(to bottom,transparent 40.82%,rgba(0,0,0,0.8) 50.00%);mask-image:linear-gradient(to bottom,transparent 40.82%,rgba(0,0,0,0.8) 50.00%)}
+.dock i:nth-child(4){-webkit-backdrop-filter:blur(1.10px);backdrop-filter:blur(1.10px);-webkit-mask-image:linear-gradient(to bottom,transparent 50.00%,rgba(0,0,0,0.8) 57.74%);mask-image:linear-gradient(to bottom,transparent 50.00%,rgba(0,0,0,0.8) 57.74%)}
+.dock i:nth-child(5){-webkit-backdrop-filter:blur(1.25px);backdrop-filter:blur(1.25px);-webkit-mask-image:linear-gradient(to bottom,transparent 57.74%,rgba(0,0,0,0.8) 64.55%);mask-image:linear-gradient(to bottom,transparent 57.74%,rgba(0,0,0,0.8) 64.55%)}
+.dock i:nth-child(6){-webkit-backdrop-filter:blur(1.38px);backdrop-filter:blur(1.38px);-webkit-mask-image:linear-gradient(to bottom,transparent 64.55%,rgba(0,0,0,0.8) 70.71%);mask-image:linear-gradient(to bottom,transparent 64.55%,rgba(0,0,0,0.8) 70.71%)}
+.dock i:nth-child(7){-webkit-backdrop-filter:blur(1.50px);backdrop-filter:blur(1.50px);-webkit-mask-image:linear-gradient(to bottom,transparent 70.71%,rgba(0,0,0,0.8) 76.38%);mask-image:linear-gradient(to bottom,transparent 70.71%,rgba(0,0,0,0.8) 76.38%)}
+.dock i:nth-child(8){-webkit-backdrop-filter:blur(1.61px);backdrop-filter:blur(1.61px);-webkit-mask-image:linear-gradient(to bottom,transparent 76.38%,rgba(0,0,0,0.8) 81.65%);mask-image:linear-gradient(to bottom,transparent 76.38%,rgba(0,0,0,0.8) 81.65%)}
+.dock i:nth-child(9){-webkit-backdrop-filter:blur(1.72px);backdrop-filter:blur(1.72px);-webkit-mask-image:linear-gradient(to bottom,transparent 81.65%,rgba(0,0,0,0.8) 86.60%);mask-image:linear-gradient(to bottom,transparent 81.65%,rgba(0,0,0,0.8) 86.60%)}
+.dock i:nth-child(10){-webkit-backdrop-filter:blur(1.82px);backdrop-filter:blur(1.82px);-webkit-mask-image:linear-gradient(to bottom,transparent 86.60%,rgba(0,0,0,0.8) 91.29%);mask-image:linear-gradient(to bottom,transparent 86.60%,rgba(0,0,0,0.8) 91.29%)}
+.dock i:nth-child(11){-webkit-backdrop-filter:blur(1.91px);backdrop-filter:blur(1.91px);-webkit-mask-image:linear-gradient(to bottom,transparent 91.29%,rgba(0,0,0,0.8) 95.74%);mask-image:linear-gradient(to bottom,transparent 91.29%,rgba(0,0,0,0.8) 95.74%)}
+.dock i:nth-child(12){-webkit-backdrop-filter:blur(2.00px);backdrop-filter:blur(2.00px);-webkit-mask-image:linear-gradient(to bottom,transparent 95.74%,rgba(0,0,0,0.8) 100.00%);mask-image:linear-gradient(to bottom,transparent 95.74%,rgba(0,0,0,0.8) 100.00%)}
 @media (prefers-reduced-transparency:reduce){.dock i{display:none}.dock{background:linear-gradient(to bottom,rgba(255,255,255,0),#fff 80%)}}
 
 /* ===== 悬浮按钮「我也交作业」191×43：固定在评论区上方 ===== */
@@ -342,7 +349,7 @@ p{font-weight:400}
   </main>
 
   <!-- 悬浮按钮托底 -->
-  <div class="dock" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+  <div class="dock" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
 
   <!-- 悬浮按钮 -->
   <button class="fab" id="fab" aria-label="我也交作业">

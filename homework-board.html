@@ -117,8 +117,11 @@ p{font-weight:400}
 
 /* 筛选行：列表态在 y=95，大图态上移 48px 到 y=47；返回箭头是页面级固定元素，位置不动 */
 .hf{position:absolute;left:0;top:95px;width:100%;height:65px;z-index:3;display:flex;align-items:center;translate:0 var(--sy,0px);transition:transform .44s var(--ease),translate .44s var(--ease),opacity .3s ease-out}
-/* 列表态：筛选行跟着内容一起滚（--sy 由脚本按滚动位置写入，不做过渡）；滚到标题栏下面时淡出；进出大图态时才做过渡 */
+/* 列表态：筛选行跟着内容一起滚（--sy 由脚本按滚动位置写入，不做过渡）；上方 104px（头部渐变不透明的部分）以内被裁掉；进出大图态时才做过渡 */
 .hf.follow{transition:transform .44s var(--ease)}
+.hfwrap{position:absolute;inset:0;z-index:3;pointer-events:none;clip-path:inset(104px 0 0 0);transition:clip-path .44s var(--ease)}
+.hfwrap .hf{pointer-events:auto}
+.page[data-mode="detail"] .hfwrap{clip-path:inset(0)}
 .hf .chips{display:flex;align-items:center;gap:var(--space-sm);flex:1;min-width:0;height:100%;margin-left:0;padding:0 var(--space-xl);overflow-x:auto;scrollbar-width:none;scroll-padding-inline:var(--space-xl);transition:margin-left .44s var(--ease)}
 .hf .chips::-webkit-scrollbar{display:none}
 .hf .chips::after{content:"";flex:none;width:1px}
@@ -149,6 +152,17 @@ p{font-weight:400}
 
 /* 评论区的箭头：跟着画廊滚动，指向当前这一组（--tx 由脚本按滚动位置插值） */
 .comment .tail{transform:translateX(var(--tx,0px));will-change:transform}
+
+/* ---- 动态内容：点点总结的高亮条、评论卡 ---- */
+.dd .hls{position:absolute;inset:0;pointer-events:none}
+.dd .hls i{position:absolute;display:block;height:5px;background:var(--color-surface-selected);transform:rotate(-2deg)}
+.dd .body,.comment .card,.dd .hls{transition:opacity .14s ease-out}
+.comment .av35 img,.comment .av23 img{border-radius:50%;object-fit:cover}
+.comment .ct .a{color:var(--color-text-primary)}
+.comment .ct .b{color:var(--color-text-secondary)}
+.comment .au{display:inline-block;margin-left:var(--space-xs);padding:0 var(--space-xs);border-radius:var(--radius-pill);background:var(--color-bg-brand-soft);color:var(--color-text-accent);font-size:var(--caption-font-size);line-height:var(--caption-line-height);letter-spacing:var(--caption-letter-spacing);vertical-align:1px}
+.comment .sub.extra{display:none}
+.comment .card.expanded .sub.extra{display:flex}
 
 /* ---- 大图态：整框（白边框+图片）作为一个整体横向切换 ---- */
 .dstage{position:absolute;inset:0;z-index:2;pointer-events:none;opacity:0;visibility:hidden;transition:opacity .25s ease-out,visibility 0s .25s}
@@ -314,8 +328,8 @@ p{font-weight:400}
   <div class="band"></div>
   <div class="confetti c1"><div class="in"><img src="assets/page/header-confetti-1.png" alt=""></div></div>
 
-  <!-- 筛选行：固定层，大图态上移 -->
-  <div class="hf" id="hf" role="tablist" aria-label="流派筛选">
+  <!-- 筛选行：放在头部渐变的下层空间里，滚动时被头部裁掉（clip），永远不会和标题重叠；大图态解除裁剪并固定在顶部 -->
+  <div class="hfwrap"><div class="hf" id="hf" role="tablist" aria-label="流派筛选">
     <div class="chips" id="chips">
       <div class="chip all on">
         <button class="lbl" role="tab" aria-selected="true"><p class="zh">全部</p></button>
@@ -357,16 +371,16 @@ p{font-weight:400}
         <button class="rf" aria-label="刷新"><span class="rg"><span class="gp"><i><img src="assets/components/filter-refresh.svg" alt=""></i></span></span></button>
       </div>
       </div>
-  </div>
+  </div></div>
 
   <!-- 列表内容：点点总结 → 画廊 → 评论 -->
   <main class="scroll" id="scroll">
     <div class="stack">
 
       <div class="ddw"><section class="dd" aria-label="点点总结">
-        <div class="hl hl1"><i></i></div><div class="hl hl2"><i></i></div><div class="hl hl3"><i></i></div><div class="hl hl4"><i></i></div><div class="hl hl5"><i></i></div>
+        <div class="hls" id="hls"></div>
         <div class="who"><div class="ic"><img src="assets/components/diandian-icon.png" alt=""></div><p class="zh">点点</p></div>
-        <p class="body zh">酱换成<b>郫县豆瓣酱</b>，刷<b>红油</b>撒<b>二荆条辣椒面</b>和<b>花椒面</b>，辣里带麻，多放肉和洋葱，比原版重口得多！</p>
+        <p class="body zh" id="ddbody"></p>
       </section></div>
 
       <div class="gscroll" aria-label="作业画廊">
@@ -389,66 +403,7 @@ p{font-weight:400}
 
       <section class="comment" aria-label="评论">
         <div class="tail" id="tail"><img src="assets/components/comment-tail.svg" alt=""></div>
-        <div class="card">
-          <div class="av35"><img src="assets/components/comment-avatar-1.png" alt="" width="35" height="35"></div>
-          <div class="col">
-            <div class="blk">
-              <div class="txt zh">
-                <p class="nm">辣妹子很怕拉</p>
-                <p class="ct">对老几太好了，加了超量的辣椒，还加了巨多的肉、洋葱和胡萝卜碎，直接变成肉夹馍，超级爆炸满足！！</p>
-              </div>
-              <div class="mrow">
-                <div class="ml"><div class="d"><p class="en">10-04</p><p class="zh">四川</p></div><button class="r zh" type="button" data-evt="homework:reply" aria-label="回复辣妹子很怕拉">回复</button></div>
-                <div class="mr">
-                  <button class="lk" type="button" data-evt="homework:like" aria-label="点赞，129"><span class="h"><img src="assets/components/comment-heart.svg" alt=""></span><span class="en">129</span></button>
-                  <button class="sad" type="button" data-evt="homework:dislike" aria-label="不喜欢"><span class="g"><i><img src="assets/components/comment-sad.svg" alt=""></i></span></button>
-                </div>
-              </div>
-            </div>
-
-            <div class="sub">
-              <div class="av23"><img src="assets/components/comment-avatar-2.png" alt="" width="23" height="23"></div>
-              <div class="col2">
-                <div class="txt">
-                  <p class="nm en">Anna</p>
-                  <p class="ct zh">放什么辣椒好吃啊？</p>
-                </div>
-                <div class="mrow">
-                  <div class="ml"><div class="d"><p class="en">10-04</p><p class="zh">中国香港</p></div><button class="r zh" type="button" data-evt="homework:reply" aria-label="回复Anna">回复</button></div>
-                  <div class="mr">
-                    <button class="lk" type="button" data-evt="homework:like" aria-label="点赞，32"><span class="h"><img src="assets/components/comment-heart.svg" alt=""></span><span class="en">32</span></button>
-                    <button class="sad" type="button" data-evt="homework:dislike" aria-label="不喜欢"><span class="g"><i><img src="assets/components/comment-sad.svg" alt=""></i></span></button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="sub">
-              <div class="av23"><img src="assets/components/comment-avatar-3.png" alt="" width="23" height="23"></div>
-              <div class="col2">
-                <div class="txt">
-                  <p class="nm zh">辣妹子很怕拉</p>
-                  <div class="rp"><p class="a zh">回复</p><p class="b en">Anna</p><p class="c zh">我用二荆条辣椒面哦！</p></div>
-                </div>
-                <div class="mrow">
-                  <div class="ml"><div class="d"><p class="en">10-04</p><p class="zh">四川</p></div><button class="r zh" type="button" data-evt="homework:reply" aria-label="回复辣妹子很怕拉">回复</button></div>
-                  <div class="mr">
-                    <button class="lk" type="button" data-evt="homework:like" aria-label="点赞，68"><span class="h"><img src="assets/components/comment-heart.svg" alt=""></span><span class="en">68</span></button>
-                    <button class="sad" type="button" data-evt="homework:dislike" aria-label="不喜欢"><span class="g"><i><img src="assets/components/comment-sad.svg" alt=""></i></span></button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="more">
-              <div class="mg">
-                <div class="ln"></div>
-                <button class="zh" type="button" data-evt="homework:expand">展开更多回复</button>
-              </div>
-              <button class="zh" type="button" data-evt="homework:collapse">收起</button>
-            </div>
-          </div>
-        </div>
+        <div class="card" id="ccard"></div>
       </section>
 
     </div>
@@ -496,6 +451,7 @@ p{font-weight:400}
 
 </div>
 
+<script src="assets/content.js"></script>
 <script>
 /* 作业榜：列表态 ⇄ 大图态
    列表：筛选行（默认「全部」，点「川渝麻辣版」出现点点总结）→ 画廊（一次滑一组）→ 评论（箭头指向当前这一组）
@@ -520,14 +476,69 @@ p{font-weight:400}
     try{ if(window.parent!==window) window.parent.postMessage({src:'board',type:name,detail:detail||null},'*'); }catch(e){}
   }
 
+  /* ---------- 动态内容：点点总结 + 评论区（数据在 assets/content.js，来自 docs/dynamic-content.md） ---------- */
+  var C=window.BOARD_CONTENT||{tabs:{}},KEYS=['all','chili','salt','deluxe','fusion'];
+  var ddbody=document.getElementById('ddbody'),hls=document.getElementById('hls'),ccard=document.getElementById('ccard'),ddEl=document.querySelector('.dd');
+  var tabKey='all';
+  function esc(t){return String(t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  function fam(n){return /[\u4e00-\u9fff]/.test(n)?'zh':'en';}
+  function nameHTML(r){return esc(r.name)+(r.author?'<span class="au zh">作者</span>':'');}
+  function mrow(r){
+    return '<div class="mrow"><div class="ml"><div class="d"><p class="en">'+esc(r.date)+'</p><p class="zh">'+esc(r.loc)+'</p></div>'
+      +'<button class="r zh" type="button" data-evt="homework:reply" aria-label="回复'+esc(r.name)+'">回复</button></div>'
+      +'<div class="mr"><button class="lk" type="button" data-evt="homework:like" aria-label="点赞，'+r.likes+'"><span class="h"><img src="assets/components/comment-heart.svg" alt=""></span><span class="en">'+r.likes+'</span></button>'
+      +'<button class="sad" type="button" data-evt="homework:dislike" aria-label="不喜欢"><span class="g"><i><img src="assets/components/comment-sad.svg" alt=""></i></span></button></div></div>';
+  }
+  function renderComment(t){
+    var m=t.main,vis=C.visibleReplies||2;
+    var html='<div class="av35"><img src="'+m.avatar+'" alt="" width="35" height="35"></div><div class="col"><div class="blk"><div class="txt zh">'
+      +'<p class="nm '+fam(m.name)+'">'+nameHTML(m)+'</p><p class="ct">'+esc(m.text)+'</p></div>'+mrow(m)+'</div>';
+    t.replies.forEach(function(r,i){
+      var pre=r.replyTo?'<span class="a">回复</span> <span class="b">'+esc(r.replyTo)+'</span> ':'';
+      html+='<div class="sub'+(i>=vis?' extra':'')+'"><div class="av23"><img src="'+r.avatar+'" alt="" width="23" height="23"></div><div class="col2"><div class="txt">'
+        +'<p class="nm '+fam(r.name)+'">'+nameHTML(r)+'</p><p class="ct zh">'+pre+esc(r.text)+'</p></div>'+mrow(r)+'</div></div>';
+    });
+    html+='<div class="more"><div class="mg"><div class="ln"></div><button class="zh" type="button" data-evt="homework:expand">展开更多回复</button></div>'
+      +'<button class="zh" type="button" data-evt="homework:collapse">收起</button></div></div>';
+    ccard.innerHTML=html;ccard.classList.remove('expanded');
+  }
+  /* 高亮条：按 <b> 的实际位置画（跨行的词每行一条），和 Figma 一样略微逆时针 2° */
+  function placeHighlights(){
+    hls.innerHTML='';
+    var dd=ddEl.getBoundingClientRect(),bd=ddbody.getBoundingClientRect(),lh=20;
+    [].forEach.call(ddbody.querySelectorAll('b'),function(b){
+      [].forEach.call(b.getClientRects(),function(r){
+        if(r.width<2) return;
+        var line=Math.floor(((r.top+r.height/2)-bd.top)/lh);
+        var i=document.createElement('i');
+        i.style.left=(r.left-dd.left)+'px';i.style.top=(bd.top-dd.top+line*lh+14)+'px';i.style.width=r.width+'px';
+        hls.appendChild(i);
+      });
+    });
+  }
+  function renderTab(key){
+    var t=C.tabs&&C.tabs[key];if(!t) return;
+    tabKey=key;
+    ddbody.innerHTML=esc(t.summary).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');
+    renderComment(t);
+    placeHighlights();
+  }
+  function swapTab(key){
+    if(key===tabKey) return;
+    var els=[ddbody,hls,ccard];
+    els.forEach(function(e){e.style.opacity=0;});
+    setTimeout(function(){renderTab(key);els.forEach(function(e){e.style.opacity=1;});},reduce.matches?0:140);
+  }
+  renderTab('all');
+  if(document.fonts&&document.fonts.ready) document.fonts.ready.then(placeHighlights);
+  window.addEventListener('load',placeHighlights);
+  window.addEventListener('resize',placeHighlights);
+
   /* ---------- 筛选行跟着列表滚动 ---------- */
   hf.classList.add('follow');
   function followScroll(){
     if(mode!=='list'||busy) return;
-    var y=scroll.scrollTop,o=Math.max(0,Math.min(1,1-(y-16)/44));
-    hf.style.setProperty('--sy',(-y)+'px');
-    hf.style.opacity=o;
-    hf.style.pointerEvents=o<.05?'none':'';
+    hf.style.setProperty('--sy',(-scroll.scrollTop)+'px');
   }
   scroll.addEventListener('scroll',followScroll,{passive:true});
 
@@ -537,6 +548,7 @@ p{font-weight:400}
     c.querySelector('.lbl').addEventListener('click',function(){
       chips.forEach(function(x){var on=(x===c);x.classList.toggle('on',on);x.querySelector('.lbl').setAttribute('aria-selected',on?'true':'false');});
             c.scrollIntoView({inline:'nearest',block:'nearest',behavior:reduce.matches?'auto':'smooth'});
+      swapTab(KEYS[idx]||'all');
       emit('filter:change',{index:idx});
     });
     c.querySelector('.rf').addEventListener('click',function(){emit('filter:refresh',{index:idx});});
@@ -649,7 +661,7 @@ p{font-weight:400}
   function openGroup(i){
     if(busy||mode!=='list') return;
     busy=true;group=i;mode='detail';
-    hf.classList.remove('follow');hf.style.setProperty('--sy','0px');hf.style.opacity='';hf.style.pointerEvents='';
+    hf.classList.remove('follow');hf.style.setProperty('--sy','0px');
     var card=cards[i],ph=card.querySelector('.ph');
     buildPager(i);
     var start=geo(ph);
@@ -678,7 +690,7 @@ p{font-weight:400}
     document.getElementById('dstage').setAttribute('aria-hidden','true');
     var to=geo(ph);
     mode='list';page.setAttribute('data-mode','list');
-    (function(){var y=scroll.scrollTop,o=Math.max(0,Math.min(1,1-(y-16)/44));hf.style.setProperty('--sy',(-y)+'px');hf.style.opacity=o;hf.style.pointerEvents=o<.05?'none':'';})();
+    hf.style.setProperty('--sy',(-scroll.scrollTop)+'px');
     hero.getBoundingClientRect();
     place(hero,to,2);
     setTimeout(function(){card.classList.remove('is-hidden');hero.remove();busy=false;hf.classList.add('follow');followScroll();},EASE_MS);
@@ -697,8 +709,13 @@ p{font-weight:400}
     if(mode==='detail') closeGroup(); else emit('homework:back');
   });
   document.getElementById('fab').addEventListener('click',function(){emit('homework:join');});
-  [].forEach.call(document.querySelectorAll('[data-evt]'),function(el){
-    el.addEventListener('click',function(){emit(el.getAttribute('data-evt'));});
+  /* 评论里的按钮是动态渲染的，用事件委托；展开/收起同时切换隐藏的回复 */
+  page.addEventListener('click',function(e){
+    var el=e.target.closest&&e.target.closest('[data-evt]');if(!el) return;
+    var n=el.getAttribute('data-evt');
+    if(n==='homework:expand') ccard.classList.add('expanded');
+    else if(n==='homework:collapse') ccard.classList.remove('expanded');
+    emit(n);
   });
   document.addEventListener('keydown',function(e){
     if(e.key==='Escape'&&mode==='detail') closeGroup();
@@ -712,8 +729,9 @@ p{font-weight:400}
     document.getElementById('dstage').setAttribute('aria-hidden','true');
     chips.forEach(function(x,k){var on=(k===0);x.classList.toggle('on',on);x.querySelector('.lbl').setAttribute('aria-selected',on?'true':'false');});
     page.setAttribute('data-summary','on');
+    renderTab('all');
     chipsEl.scrollLeft=0;gal.scrollLeft=0;scroll.scrollTop=0;
-    hf.classList.add('follow');hf.style.setProperty('--sy','0px');hf.style.opacity='';hf.style.pointerEvents='';
+    hf.classList.add('follow');hf.style.setProperty('--sy','0px');
     updateTail();
   }
   window.addEventListener('message',function(e){

@@ -25,7 +25,7 @@ img{display:block;max-width:none}
 @media (max-width:375px){body{display:block}.page{width:100vw;height:100dvh}}
 
 /* 顶部渐变条 */
-.band{position:absolute;top:0;left:50%;transform:translateX(-50%);width:375px;height:95px;background:linear-gradient(to bottom,#fecace,#fff5eb)}
+.band{/* Figma 的渐变按「非预乘」插值，CSS 是预乘，所以把 57%→99% 这一段拆成 8 档补齐 */position:absolute;top:0;left:50%;transform:translateX(-50%);width:375px;height:126px;background:linear-gradient(179.757deg,rgb(254,202,206) .622%,rgba(254,223,220,1.000) 57.03%,rgba(254,226,222,0.875) 62.32%,rgba(254,228,224,0.750) 67.62%,rgba(254,231,226,0.625) 72.91%,rgba(254,234,228,0.500) 78.20%,rgba(255,237,229,0.375) 83.50%,rgba(255,240,231,0.250) 88.79%,rgba(255,242,233,0.125) 94.09%,rgba(255,245,235,0.000) 99.38%)}
 
 /* 装饰彩带 */
 .confetti{position:absolute;display:flex;align-items:center;justify-content:center;pointer-events:none}

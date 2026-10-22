@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>美食作业榜</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* tokens：取自 Figma 文件 rednote-ds 的变量定义（node 30:1031） */
+:root{
+  --color-text-primary:#1f1f1f;
+  --color-text-secondary:#8a8a8a;
+  --color-text-tertiary:#b8b8b8;
+  --color-text-accent:#ff2442;
+  --color-text-inverse:#ffffff;
+  --color-icon-accent:#ff2442;
+  --color-icon-secondary:#8a8a8a;
+  --color-border-subtle:#f5f5f5;
+  --color-bg-inverse:#1f1f1f;
+  --color-bg-brand-soft:#fff2f4;
+  --color-surface-selected:#fbe5e8;
+  --color-overlay-scrim:#00000099;
+  --color-status-warning-text:#ad6800;
+  --color-status-warning-icon:#ad6800;
+  --color-status-danger-text:#b01129;
+  --color-status-danger-icon:#b01129;
+  --space-2xs:4px;--space-xs:6px;--space-sm:8px;--space-md:10px;--space-lg:12px;--space-xl:16px;--space-2xl:24px;
+  --radius-component:8px;--radius-container:16px;--radius-pill:999px;
+  --body-sm-font-size:14px;--body-sm-line-height:20px;--body-sm-letter-spacing:0px;
+  --caption-font-size:12px;--caption-line-height:16px;--caption-letter-spacing:0px;
+  --font-zh:"Noto Sans SC","PingFang SC",sans-serif;
+  --font-en:"SF Pro",-apple-system,BlinkMacSystemFont,"Helvetica Neue",sans-serif;
+  --font-status:"SF Pro Text",-apple-system,BlinkMacSystemFont,"Helvetica Neue",sans-serif;
+  --stage:#2a2a2a;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background:var(--stage);display:flex;align-items:center;justify-content:center;font-family:var(--font-zh)}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+img{display:block;max-width:none}
+p{font-weight:400}
+.zh{font-family:var(--font-zh)}.en{font-family:var(--font-en)}
+.fill{position:absolute;inset:0;width:100%;height:100%}
+
+/* ===== 375×812 页面：窄屏铺满，宽屏居中 ===== */
+.page{position:relative;width:375px;height:812px;overflow:hidden;background:linear-gradient(to bottom,#fff5eb 64.594%,#fff)}
+@media (max-width:375px){body{display:block}.page{width:100vw;height:100dvh}}
+
+/* ===== 固定层：顶部渐变、彩带、状态栏、标题栏 ===== */
+.band{position:absolute;top:0;left:50%;transform:translateX(-50%);width:375px;height:95px;background:linear-gradient(to bottom,#fecace,#fff5eb)}
+.confetti{position:absolute;display:flex;align-items:center;justify-content:center;pointer-events:none}
+.confetti .in{flex:none}
+.confetti img{position:relative;display:block;width:100%;height:100%;object-fit:cover;opacity:.2}
+.c1{left:-14px;top:-13px;width:89px;height:89px}.c1 .in{width:89px;height:89px;transform:rotate(180deg)}
+.c2{left:320px;top:32px;width:73px;height:73px;z-index:4}.c2 .in{width:73px;height:73px;transform:rotate(180deg) scale(1,-1)}
+.status{position:absolute;top:0;left:50%;transform:translateX(-50%);width:375px;height:47px;overflow:hidden;z-index:4}
+.status .notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:172px;height:32px}
+.status .time{position:absolute;top:14px;left:calc(16.67% - 10.5px);transform:translateX(-50%);width:54px;height:21px;border-radius:24px}
+.status .time p{position:absolute;top:1px;left:27px;transform:translateX(-50%);width:54px;height:20px;text-align:center;font-family:var(--font-status);font-weight:600;font-size:16px;line-height:21px;letter-spacing:-.32px;color:#000;white-space:nowrap}
+.status .right{position:absolute;top:19px;left:calc(83.33% - .3px);transform:translateX(-50%);width:77.401px;height:13px}
+.title{position:absolute;top:63px;left:50%;transform:translateX(-50%);width:149px;height:32px;z-index:4}
+.title img{position:absolute;inset:0;width:100%;height:100%;object-position:bottom;pointer-events:none}
+.rule{position:absolute;top:79px;height:0;display:flex;align-items:center;justify-content:center;z-index:4}
+.rule .in{flex:none;position:relative;height:0;transform:rotate(180deg)}
+.rule .in i{position:absolute;inset:-2px 0 0 0}
+.rule .in img{display:block;width:100%;height:100%}
+.r1{left:52px;width:49px}.r1 .in{width:49px}
+.r2{left:269px;width:50px}.r2 .in{width:50px}
+.back{position:absolute;left:16px;top:69px;width:22px;height:22px;padding:0;z-index:5}
+.back::before{content:"";position:absolute;inset:-11px}
+.back:focus-visible{outline:2px solid var(--color-status-warning-icon);outline-offset:2px;border-radius:4px}
+
+/* ===== 滚动区：标题栏下方，顶部 95px 起 ===== */
+.scroll{position:absolute;left:0;right:0;top:95px;bottom:0;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;z-index:2}
+.scroll::-webkit-scrollbar{display:none}
+.stack{display:flex;flex-direction:column;align-items:stretch;padding-bottom:96px}
+
+/* ---- 流派筛选行 375×65 ---- */
+.hf{display:flex;align-items:flex-start;gap:var(--space-sm);padding:var(--space-xl);width:100%;height:65px;flex:none;overflow-x:auto;scrollbar-width:none}
+.hf::-webkit-scrollbar{display:none}
+.hf::after{content:"";flex:none;width:1px}
+.chip{position:relative;flex:none;display:flex;align-items:center;justify-content:center;gap:4px;height:33px;padding:calc(var(--space-xs) + .5px) calc(var(--space-xl) + .5px);border-radius:var(--radius-pill);box-shadow:inset 0 0 0 .5px var(--bc);color:var(--tc);font-size:var(--body-sm-font-size);line-height:var(--body-sm-line-height);letter-spacing:var(--body-sm-letter-spacing);white-space:nowrap;transition:background .2s,color .2s}
+.chip p{font-size:inherit;line-height:inherit;letter-spacing:inherit}
+.chip[aria-selected="true"]{background:var(--fill);color:var(--color-text-inverse)}
+.chip:focus-visible{outline:2px solid var(--color-icon-accent);outline-offset:2px}
+.chip.all{--bc:#c2790c;--tc:var(--color-status-warning-text);--fill:var(--color-status-warning-text);padding-inline:calc(var(--space-2xl) + .5px)}
+.chip.chili{--bc:var(--color-icon-accent);--tc:var(--color-text-accent);--fill:var(--color-text-accent)}
+.chip.salt{--bc:var(--color-icon-secondary);--tc:var(--color-text-primary);--fill:var(--color-text-primary)}
+.chip.deluxe{--bc:var(--color-status-danger-icon);--tc:var(--color-status-danger-text);--fill:var(--color-status-danger-text)}
+.chip.fusion{--bc:#ad0000;--tc:var(--color-status-warning-text);--fill:linear-gradient(to left,var(--color-status-warning-text),#ad0000)}
+.chip .em{position:relative;flex:none}
+.chip .em .clip{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.chip .em .clip img{position:absolute;max-width:none}
+.chip .em .sel{display:none;position:absolute;inset:0;width:100%;height:100%;object-position:bottom;pointer-events:none}
+.chip[aria-selected="true"] .em.has-sel .sel{display:block}
+.chip[aria-selected="true"] .em.has-sel .clip{display:none}
+.chip.fusion .t{display:flex;align-items:center;gap:4px}
+.chip.fusion .grad{background:linear-gradient(to left,var(--color-status-warning-text),#ad0000);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent}
+.chip.fusion .en{color:inherit}
+.chip.fusion[aria-selected="true"] .grad{background:none;color:var(--color-text-inverse);-webkit-text-fill-color:var(--color-text-inverse)}
+
+/* ---- 点点 AI 总结卡 343×87 ---- */
+.dd{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:var(--space-2xs);width:343px;max-width:calc(100% - 32px);height:87px;margin-left:var(--space-xl);padding:var(--space-lg);border-radius:var(--radius-container);background:#fffaf5;flex:none}
+.dd .hl{position:absolute;display:flex;align-items:center;justify-content:center}
+.dd .hl i{display:block;flex:none;height:5px;background:var(--color-surface-selected);transform:rotate(-2deg)}
+.dd .hl1{left:12px;top:70px;width:14.304px;height:5.49px}.dd .hl1 i{width:14.139px}
+.dd .hl2{left:54.02px;top:48.74px;width:71.073px;height:7.473px}.dd .hl2 i{width:70.941px}
+.dd .hl3{left:152px;top:50.29px;width:26.945px;height:5.932px}.dd .hl3 i{width:26.787px}
+.dd .hl4{left:195px;top:48.36px;width:82.19px;height:7.861px}.dd .hl4 i{width:82.065px}
+.dd .hl5{left:293px;top:50.29px;width:26.679px;height:5.923px}.dd .hl5 i{width:26.521px}
+.dd .who{position:relative;display:flex;align-items:center;gap:var(--space-2xs);flex:none}
+.dd .who .ic{position:relative;flex:none;width:19px;height:19px}
+.dd .who .ic img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none}
+.dd .who p{font-size:var(--caption-font-size);line-height:var(--caption-line-height);letter-spacing:var(--caption-letter-spacing);color:var(--color-text-tertiary);white-space:nowrap}
+.dd .body{position:relative;flex:none;width:100%;font-size:14px;line-height:var(--body-sm-line-height);letter-spacing:var(--body-sm-letter-spacing);color:var(--color-text-primary)}
+.dd .body b{font-weight:500;color:#ff2442}
+
+/* ---- 作业画廊 580×233：横向滚动，上下留白放阴影 ---- */
+.gscroll{display:flex;align-items:center;gap:28px;margin:-8px 0 -7.644px;padding:24px var(--space-xl);overflow-x:auto;overflow-y:hidden;scrollbar-width:none;flex:none;position:relative}
+.gscroll::-webkit-scrollbar{display:none}
+.gcard{position:relative;flex:none}
+.gcard .plate{position:absolute;top:0;width:160px;height:215px;border:2px solid var(--color-border-subtle);border-radius:var(--radius-container);box-shadow:0 4px 20px 0 rgba(135,67,15,.15)}
+.gcard .slot{position:absolute;left:0;display:flex;align-items:center;justify-content:center}
+.gcard .ph{position:relative;flex:none;width:160px;height:214.857px;border:2px solid var(--color-border-subtle);border-radius:var(--radius-container);box-shadow:0 4px 20px 0 rgba(135,67,15,.15)}
+.gcard .ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:var(--radius-container);pointer-events:none}
+.gcard .tag{position:absolute;display:flex;align-items:center;padding:var(--space-2xs) var(--space-sm);border-radius:var(--radius-pill);background:var(--color-overlay-scrim)}
+.gcard .tag p{font-size:var(--caption-font-size);line-height:var(--caption-line-height);letter-spacing:var(--caption-letter-spacing);color:var(--color-text-inverse);white-space:nowrap}
+.g1{width:178.117px;height:232.644px}.g1 .plate{left:18px;background:#eed1b0}
+.g1 .slot{top:4.66px;width:178.117px;height:227.984px}.g1 .ph{transform:rotate(-5deg)}.g1 .tag{left:132.49px;top:189px}
+.g2{width:174.598px;height:230.495px}.g2 .plate{left:0;background:#e8d4bb}
+.g2 .slot{top:5px;width:174.598px;height:225.495px}.g2 .ph{transform:rotate(4deg);box-shadow:0 9.143px 45.714px 0 rgba(135,67,15,.15)}.g2 .tag{left:115.88px;top:187.93px}
+.g3{width:171.025px;height:231px}.g3 .plate{left:11px;background:#e2d7c4}
+.g3 .slot{top:8px;width:171.025px;height:222.936px}.g3 .ph{transform:rotate(-3deg)}.g3 .tag{left:123.28px;top:188.18px}
+
+/* ---- 评论与回复 343×313 ---- */
+.comment{display:flex;flex-direction:column;align-items:flex-start;width:343px;max-width:calc(100% - 32px);margin:0 0 0 var(--space-xl);flex:none}
+.comment .tail{position:relative;flex:none;width:192px;height:17px;margin-bottom:-6px}
+.comment .tail img{position:absolute;inset:0;width:100%;height:100%;display:block}
+.comment .card{display:flex;align-items:flex-start;gap:var(--space-md);width:100%;padding:var(--space-lg);border-radius:var(--radius-container);background:#fdeede;flex:none}
+.comment .av35{position:relative;flex:none;width:35px;height:35px}
+.comment .av23{position:relative;flex:none;width:23px;height:23px}
+.comment .av35 img,.comment .av23 img{position:absolute;inset:0;width:100%;height:100%;display:block}
+.comment .col{flex:1 0 0;min-width:1px;display:flex;flex-direction:column;gap:var(--space-lg);align-items:flex-start}
+.comment .blk{display:flex;flex-direction:column;gap:var(--space-2xs);width:100%}
+.comment .sub{display:flex;align-items:flex-start;gap:var(--space-sm);width:100%}
+.comment .sub .col2{flex:1 0 0;min-width:1px;display:flex;flex-direction:column;gap:var(--space-2xs)}
+.comment .txt{display:flex;flex-direction:column;width:100%;font-size:var(--body-sm-font-size);line-height:var(--body-sm-line-height);letter-spacing:var(--body-sm-letter-spacing);word-break:break-word}
+.comment .txt .nm{color:var(--color-text-tertiary);width:100%}
+.comment .txt .ct{color:#603d09;width:100%}
+.comment .txt .rp{display:flex;align-items:flex-start;gap:var(--space-2xs);white-space:nowrap}
+.comment .txt .rp .a{color:var(--color-text-primary)}
+.comment .txt .rp .b{color:var(--color-text-tertiary)}
+.comment .txt .rp .c{color:#603d09}
+.comment .mrow{display:flex;align-items:center;justify-content:space-between;width:100%}
+.comment .ml{display:flex;align-items:center;gap:var(--space-md);font-size:var(--caption-font-size);line-height:var(--caption-line-height);letter-spacing:var(--caption-letter-spacing);white-space:nowrap}
+.comment .ml .d{display:flex;align-items:center;gap:4px;color:var(--color-text-secondary)}
+.comment .ml .r{color:var(--color-text-primary)}
+.comment .mr{display:flex;align-items:center;gap:var(--space-xl)}
+.comment .lk{display:flex;align-items:flex-end}
+.comment .lk .h{position:relative;flex:none;width:18px;height:18px}
+.comment .lk .h img{position:absolute;inset:0;width:100%;height:100%;display:block}
+.comment .lk span{font-size:var(--caption-font-size);line-height:var(--caption-line-height);letter-spacing:var(--caption-letter-spacing);color:var(--color-text-secondary);white-space:nowrap}
+.comment .sad{position:relative;flex:none;width:16px;height:16px;overflow:hidden}
+.comment .sad .g{position:absolute;inset:8.33%}
+.comment .sad .g i{position:absolute;inset:-5%}
+.comment .sad .g img{display:block;width:100%;height:100%}
+.comment .more{display:flex;align-items:center;gap:var(--space-sm);padding-left:var(--space-md);width:100%}
+.comment .more .ln{position:relative;flex:none;width:23px;height:0}
+.comment .more .ln i{position:absolute;inset:-.5px 0 0 0}
+.comment .more .ln img{display:block;width:100%;height:100%}
+.comment .more p{font-size:var(--caption-font-size);line-height:var(--caption-line-height);letter-spacing:var(--caption-letter-spacing);color:var(--color-text-primary);white-space:nowrap}
+
+/* ===== 悬浮按钮「我也交作业」191×43：固定在评论区上方 ===== */
+.fab{position:absolute;left:calc(50% - 97.5px);bottom:29px;width:191px;height:43px;padding:0;border-radius:var(--radius-pill);background:#ff3e42;z-index:3}
+.fab .label{position:absolute;left:calc(50% + 20.5px);top:11px;width:102px;height:21px;transform:translateX(-50%);pointer-events:none}
+.fab .label img{position:absolute;inset:0;width:100%;height:100%;object-position:bottom;pointer-events:none}
+.fab .pan{position:absolute;left:19px;top:-9px;width:52px;height:52px;pointer-events:none}
+.fab .pan img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.fab .inset{position:absolute;inset:0;border-radius:inherit;pointer-events:none;box-shadow:inset 0 -4px 4px 0 rgba(191,19,23,.35),inset 0 4px 4px 0 rgba(255,245,235,.3)}
+.fab:focus-visible{outline:2px solid var(--color-text-primary);outline-offset:3px}
+.fab:active{transform:scale(.97)}
+@media (prefers-reduced-motion:reduce){.chip{transition:none}.fab:active{transform:none}}
+
+/* ===== home indicator（设计稿里是两条相差 1px 的横条） ===== */
+.home{position:absolute;left:0;top:783px;width:375px;height:28px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding:var(--space-sm) var(--space-2xl);pointer-events:none;z-index:6}
+.home i{flex:none;width:134px;height:5px;border-radius:var(--radius-pill);background:var(--color-bg-inverse)}
+.home2{position:absolute;left:120.5px;top:799px;width:134px;height:5px;border-radius:var(--radius-pill);background:var(--color-bg-inverse);pointer-events:none;z-index:6}
+</style>
+</head>
+<body>
+<div class="page" id="page">
+
+  <!-- 固定层 -->
+  <div class="band"></div>
+  <div class="confetti c1"><div class="in"><img src="assets/page/header-confetti-1.png" alt=""></div></div>
+
+  <!-- 滚动内容：筛选 → 点点总结 → 画廊 → 评论 -->
+  <main class="scroll" id="scroll">
+    <div class="stack">
+
+      <div class="hf" id="hf" role="tablist" aria-label="流派筛选">
+        <button class="chip all" role="tab" aria-selected="false"><p class="zh">全部</p></button>
+
+        <button class="chip chili" role="tab" aria-selected="true">
+          <span class="em has-sel" style="width:19px;height:19px">
+            <span class="clip"><img src="assets/components/filter-chili.png" alt="" style="left:-31.58%;top:-23.68%;width:147.37%;height:147.37%"></span>
+            <img class="sel" src="assets/components/filter-chili-selected.png" alt="">
+          </span>
+          <p class="zh">川渝麻辣版</p>
+        </button>
+
+        <button class="chip salt" role="tab" aria-selected="false">
+          <span class="em" style="width:17.434px;height:22.228px"><span class="clip"><img src="assets/components/filter-salt.png" alt="" style="left:-33.33%;top:-15.36%;width:155.56%;height:122.01%"></span></span>
+          <p class="zh">极简原料</p>
+        </button>
+
+        <button class="chip deluxe" role="tab" aria-selected="false">
+          <span class="em" style="width:25.099px;height:19px"><span class="clip"><img src="assets/components/filter-deluxe.png" alt="" style="left:-8.05%;top:-23.68%;width:111.56%;height:147.37%"></span></span>
+          <p class="zh">加料豪华版</p>
+        </button>
+
+        <button class="chip fusion" role="tab" aria-selected="false">
+          <span class="em" style="width:22.047px;height:19px"><span class="clip"><img src="assets/components/filter-fusion.png" alt="" style="left:0;top:-12.53%;width:104.98%;height:121.82%"></span></span>
+          <span class="t"><p class="grad zh">中西</p><p class="en">Fusion</p></span>
+        </button>
+      </div>
+
+      <section class="dd" aria-label="点点总结">
+        <div class="hl hl1"><i></i></div><div class="hl hl2"><i></i></div><div class="hl hl3"><i></i></div><div class="hl hl4"><i></i></div><div class="hl hl5"><i></i></div>
+        <div class="who"><div class="ic"><img src="assets/components/diandian-icon.png" alt=""></div><p class="zh">点点</p></div>
+        <p class="body zh">酱换成<b>郫县豆瓣酱</b>，刷<b>红油</b>撒<b>二荆条辣椒面</b>和<b>花椒面</b>，辣里带麻，多放肉和洋葱，比原版重口得多！</p>
+      </section>
+
+      <div class="gscroll" aria-label="作业画廊">
+        <div class="gcard g1">
+          <div class="plate"></div>
+          <div class="slot"><div class="ph"><img src="assets/components/gallery-1.jpg" alt=""></div></div>
+          <div class="tag"><p class="zh">3 张</p></div>
+        </div>
+        <div class="gcard g2">
+          <div class="plate"></div>
+          <div class="slot"><div class="ph"><img src="assets/components/gallery-2.jpg" alt=""></div></div>
+          <div class="tag"><p class="zh">2 张</p></div>
+        </div>
+        <div class="gcard g3">
+          <div class="plate"></div>
+          <div class="slot"><div class="ph"><img src="assets/components/gallery-3.jpg" alt=""></div></div>
+          <div class="tag"><p class="zh">2 张</p></div>
+        </div>
+      </div>
+
+      <section class="comment" aria-label="评论">
+        <div class="tail"><img src="assets/components/comment-tail.svg" alt=""></div>
+        <div class="card">
+          <div class="av35"><img src="assets/components/comment-avatar-1.png" alt="" width="35" height="35"></div>
+          <div class="col">
+            <div class="blk">
+              <div class="txt zh">
+                <p class="nm">辣妹子很怕拉</p>
+                <p class="ct">对老几太好了，加了超量的辣椒，还加了巨多的肉、洋葱和胡萝卜碎，直接变成肉夹馍，超级爆炸满足！！</p>
+              </div>
+              <div class="mrow">
+                <div class="ml"><div class="d"><p class="en">10-04</p><p class="zh">四川</p></div><p class="r zh">回复</p></div>
+                <div class="mr">
+                  <div class="lk"><div class="h"><img src="assets/components/comment-heart.svg" alt=""></div><span class="en">129</span></div>
+                  <div class="sad"><div class="g"><i><img src="assets/components/comment-sad.svg" alt=""></i></div></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="sub">
+              <div class="av23"><img src="assets/components/comment-avatar-2.png" alt="" width="23" height="23"></div>
+              <div class="col2">
+                <div class="txt">
+                  <p class="nm en">Anna</p>
+                  <p class="ct zh">放什么辣椒好吃啊？</p>
+                </div>
+                <div class="mrow">
+                  <div class="ml"><div class="d"><p class="en">10-04</p><p class="zh">中国香港</p></div><p class="r zh">回复</p></div>
+                  <div class="mr">
+                    <div class="lk"><div class="h"><img src="assets/components/comment-heart.svg" alt=""></div><span class="en">32</span></div>
+                    <div class="sad"><div class="g"><i><img src="assets/components/comment-sad.svg" alt=""></i></div></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="sub">
+              <div class="av23"><img src="assets/components/comment-avatar-3.png" alt="" width="23" height="23"></div>
+              <div class="col2">
+                <div class="txt">
+                  <p class="nm zh">辣妹子很怕拉</p>
+                  <div class="rp"><p class="a zh">回复</p><p class="b en">Anna</p><p class="c zh">我用二荆条辣椒面哦！</p></div>
+                </div>
+                <div class="mrow">
+                  <div class="ml"><div class="d"><p class="en">10-04</p><p class="zh">四川</p></div><p class="r zh">回复</p></div>
+                  <div class="mr">
+                    <div class="lk"><div class="h"><img src="assets/components/comment-heart.svg" alt=""></div><span class="en">68</span></div>
+                    <div class="sad"><div class="g"><i><img src="assets/components/comment-sad.svg" alt=""></i></div></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="more">
+              <div class="ln"><i><img src="assets/components/comment-line.svg" alt=""></i></div>
+              <p class="zh">展开更多回复</p>
+              <p class="zh">收起</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- 悬浮按钮 -->
+  <button class="fab" id="fab" aria-label="我也交作业">
+    <span class="label"><img src="assets/components/button-label.png" alt=""></span>
+    <span class="pan"><img src="assets/components/button-icon.png" alt=""></span>
+    <span class="inset"></span>
+  </button>
+
+  <!-- 固定层：home indicator、状态栏、标题栏 -->
+  <div class="home"><i></i></div>
+  <div class="status" aria-hidden="true">
+    <div class="notch"><img class="fill" src="assets/page/statusbar-notch.svg" alt=""></div>
+    <div class="time"><p>9:41</p></div>
+    <div class="right"><img class="fill" src="assets/page/statusbar-right.svg" alt=""></div>
+  </div>
+  <h1 class="title"><img src="assets/page/header-title.png" alt="美食作业榜"></h1>
+  <div class="home2"></div>
+  <div class="rule r1"><div class="in"><i><img src="assets/page/header-line-1.svg" alt=""></i></div></div>
+  <div class="rule r2"><div class="in"><i><img src="assets/page/header-line-2.svg" alt=""></i></div></div>
+  <div class="confetti c2"><div class="in"><img src="assets/page/header-confetti-2.png" alt=""></div></div>
+  <button class="back" id="back" aria-label="返回"><img class="fill" src="assets/page/header-back.svg" alt=""></button>
+
+</div>
+
+<script>
+/* 筛选：点击切换选中的流派（设计稿只给出「川渝麻辣版」和「全部」的选中样式，其余沿用同一规则） */
+(function(){
+  var chips=[].slice.call(document.querySelectorAll('#hf .chip'));
+  chips.forEach(function(c){
+    c.addEventListener('click',function(){
+      chips.forEach(function(x){x.setAttribute('aria-selected',x===c?'true':'false')});
+      c.scrollIntoView({inline:'nearest',block:'nearest',behavior:'smooth'});
+    });
+  });
+  /* 返回、我也交作业：只派发事件，交给宿主处理 */
+  var page=document.getElementById('page');
+  document.getElementById('back').addEventListener('click',function(){page.dispatchEvent(new CustomEvent('homework:back',{bubbles:true}))});
+  document.getElementById('fab').addEventListener('click',function(){page.dispatchEvent(new CustomEvent('homework:join',{bubbles:true}))});
+})();
+</script>
+</body>
+</html>

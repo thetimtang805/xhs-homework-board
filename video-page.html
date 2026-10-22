@@ -37,14 +37,16 @@
   --white-62:color-mix(in srgb,var(--color-canvas-light) 62%,transparent);
   --white-72:color-mix(in srgb,var(--color-canvas-light) 72%,transparent);
   --white-80:color-mix(in srgb,var(--color-canvas-light) 80%,transparent);
+  --white-85:color-mix(in srgb,var(--color-canvas-light) 85%,transparent);
 
   /* 取样值：设计系统里没有对应 token */
   --v-star:#fbbc53;          /* 收藏星标黄，截图取样 */
   --v-input:#2c2c2c;         /* 底栏输入框底色，截图取样 */
-  --v-input-text:#717171;    /* 输入框占位文字与铅笔，截图取样 */
+  --v-input-text:#9a9a9a;    /* 输入框占位文字与铅笔：原截图 #717171（2.86:1），提亮到 ≥4.5:1 */
   --v-bar:#000000;           /* 底栏与页面底色 */
   --v-gap-top:#dcd8cc;       /* 视频画面上下空隙的填充色，取画面首尾行 */
   --v-gap-bottom:#bfbcae;
+  --v-shadow:color-mix(in srgb,var(--v-scrim) 40%,transparent); /* 白字/白图标压浅色画面时的投影 */
   --v-scrim:#000000;         /* 播放器渐变遮罩，透明度由与设计稿的亮度对比测得 */
   --v-badge:rgba(0,0,0,.35); /* 「精选视频」条底色（黑 35%），截图测得 */
   --v-mini-cut:#2a2523;      /* 小程序图标缺口里露出的深色（锅的颜色） */
@@ -60,18 +62,18 @@ p{font-weight:400}
 .en{font-family:var(--font-en)}
 
 /* ===== 375×812：窄屏铺满，宽屏居中 ===== */
-.page{position:relative;width:375px;height:812px;overflow:hidden;background:var(--v-bar);color:var(--color-canvas-light)}
+.page{--lift:-5px;position:relative;width:375px;height:812px;overflow:hidden;background:var(--v-bar);color:var(--color-canvas-light)}
 @media (max-width:375px){body{display:block}.page{width:100vw;height:100dvh}}
 
-/* ===== 视频画面（0–737）：画面按字幕位置对齐设计稿，叠两层很淡的播放器遮罩 ===== */
+/* ===== 视频画面（0–737）：画面按字幕位置对齐设计稿；上下各叠一层中性黑渐变遮罩，保证白字白图标可读 ===== */
 .video{position:absolute;left:0;top:0;width:100%;height:737px;overflow:hidden;background:var(--v-gap-bottom)}
 .video .gap{position:absolute;left:0;right:0;top:0;height:5px;background:var(--v-gap-top)}
 .video .vf{position:absolute;left:50%;top:4.11px;width:406.5px;height:722px;max-width:none;transform:translateX(-50%);display:block}
-.video .sc-top{position:absolute;left:0;right:0;top:0;height:100px;background:linear-gradient(to bottom,color-mix(in srgb,var(--v-scrim) 4%,transparent),transparent)}
-.video .sc-bot{position:absolute;left:0;right:0;bottom:0;height:140px;background:linear-gradient(to bottom,transparent,color-mix(in srgb,var(--v-scrim) 9%,transparent))}
+.video .sc-top{position:absolute;left:0;right:0;top:0;height:120px;background:linear-gradient(to bottom,color-mix(in srgb,var(--v-scrim) 35%,transparent),color-mix(in srgb,var(--v-scrim) 20%,transparent) 35%,color-mix(in srgb,var(--v-scrim) 7%,transparent) 70%,transparent)}
+.video .sc-bot{position:absolute;left:0;right:0;bottom:0;height:237px;background:linear-gradient(to bottom,transparent,color-mix(in srgb,var(--v-scrim) 6%,transparent) 35%,color-mix(in srgb,var(--v-scrim) 20%,transparent) 65%,color-mix(in srgb,var(--v-scrim) 45%,transparent))}
 
 /* ===== 状态栏（深色，白字）：信号/Wi-Fi 用设计系统 Status Bar 的图标路径，时间用 heading 字体样式 ===== */
-.status{position:absolute;left:0;top:0;width:100%;height:44px;z-index:5;pointer-events:none;color:var(--color-canvas-light)}
+.status{position:absolute;left:0;top:0;width:100%;height:44px;z-index:5;pointer-events:none;color:var(--color-canvas-light);filter:drop-shadow(0 1px 2px var(--v-shadow))}
 .status .time{position:absolute;left:38.5px;top:14.2px;font-family:var(--font-en);font-weight:590;font-size:var(--heading-font-size);line-height:var(--heading-line-height);letter-spacing:var(--heading-letter-spacing);font-variant-numeric:tabular-nums}
 .status .sig{position:absolute;left:274.5px;top:18.9px}
 .status .wifi{position:absolute;left:300px;top:19.35px}
@@ -81,14 +83,22 @@ p{font-weight:400}
 /* ===== 顶部导航：返回 / 分享用设计系统 Icon/chevron-left、Icon/share 的路径；小程序、搜索设计系统里没有 ===== */
 .nav button{position:absolute;z-index:5;padding:0;display:grid;place-items:center;color:var(--white-62)}
 .nav button::before{content:"";position:absolute;inset:-3px}
+.nav .mini::before{inset:-10px -9px}
+.nav .search::before{inset:-11px -9px -11px -12px}
+.nav .share::before{inset:-5.2px -5.2px -5.2px -4.2px}
 .nav .back{left:4.15px;top:53.35px;width:39.1px;height:39.1px;color:var(--white-80)}
 .nav .mini{left:55px;top:61px;width:20px;height:24px}
 .nav .search{left:293px;top:62px;width:22px;height:22px}
 .nav .share{left:328.5px;top:56.9px;width:33.6px;height:33.6px}
-.nav svg{pointer-events:none}
+.nav svg{pointer-events:none;filter:drop-shadow(0 1px 2px var(--v-shadow))}
 .nav button:focus-visible{outline:2px solid var(--color-canvas-light);outline-offset:-4px;border-radius:50%}
 
-/* ===== 信息区 ===== */
+/* ===== 信息区 =====
+   整组上提 5px（--lift），让预约条与进度条之间留出 12px；点「展开」时上面几行再上移 20px 给第二行文字腾位置 */
+.chip,.author,.follow,.duration,.desc,.live{translate:0 var(--lift);transition:translate 200ms ease-out}
+.page.expanded .chip,.page.expanded .author,.page.expanded .follow,.page.expanded .duration,.page.expanded .desc{translate:0 calc(var(--lift) - 20px)}
+@media (prefers-reduced-motion:reduce){.chip,.author,.follow,.duration,.desc,.live{transition:none}}
+.author .name,.desc,.live .t1,.live .t2,.chip .t1,.chip .t2,.duration,.follow{text-shadow:0 1px 2px var(--v-shadow)}
 .chip{position:absolute;left:15.5px;top:598px;height:25px;width:158.6px;display:flex;align-items:center;padding:0 10px 0 9px;border-radius:var(--radius-pill);background:var(--v-badge);box-shadow:inset 0 0 0 .5px var(--white-18);z-index:3;white-space:nowrap}
 .chip .dot{flex:none;width:9px;height:9px;border-radius:50%;background:var(--color-brand-500)}
 .chip .red{flex:none;margin-left:0;font-family:var(--font-en);font-weight:800;font-size:var(--body-sm-font-size);line-height:var(--body-sm-line-height);letter-spacing:var(--body-sm-letter-spacing);color:var(--color-brand-500);transform:translateY(.5px)}
@@ -96,18 +106,26 @@ p{font-weight:400}
 .chip .sep{flex:none;width:.5px;height:9px;margin:0 7px;background:var(--alpha-white-40)}
 .chip .t2{font-size:var(--caption-font-size);line-height:var(--caption-line-height);color:var(--white-72)}
 .chip:focus-visible{outline:2px solid var(--color-canvas-light);outline-offset:2px}
+/* 点击区：视觉不变；纵向叠着的几行互相只留 12px 左右的间隙，点击区按间隙对半分，取不重叠的最大值 */
+.chip::before{content:"";position:absolute;inset:-12.5px 0 -6.5px}
+.follow::before{content:"";position:absolute;inset:-6.5px -2px -6px}
+.desc::before{content:"";position:absolute;inset:-6px 0 -4.5px}
+.live::before{content:"";position:absolute;inset:-4.5px 0 -6px}
 
 .author{position:absolute;left:15.5px;top:631px;display:flex;align-items:center;z-index:3}
 .avatar{flex:none;width:34px;height:34px;border-radius:50%;overflow:hidden;background:var(--color-neutral-300);position:relative}
 .avatar img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scale(1.03)}
 .author .name{margin-left:9px;font-size:var(--body-sm-font-size);font-weight:500;line-height:var(--body-sm-line-height);letter-spacing:var(--body-sm-letter-spacing);color:var(--color-canvas-light);white-space:nowrap}
 .follow{position:absolute;left:127px;top:636px;width:47.7px;height:25px;border-radius:var(--radius-pill);background:var(--color-brand-500);display:grid;place-items:center;font-size:var(--caption-font-size);font-weight:500;line-height:var(--caption-line-height);letter-spacing:var(--caption-letter-spacing);color:var(--color-canvas-light);z-index:3}
+.follow[aria-pressed="true"]{background:var(--white-20);color:var(--white-85)}
 .follow:focus-visible{outline:2px solid var(--color-canvas-light);outline-offset:2px}
-.duration{position:absolute;right:var(--space-xl);top:638px;font-family:var(--font-en);font-size:var(--body-sm-font-size);line-height:var(--body-sm-line-height);letter-spacing:var(--body-sm-letter-spacing);color:var(--white-55);z-index:3}
+.duration{position:absolute;right:var(--space-xl);top:638px;font-family:var(--font-en);font-size:var(--body-sm-font-size);line-height:var(--body-sm-line-height);letter-spacing:var(--body-sm-letter-spacing);color:var(--white-85);z-index:3}
 
 .desc{position:absolute;left:var(--space-xl);right:var(--space-xl);top:673.1px;font-size:var(--body-sm-font-size);line-height:var(--body-sm-line-height);letter-spacing:var(--body-sm-letter-spacing);color:var(--color-canvas-light);white-space:nowrap;z-index:3;text-align:left;padding:0;display:flex;gap:var(--space-xs);justify-content:space-between}
 .desc .txt{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;text-align:left}
-.desc .more{flex:none;color:var(--white-55)}
+.desc .more{flex:none;color:var(--white-85)}
+.desc[aria-expanded="true"]{align-items:flex-end}
+.desc[aria-expanded="true"] .txt{white-space:normal;overflow:visible;text-overflow:clip}
 
 .live{position:absolute;left:15.5px;top:702px;width:187.6px;height:25px;display:flex;align-items:center;padding:0 9px 0 7px;border-radius:var(--radius-component);background:var(--white-14);box-shadow:inset 0 0 0 .5px var(--white-28);z-index:3;white-space:nowrap}
 .live svg{flex:none;color:var(--color-canvas-light)}
@@ -117,21 +135,31 @@ p{font-weight:400}
 .live:focus-visible{outline:2px solid var(--color-canvas-light);outline-offset:2px}
 
 /* ===== 进度条 ===== */
-.progress{position:absolute;left:15.4px;right:var(--space-xl);top:734.3px;height:2.5px;background:var(--white-35);z-index:3;pointer-events:none}
-.progress::before{content:"";position:absolute;left:-1.5px;top:-1px;width:4.6px;height:4.6px;border-radius:50%;background:var(--color-canvas-light)}
+.progress{--p:0;position:absolute;left:15.4px;right:var(--space-xl);top:734.3px;height:2.5px;background:var(--white-35);z-index:3;cursor:pointer;touch-action:none}
+.progress::before{content:"";position:absolute;left:0;right:0;top:-6.3px;bottom:-2.7px}
+.progress .fill{position:absolute;left:0;top:0;bottom:0;width:calc(var(--p) * 100%);background:var(--color-canvas-light);pointer-events:none}
+.progress .knob{position:absolute;left:calc(var(--p) * 100% - 1.5px - var(--p) * 3.1px);top:-1px;width:4.6px;height:4.6px;border-radius:50%;background:var(--color-canvas-light);pointer-events:none}
+.progress:focus-visible{outline:2px solid var(--color-canvas-light);outline-offset:4px}
 
 /* ===== 底部操作栏（737–812） ===== */
 .bar{position:absolute;left:0;right:0;top:737px;bottom:0;background:var(--v-bar);z-index:4}
-.input{position:absolute;left:14.4px;top:9.6px;width:127.6px;height:32px;border-radius:var(--radius-pill);background:var(--v-input);display:flex;align-items:center;padding:0 0 0 15px;color:var(--v-input-text);font-size:var(--body-sm-font-size);line-height:var(--body-sm-line-height);letter-spacing:var(--body-sm-letter-spacing);white-space:nowrap}
+.input{position:absolute;left:var(--space-xl);top:9.6px;width:127.6px;height:32px;border-radius:var(--radius-pill);background:var(--v-input);display:flex;align-items:center;padding:0 0 0 15px;color:var(--v-input-text);font-size:var(--body-sm-font-size);line-height:var(--body-sm-line-height);letter-spacing:var(--body-sm-letter-spacing);white-space:nowrap}
 .input svg{flex:none}
 .input span{margin-left:7.4px;position:relative;top:-1px}
 .input svg{position:relative;top:-1px}
 .act{position:absolute;top:12.4px;height:25px;display:flex;align-items:center;padding:0}
 .act svg{flex:none}
 .act span{margin-left:var(--space-xs);font-family:var(--font-en);font-weight:500;font-size:var(--body-sm-font-size);line-height:var(--body-sm-line-height);letter-spacing:var(--body-sm-letter-spacing);color:var(--color-canvas-light);white-space:nowrap;position:relative;top:2.4px}
+.act.like[aria-pressed="false"] svg path{fill:none;stroke:var(--color-canvas-light);stroke-width:1.8}
+.act.star[aria-pressed="false"] svg path{fill:none;stroke:var(--color-canvas-light)}
+@keyframes v-pop{0%{transform:scale(.88)}50%{transform:scale(1.12)}100%{transform:scale(1)}}
+.act.pop svg{animation:v-pop 250ms ease-out}
+@media (prefers-reduced-motion:reduce){.act.pop svg{animation:none}}
 .act.like{left:152.9px}.act.star{left:229.45px}.act.cmt{left:305.4px;color:var(--color-canvas-light)}
 .act.star svg{position:relative;top:1px}
 .act.cmt svg{position:relative;top:.9px}
+.input::before{content:"";position:absolute;inset:-6px 0}
+.act::before{content:"";position:absolute;inset:-9.5px -4px}
 .act:focus-visible,.input:focus-visible{outline:2px solid var(--color-canvas-light);outline-offset:2px;border-radius:var(--radius-component)}
 </style>
 </head>
@@ -166,11 +194,11 @@ p{font-weight:400}
 
   <!-- 作者行 -->
   <div class="author"><div class="avatar" aria-hidden="true"><img src="assets/video/avatar.jpg" alt=""></div><p class="name">曼食慢语</p></div>
-  <button class="follow" id="v-follow">关注</button>
+  <button class="follow" id="v-follow" aria-pressed="false">关注</button>
   <p class="duration">2:26</p>
 
   <!-- 简介 -->
-  <button class="desc" id="v-desc"><span class="txt">酱香饼好吃的灵魂密码，是把每道缝都刷满酱 买路人都馋哭了</span><span class="more">展开</span></button>
+  <button class="desc" id="v-desc" aria-expanded="false"><span class="txt">酱香饼好吃的灵魂密码，是把每道缝都刷满酱 买路人都馋哭了</span><span class="more">展开</span></button>
 
   <!-- 直播预约 -->
   <button class="live" id="v-live" aria-label="10月23日13:00 直播，预约">
@@ -179,24 +207,72 @@ p{font-weight:400}
   </button>
 
   <!-- 进度条 -->
-  <div class="progress" role="progressbar" aria-label="播放进度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></div>
+  <div class="progress" id="v-progress" role="slider" tabindex="0" aria-label="播放进度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i class="fill"></i><i class="knob"></i></div>
 
   <!-- 底部操作栏 -->
   <footer class="bar">
     <button class="input" id="v-input"><svg width="14.2" height="14.2" viewBox="0 0 13 13" fill="none"><path d="M8.3 1.4 11.6 4.7 4.6 11.7H1.3V8.4L8.3 1.4Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/><path d="M6.4 12.4H12.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg><span>说点什么...</span></button>
-    <button class="act like" id="v-like" aria-label="点赞 3.8万"><svg width="26" height="24" viewBox="0 0 24 22"><path d="M12 21.4C5.1 16.1.9 12.3.9 7.4.9 3.9 3.5 1.3 6.8 1.3c2 0 3.8 1 5.2 2.9 1.4-1.9 3.2-2.9 5.2-2.9 3.3 0 5.9 2.6 5.9 6.1 0 4.9-4.2 8.7-11.1 14Z" fill="var(--color-brand-500)"/></svg><span>3.8万</span></button>
-    <button class="act star" id="v-star" aria-label="收藏 4.4万"><svg width="27.6" height="27.6" viewBox="0 0 24 24"><path d="M12 2.8L14.8 8.7L21.2 9.6L16.5 14.1L17.7 20.5L12 17.4L6.3 20.5L7.5 14.1L2.8 9.6L9.2 8.7L12 2.8Z" fill="var(--v-star)" stroke="var(--v-star)" stroke-width="2" stroke-linejoin="round"/></svg><span>4.4万</span></button>
+    <button class="act like" id="v-like" aria-label="点赞 3.8万" aria-pressed="true"><svg width="26" height="24" viewBox="0 0 24 22"><path d="M12 21.4C5.1 16.1.9 12.3.9 7.4.9 3.9 3.5 1.3 6.8 1.3c2 0 3.8 1 5.2 2.9 1.4-1.9 3.2-2.9 5.2-2.9 3.3 0 5.9 2.6 5.9 6.1 0 4.9-4.2 8.7-11.1 14Z" fill="var(--color-brand-500)"/></svg><span>3.8万</span></button>
+    <button class="act star" id="v-star" aria-label="收藏 4.4万" aria-pressed="true"><svg width="27.6" height="27.6" viewBox="0 0 24 24"><path d="M12 2.8L14.8 8.7L21.2 9.6L16.5 14.1L17.7 20.5L12 17.4L6.3 20.5L7.5 14.1L2.8 9.6L9.2 8.7L12 2.8Z" fill="var(--v-star)" stroke="var(--v-star)" stroke-width="2" stroke-linejoin="round"/></svg><span>4.4万</span></button>
     <button class="act cmt" id="v-comment" aria-label="评论 481"><svg width="25.3" height="25.3" viewBox="0 0 24 24" fill="none"><path d="M12 1.6C6 1.6 1.4 5.8 1.4 11c0 2.4 1 4.5 2.6 6.1L3.2 22l4.6-2c1.3.4 2.7.6 4.2.6 6 0 10.6-4.2 10.6-9.6S18 1.6 12 1.6Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="8.3" cy="11" r="1.6" fill="currentColor"/><circle cx="15.7" cy="11" r="1.6" fill="currentColor"/></svg><span>481</span></button>
   </footer>
 
 </div>
 
 <script>
-/* 全部按钮只派发事件，交给宿主处理：video:back / mini / search / share / chip / follow / expand / live / input / like / star / comment */
+/* 全部按钮只派发事件，交给宿主处理：video:back / mini / search / share / chip / follow / expand / live / input / like / star / comment / seek
+   本页自己维护的状态：点赞、收藏、关注（切换）、简介展开、进度条位置 */
 (function(){
   var page=document.getElementById('page');
-  [['v-back','back'],['v-mini','mini'],['v-search','search'],['v-share','share'],['v-chip','chip'],['v-follow','follow'],['v-desc','expand'],['v-live','live'],['v-input','input'],['v-like','like'],['v-star','star'],['v-comment','comment']].forEach(function(p){
-    document.getElementById(p[0]).addEventListener('click',function(){ page.dispatchEvent(new CustomEvent('video:'+p[1],{bubbles:true})); });
+  var reduce=window.matchMedia('(prefers-reduced-motion: reduce)');
+  function fire(name,detail){ page.dispatchEvent(new CustomEvent('video:'+name,{bubbles:true,detail:detail})); }
+  [['v-back','back'],['v-mini','mini'],['v-search','search'],['v-share','share'],['v-chip','chip'],['v-live','live'],['v-input','input'],['v-comment','comment']].forEach(function(p){
+    document.getElementById(p[0]).addEventListener('click',function(){ fire(p[1]); });
+  });
+  /* 点赞 / 收藏：切换选中态，图标轻弹一下 */
+  ['like','star'].forEach(function(k){
+    var el=document.getElementById('v-'+k);
+    el.addEventListener('click',function(){
+      var on=el.getAttribute('aria-pressed')!=='true';
+      el.setAttribute('aria-pressed',on?'true':'false');
+      if(!reduce.matches){ el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop'); }
+      fire(k,{pressed:on});
+    });
+    el.addEventListener('animationend',function(){ el.classList.remove('pop'); });
+  });
+  /* 关注：关注 ↔ 已关注 */
+  var follow=document.getElementById('v-follow');
+  follow.addEventListener('click',function(){
+    var on=follow.getAttribute('aria-pressed')!=='true';
+    follow.setAttribute('aria-pressed',on?'true':'false');
+    follow.textContent=on?'已关注':'关注';
+    fire('follow',{pressed:on});
+  });
+  /* 简介：展开 ↔ 收起，上面几行上移一行的高度 */
+  var desc=document.getElementById('v-desc'),more=desc.querySelector('.more');
+  desc.addEventListener('click',function(){
+    var on=desc.getAttribute('aria-expanded')!=='true';
+    desc.setAttribute('aria-expanded',on?'true':'false');
+    page.classList.toggle('expanded',on);
+    more.textContent=on?'收起':'展开';
+    fire('expand',{expanded:on});
+  });
+  /* 进度条：点按或拖动定位，方向键 ±5%（只改显示位置，不接真实播放） */
+  var bar=document.getElementById('v-progress');
+  function setP(p,notify){
+    p=Math.max(0,Math.min(1,p));
+    bar.style.setProperty('--p',p);
+    bar.setAttribute('aria-valuenow',Math.round(p*100));
+    if(notify!==false) fire('seek',{progress:p});
+  }
+  function fromEvent(e){ var r=bar.getBoundingClientRect(); return (e.clientX-r.left)/r.width; }
+  bar.addEventListener('pointerdown',function(e){ bar.setPointerCapture(e.pointerId); setP(fromEvent(e)); });
+  bar.addEventListener('pointermove',function(e){ if(bar.hasPointerCapture(e.pointerId)) setP(fromEvent(e)); });
+  bar.addEventListener('keydown',function(e){
+    var cur=(+bar.getAttribute('aria-valuenow'))/100,d={ArrowLeft:-.05,ArrowRight:.05}[e.key];
+    if(d!==undefined){ e.preventDefault(); setP(cur+d); }
+    else if(e.key==='Home'){ e.preventDefault(); setP(0); }
+    else if(e.key==='End'){ e.preventDefault(); setP(1); }
   });
 })();
 </script>

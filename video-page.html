@@ -75,7 +75,7 @@ p{font-weight:400}
 .status .time{position:absolute;left:38.5px;top:14.2px;font-family:var(--font-en);font-weight:590;font-size:var(--heading-font-size);line-height:var(--heading-line-height);letter-spacing:var(--heading-letter-spacing);font-variant-numeric:tabular-nums}
 .status .sig{position:absolute;left:274.5px;top:18.9px}
 .status .wifi{position:absolute;left:300px;top:19.35px}
-.status .bat{position:absolute;left:323px;top:19px;width:26px;height:12px;border-radius:4px;background:linear-gradient(to right,var(--color-canvas-light) 0 64%,var(--alpha-white-40) 64% 100%);display:flex;align-items:center;justify-content:center;font-family:var(--font-en);font-weight:700;font-size:11.5px;line-height:12px;color:var(--v-bar)}
+.status .bat{position:absolute;left:323px;top:19px;width:26px;height:12px;border-radius:4px;background:linear-gradient(to right,var(--color-canvas-light) 0 64%,var(--alpha-white-40) 64% 100%);display:flex;align-items:center;justify-content:center;font-family:var(--font-en);font-weight:700;font-size:var(--caption-font-size);line-height:var(--caption-line-height);letter-spacing:var(--caption-letter-spacing);color:var(--v-bar)}
 .status .bat::after{content:"";position:absolute;right:-3px;top:4px;width:1.6px;height:4px;border-radius:0 2px 2px 0;background:var(--alpha-white-40)}
 
 /* ===== 顶部导航：返回 / 分享用设计系统 Icon/chevron-left、Icon/share 的路径；小程序、搜索设计系统里没有 ===== */
@@ -91,28 +91,29 @@ p{font-weight:400}
 /* ===== 信息区 ===== */
 .chip{position:absolute;left:15.5px;top:598px;height:25px;width:158.6px;display:flex;align-items:center;padding:0 10px 0 9px;border-radius:var(--radius-pill);background:var(--v-badge);box-shadow:inset 0 0 0 .5px var(--white-18);z-index:3;white-space:nowrap}
 .chip .dot{flex:none;width:9px;height:9px;border-radius:50%;background:var(--color-brand-500)}
-.chip .red{flex:none;margin-left:0;font-family:var(--font-en);font-weight:800;font-size:14px;line-height:25px;letter-spacing:-.2px;color:var(--color-brand-500);transform:translateY(.5px)}
-.chip .t1{margin-left:5px;font-size:var(--caption-font-size);letter-spacing:.2px;font-weight:700;line-height:23px;color:var(--color-canvas-light);position:relative;top:-1px}
+.chip .red{flex:none;margin-left:0;font-family:var(--font-en);font-weight:800;font-size:var(--body-sm-font-size);line-height:var(--body-sm-line-height);letter-spacing:var(--body-sm-letter-spacing);color:var(--color-brand-500);transform:translateY(.5px)}
+.chip .t1{margin-left:5px;font-size:var(--caption-font-size);letter-spacing:var(--caption-letter-spacing);font-weight:700;line-height:var(--caption-line-height);color:var(--color-canvas-light);position:relative;top:-1px}
 .chip .sep{flex:none;width:.5px;height:9px;margin:0 7px;background:var(--alpha-white-40)}
-.chip .t2{font-size:var(--caption-font-size);line-height:25px;color:var(--white-72)}
+.chip .t2{font-size:var(--caption-font-size);line-height:var(--caption-line-height);color:var(--white-72)}
 .chip:focus-visible{outline:2px solid var(--color-canvas-light);outline-offset:2px}
 
 .author{position:absolute;left:15.5px;top:631px;display:flex;align-items:center;z-index:3}
 .avatar{flex:none;width:34px;height:34px;border-radius:50%;overflow:hidden;background:var(--color-neutral-300);position:relative}
 .avatar img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scale(1.03)}
-.author .name{margin-left:9px;font-size:15px;font-weight:500;line-height:20px;color:var(--color-canvas-light);white-space:nowrap}
-.follow{position:absolute;left:127px;top:636px;width:47.7px;height:25px;border-radius:var(--radius-pill);background:var(--color-brand-500);display:grid;place-items:center;font-size:var(--caption-font-size);font-weight:500;line-height:22.4px;color:var(--color-canvas-light);z-index:3}
+.author .name{margin-left:9px;font-size:var(--body-sm-font-size);font-weight:500;line-height:var(--body-sm-line-height);letter-spacing:var(--body-sm-letter-spacing);color:var(--color-canvas-light);white-space:nowrap}
+.follow{position:absolute;left:127px;top:636px;width:47.7px;height:25px;border-radius:var(--radius-pill);background:var(--color-brand-500);display:grid;place-items:center;font-size:var(--caption-font-size);font-weight:500;line-height:var(--caption-line-height);letter-spacing:var(--caption-letter-spacing);color:var(--color-canvas-light);z-index:3}
 .follow:focus-visible{outline:2px solid var(--color-canvas-light);outline-offset:2px}
-.duration{position:absolute;right:var(--space-xl);top:639px;font-family:var(--font-en);font-size:var(--body-sm-font-size);line-height:18px;color:var(--white-55);z-index:3}
+.duration{position:absolute;right:var(--space-xl);top:638px;font-family:var(--font-en);font-size:var(--body-sm-font-size);line-height:var(--body-sm-line-height);letter-spacing:var(--body-sm-letter-spacing);color:var(--white-55);z-index:3}
 
-.desc{position:absolute;left:var(--space-xl);right:var(--space-xl);top:674.1px;font-size:13.4px;line-height:18px;color:var(--color-canvas-light);white-space:nowrap;z-index:3;text-align:left;padding:0;display:flex;justify-content:space-between}
-.desc .more{color:var(--white-55)}
+.desc{position:absolute;left:var(--space-xl);right:var(--space-xl);top:673.1px;font-size:var(--body-sm-font-size);line-height:var(--body-sm-line-height);letter-spacing:var(--body-sm-letter-spacing);color:var(--color-canvas-light);white-space:nowrap;z-index:3;text-align:left;padding:0;display:flex;gap:var(--space-xs);justify-content:space-between}
+.desc .txt{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;text-align:left}
+.desc .more{flex:none;color:var(--white-55)}
 
 .live{position:absolute;left:15.5px;top:702px;width:187.6px;height:25px;display:flex;align-items:center;padding:0 9px 0 7px;border-radius:var(--radius-component);background:var(--white-14);box-shadow:inset 0 0 0 .5px var(--white-28);z-index:3;white-space:nowrap}
 .live svg{flex:none;color:var(--color-canvas-light)}
-.live .t1{margin-left:var(--space-xs);font-family:var(--font-en);font-size:12.8px;line-height:25px;color:var(--color-canvas-light);position:relative;top:1.6px}
+.live .t1{margin-left:var(--space-xs);font-family:var(--font-en);font-size:var(--caption-font-size);line-height:var(--caption-line-height);letter-spacing:var(--caption-letter-spacing);color:var(--color-canvas-light);position:relative;top:1.6px}
 .live .sep{flex:none;width:.5px;height:9px;margin:0 var(--space-xs) 0 5.5px;background:var(--alpha-white-40)}
-.live .t2{font-size:var(--caption-font-size);line-height:25px;color:var(--color-canvas-light)}
+.live .t2{font-size:var(--caption-font-size);line-height:var(--caption-line-height);color:var(--color-canvas-light)}
 .live:focus-visible{outline:2px solid var(--color-canvas-light);outline-offset:2px}
 
 /* ===== 进度条 ===== */
@@ -121,13 +122,13 @@ p{font-weight:400}
 
 /* ===== 底部操作栏（737–812） ===== */
 .bar{position:absolute;left:0;right:0;top:737px;bottom:0;background:var(--v-bar);z-index:4}
-.input{position:absolute;left:14.4px;top:9.6px;width:127.6px;height:32px;border-radius:var(--radius-pill);background:var(--v-input);display:flex;align-items:center;padding:0 0 0 15px;color:var(--v-input-text);font-size:13.4px;line-height:20px;white-space:nowrap}
+.input{position:absolute;left:14.4px;top:9.6px;width:127.6px;height:32px;border-radius:var(--radius-pill);background:var(--v-input);display:flex;align-items:center;padding:0 0 0 15px;color:var(--v-input-text);font-size:var(--body-sm-font-size);line-height:var(--body-sm-line-height);letter-spacing:var(--body-sm-letter-spacing);white-space:nowrap}
 .input svg{flex:none}
 .input span{margin-left:7.4px;position:relative;top:-1px}
 .input svg{position:relative;top:-1px}
 .act{position:absolute;top:12.4px;height:25px;display:flex;align-items:center;padding:0}
 .act svg{flex:none}
-.act span{margin-left:var(--space-xs);font-family:var(--font-en);font-weight:500;font-size:var(--body-sm-font-size);line-height:20px;color:var(--color-canvas-light);white-space:nowrap;position:relative;top:2.4px}
+.act span{margin-left:var(--space-xs);font-family:var(--font-en);font-weight:500;font-size:var(--body-sm-font-size);line-height:var(--body-sm-line-height);letter-spacing:var(--body-sm-letter-spacing);color:var(--color-canvas-light);white-space:nowrap;position:relative;top:2.4px}
 .act.like{left:152.9px}.act.star{left:229.45px}.act.cmt{left:305.4px;color:var(--color-canvas-light)}
 .act.star svg{position:relative;top:1px}
 .act.cmt svg{position:relative;top:.9px}
@@ -169,7 +170,7 @@ p{font-weight:400}
   <p class="duration">2:26</p>
 
   <!-- 简介 -->
-  <button class="desc" id="v-desc"><span>酱香饼好吃的灵魂密码，是把每道缝都刷满酱 买路...</span><span class="more">展开</span></button>
+  <button class="desc" id="v-desc"><span class="txt">酱香饼好吃的灵魂密码，是把每道缝都刷满酱 买路人都馋哭了</span><span class="more">展开</span></button>
 
   <!-- 直播预约 -->
   <button class="live" id="v-live" aria-label="10月23日13:00 直播，预约">

@@ -133,6 +133,7 @@ p{font-weight:400}
 
 /* 标题栏、彩带、托底：大图态淡出 */
 .title,.rule,.dock{transition:opacity .25s ease-out}
+.title,.rule,.confetti{pointer-events:none}
 .page[data-mode="detail"] .title,.page[data-mode="detail"] .rule,.page[data-mode="detail"] .dock{opacity:0}
 .c2{transition:transform .44s var(--ease)}
 .page[data-mode="detail"] .c2{transform:translateY(4px)}
@@ -595,13 +596,37 @@ p{font-weight:400}
   var chips=[].slice.call(chipsEl.querySelectorAll('.chip'));
   chips.forEach(function(c,idx){
     c.querySelector('.lbl').addEventListener('click',function(){
+      if(mode==='detail'&&c.classList.contains('on')){refreshImages();emit('filter:refresh',{index:idx});return;}
       chips.forEach(function(x){var on=(x===c);x.classList.toggle('on',on);x.querySelector('.lbl').setAttribute('aria-selected',on?'true':'false');});
             c.scrollIntoView({inline:'nearest',block:'nearest',behavior:reduce.matches?'auto':'smooth'});
       swapTab(KEYS[idx]||'all');
       emit('filter:change',{index:idx});
     });
-    c.querySelector('.rf').addEventListener('click',function(){emit('filter:refresh',{index:idx});});
+    c.querySelector('.rf').addEventListener('click',function(){if(mode==='detail') refreshImages();emit('filter:refresh',{index:idx});});
   });
+
+  /* 大图模式下再点一次已选中的筛选：这一组随机换图（同一组内不重复，也避开当前这几张） */
+  var POOL=[1,2,3,4,5,6,7,8,9,10,11,13,14,15,17].map(function(n){return 'assets/gallery/pic-'+(n<10?'0':'')+n+'.jpg';});
+  var refreshing=false;
+  function refreshImages(){
+    if(mode!=='detail'||busy||refreshing) return;
+    var g=group,cur=GROUPS[g].imgs,left=POOL.filter(function(u){return cur.indexOf(u)<0;}),next=[];
+    while(next.length<cur.length&&left.length){next.push(left.splice(Math.floor(Math.random()*left.length),1)[0]);}
+    if(next.length<cur.length) return;
+    refreshing=true;
+    var frames=[].slice.call(pager.children),loaded=0;
+    next.forEach(function(u){var im=new Image();im.onload=im.onerror=function(){if(++loaded===next.length) apply();};im.src=u;});
+    function apply(){
+      var ms=reduce.matches?1:160;
+      frames.forEach(function(f,k){var im=f.querySelector('img');im.style.transition='opacity '+ms+'ms ease-in';im.style.opacity=0;});
+      setTimeout(function(){
+        frames.forEach(function(f,k){var im=f.querySelector('img');im.src=next[k];im.style.transition='opacity '+(reduce.matches?1:240)+'ms var(--ease)';im.style.opacity=1;});
+        GROUPS[g].imgs=next;
+        var ci=cards[g]&&cards[g].querySelector('.ph img');if(ci) ci.src=next[0];
+        setTimeout(function(){refreshing=false;},reduce.matches?1:240);
+      },ms);
+    }
+  }
 
   /* ---------- 画廊：一次一组 + 评论箭头跟随 ---------- */
   var snaps=[],centers=[];

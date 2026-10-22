@@ -358,10 +358,17 @@ js=r'''<script src="assets/content.js"></script>
       setTimeout(function(){if(done) done();},ms+30);
     }
   }
+  /* 名字条换人：底板（背景）不动，只让里面的头像、名字、数字快速淡出再淡入；头像解码好了才填，不会出现空头像 */
+  var nameSeq=0;
   function fadeNameTag(g){
-    var tag=document.querySelector('.ntag'),rm=reduce.matches;
-    tag.style.transition='opacity '+(rm?1:120)+'ms ease-in';tag.style.opacity=0;
-    setTimeout(function(){fillNameTagFrom(g);tag.style.transition='opacity '+(rm?1:200)+'ms var(--ease-strong)';tag.style.opacity='';},rm?1:120);
+    var parts=[].slice.call(document.querySelectorAll('.ntag .nl,.ntag .nr')),rm=reduce.matches,seq=++nameSeq;
+    parts.forEach(function(e){e.style.transition='opacity '+(rm?1:90)+'ms ease-in';e.style.opacity=0;});
+    var pre=new Image();pre.src=g.main.avatar;
+    Promise.all([(pre.decode?pre.decode():Promise.resolve()).catch(function(){}),new Promise(function(r){setTimeout(r,rm?1:90);})]).then(function(){
+      if(seq!==nameSeq) return;
+      fillNameTagFrom(g);
+      parts.forEach(function(e){e.style.transition='opacity '+(rm?1:180)+'ms var(--ease-strong)';e.style.opacity='';});
+    });
   }
   function syncDetail(){
     var g=group,imgs=GROUPS[g].imgs,frames=[].slice.call(pager.children);

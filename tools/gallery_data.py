@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-"""生成组件库页 component-gallery.html。
-组件的样式直接取自正在使用的页面（homework-board.html、comment-page.html），所以展示的就是线上真实的组件；
-每个标本放进各自的 Shadow DOM，两套样式互不串味。改完请先运行 build-board.py 再运行本脚本。
+"""作业榜组件的标本数据（供 build-design-system.py 使用）。
+组件的样式直接取自正在使用的页面（homework-board.html、comment-page.html），所以展示的就是线上真实的组件。
 """
 import json, os, re
 
@@ -286,35 +285,8 @@ COMPONENTS = [
 ]
 
 GROUPS = [
-    ('foundation', '设计基础', '颜色、圆角、间距和字体，全部来自设计系统（Figma rednote-ds）'),
-    ('nav', '入口与导航', '把用户带到作业榜、在流派之间切换'),
-    ('content', '内容展示', '图片组、AI 总结和大图'),
-    ('interact', '互动与评论', '评论、名字条和发布入口'),
-    ('container', '浮层与容器', '承载以上组件的弹层'),
+    ('nav', '入口与导航'),
+    ('content', '内容展示'),
+    ('interact', '互动与评论'),
+    ('container', '浮层与容器'),
 ]
-
-TOKENS = [
-    ('文字', [('text-primary', '#1f1f1f'), ('text-secondary', '#8a8a8a'), ('text-tertiary', '#b8b8b8'), ('text-accent', '#ff2442'), ('text-inverse', '#ffffff')]),
-    ('背景与描边', [('surface-default', '#ffffff'), ('surface-selected', '#fbe5e8'), ('bg-brand-soft', '#fff2f4'), ('border-subtle', '#f5f5f5'), ('overlay-scrim', '#00000099')]),
-    ('状态', [('warning-text', '#ad6800'), ('danger-text', '#b01129'), ('icon-accent', '#ff2442'), ('icon-secondary', '#8a8a8a')]),
-]
-RADII = [('control', 6), ('component', 8), ('container', 16), ('pill', 999)]
-SPACES = [('2xs', 4), ('xs', 6), ('sm', 8), ('md', 10), ('lg', 12), ('xl', 16), ('2xl', 24)]
-
-DATA = {'groups': GROUPS, 'components': COMPONENTS, 'tokens': TOKENS, 'radii': RADII, 'spaces': SPACES}
-
-TEMPLATE = open(os.path.join(ROOT, 'tools', 'gallery-template.html'), encoding='utf-8').read()
-
-
-def js_safe(s):
-    return s.replace('</', '<\\/')
-
-
-out = TEMPLATE
-out = out.replace('/*__CSS_BOARD__*/', js_safe(json.dumps(BOARD_CSS, ensure_ascii=False)))
-out = out.replace('/*__CSS_SHEET__*/', js_safe(json.dumps(SHEET_CSS, ensure_ascii=False)))
-out = out.replace('/*__DATA__*/', js_safe(json.dumps(DATA, ensure_ascii=False)))
-n_var = sum(len(c['variants']) for c in COMPONENTS)
-out = out.replace('__N_COMP__', str(len(COMPONENTS))).replace('__N_VAR__', str(n_var))
-open(os.path.join(ROOT, 'component-gallery.html'), 'w', encoding='utf-8').write(out)
-print('component-gallery.html', len(out), 'bytes;', len(COMPONENTS), '个组件,', n_var, '个变体')

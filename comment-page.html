@@ -295,6 +295,8 @@ function setSheetOpen(open){
 function setSheetEntry(show){
   sheet.setAttribute('data-entry',show?'show':'hidden');
 }
+/* ?entry=hide：打开页面时就隐藏作业榜入口卡（组件库里用来展示「隐藏入口」变体） */
+if(/[?&]entry=hide\b/.test(location.search)) setSheetEntry(false);
 (function(){
   var page=document.getElementById('page'),entry=document.getElementById('entry');
   document.getElementById('close').addEventListener('click',function(){setSheetOpen(false);page.dispatchEvent(new CustomEvent('sheet:close',{bubbles:true}))});
